@@ -17,12 +17,14 @@
 #include <time.h>
 #include <sodium.h>
 #include <errno.h>
+#include <pthread.h>
 
 #include "../include/base64.h"
 #include "cmtp_common.h"
 
 static char log_identity[255];
 static int loginit = 0;
+static pthread_mutex_t dns_lock;
 
 //const char filesystem_safe_base64_string[65] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+_";
 
@@ -48,6 +50,7 @@ char* last_str_split(char* a_str, const char * a_delim)
 /*Return is of type int and is directly the mx family type. Ohana is hawaiian for family*/
 int resolve_server(char * hostname, struct sockaddr_storage * result)
 {
+  pthread_mutex_lock(&dns_lock);
   res_init();
   int error = 0;
   int ohana = 0;
@@ -98,6 +101,7 @@ int resolve_server(char * hostname, struct sockaddr_storage * result)
       freeaddrinfo(addr_res);
     }
   }
+  pthread_mutex_unlock(&dns_lock);
   return ohana;
 }
 

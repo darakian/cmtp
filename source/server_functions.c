@@ -292,14 +292,6 @@ void connection_manager(void * connection_manager_argument)
       //unique_file_name_length is not currently used. Should be fine.
       int unique_file_name_length = base64_encode((char *)hash, sizeof(hash), unique_file_name, sizeof(unique_file_name), (char *)filesystem_safe_base64_string, 64);
 
-      //Check to see if this is the final hop
-      // if (strncmp(dest_server_buffer, home_domain, dest_server_counter)==0)
-      // {
-      //   //This is the final hop. Should put mail in the owning users' directory
-      //   char home_user_directory[341] = {0}; //Gives null termination. User account will base64 encode to at most 340 characters
-      //   base64_encode((char *)dest_account_buffer, sizeof(dest_account_buffer), home_user_directory, sizeof(home_user_directory), (char *)filesystem_safe_base64_string, 64);
-      //   create_verify_dir(home_user_directory);
-      // }
       write_to_file(source_account_buffer, source_account_counter, unique_file_name);
       write_to_file(source_server_buffer, source_server_counter, unique_file_name);
       write_to_file(dest_account_buffer, dest_account_counter, unique_file_name);
@@ -365,6 +357,34 @@ void connection_manager(void * connection_manager_argument)
         write_to_file(temp_byte, 1, unique_file_name);
       }
 
+      //Destination cases
+       if ((memcmp(dest_server_buffer, home_domain, dest_server_counter)==0)&&(memcmp(dest_account_buffer,0,1))==0)
+       {
+         #ifdef DEBUG
+         printf("Devlivered mail is for server. Begin processing.\n");
+         #endif /*DEBUG*/
+         print_to_log("Mail has arrived for the server. Processing.",LOG_INFO);
+         //Destination is this domain and for the server
+
+       }
+       else if ((memcmp(dest_server_buffer, home_domain, dest_server_counter)==0))
+       {
+         #ifdef DEBUG
+         printf("Devlivered mail is for a user on this domain. Store.\n");
+         #endif /*DEBUG*/
+         print_to_log("Mail has arrived for a user on this domain. Storing.",LOG_INFO);
+         //Destination is for a user at this domain
+       }
+       else
+       {
+         #ifdef DEBUG
+         printf("Devlivered mail is not destined for this domain. Forward to %s\n", dest_server_buffer);
+         #endif /*DEBUG*/
+         print_to_log("Mail has arrived for another domain. Forwarding.",LOG_INFO);
+         forwardMessage(thread_connection, unique_file_name, dest_account_buffer)
+         //Destination is on the web. Forward message.
+       }
+
       //Clean thread_command_buffer
       #ifdef DEBUG
       printf("Mail section complete. Clearing buffer and returning.\n");
@@ -404,7 +424,7 @@ void connection_manager(void * connection_manager_argument)
 }
 
 
-int forwardMessage(char * message_buffer, long message_length, char * dest_server, int dest_server_length)
+int forwardMessage(int connected_socket, int file_to_foward_descriptor, char * dest_server_string)
 {
   //if (select_available_socket()>0)
   //{
@@ -438,17 +458,4 @@ int requestKey(char * recieve_buffer, int recieve_length, char * account_request
   //Step 4: Send key request
   //Step 5 Await reply and pass reply to any waiting clients
   return 0;
-}
-
-int select_available_socket(int * connection, int number_of_connections)
-{
-  //Start at 1 because 0 is reserved for the mother socket
-  for (int i = 1; i<number_of_connections;i++)
-  {
-    if (connection[i]==0)
-    {
-      return i;
-    }
-  }
-  return -1;
 }

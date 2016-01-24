@@ -32,10 +32,6 @@ int main()
 
 	while(1)
 	{
-		#ifdef DEBUG
-		printf("temp connection = %d\n", temp_connection);
-		perror("accept");
-		#endif /*DEBUG*/
 		if ((temp_connection=accept(server_socket, (struct sockaddr *)&temp_connection_sockaddr, &temp_adder_length))>-1)
 		{
 			//Create thread
