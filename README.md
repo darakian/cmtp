@@ -1,2 +1,2 @@
 # CMTP
-Under active development. No currently suitable for use.
+Under active development. Not currently suitable for use.

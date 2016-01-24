@@ -11,18 +11,22 @@ CFLAGS=-g -Wall -Wextra -pedantic -pipe -O0
 #A BSD build would provide the same dependencies via unistd.h
 cmtp_server: $(SERVER_SOURCE)
 ifndef nodebug
+	mkdir -p bin
 	gcc $(SERVER_SOURCE) $(CFLAGS) -DDEBUG=true -D_GNU_SOURCE -lsodium -lpthread -lresolv -o bin/cmtp_server
 	@echo $@ made in debug mode
 else
+	mkdir -p bin
 	gcc $(SERVER_SOURCE) $(CFLAGS) -D_GNU_SOURCE -lsodium -lpthread -lresolv -o bin/cmtp_server
 	@echo $@ made
 endif
 
 cmtp_client: $(CLIENT_SOURCE)
 ifndef nodebug
+	mkdir -p bin
 	gcc $(CLIENT_SOURCE) $(CFLAGS) -DDEBUG=true -lsodium -lresolv -o bin/cmtp_client
 	@echo $@ made in debug mode
 else
+	mkdir -p bin
 	gcc $(CLIENT_SOURCE) $(CFLAGS) -lsodium -lresolv -o bin/cmtp_client
 	@echo $@ made
 endif
