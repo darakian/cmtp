@@ -58,10 +58,10 @@ int resolve_server(char * hostname, struct sockaddr_storage * result)
   ns_rr rr;
   struct addrinfo * addr_res;
   int res_length = 0;
-  unsigned char dns_answer[1000];
-  char display_buffer[1000];
+  unsigned char dns_answer[4096] = {0};
+  char display_buffer[4096] = {0};
 
-  res_length = res_query(hostname, ns_c_any, T_MX, dns_answer, sizeof(dns_answer));
+  res_length = res_query(hostname, C_IN, T_MX, dns_answer, sizeof(dns_answer));
   perror("res_query");
   if (ns_initparse(dns_answer, res_length, &msg)<0)
   {

@@ -108,15 +108,18 @@ int server_init()
       exit(1);
     }
 
-    //chroot to restrict scope of server operations
-    if (chroot(mail_dir)<0)
-    {
-      perror("chroot");
-      print_to_log("chroot failed. Cannot jail cmptd.", LOG_EMERG);
-      exit(1);
-    }
+    // print_to_log("cmtpd before chroot jail", LOG_INFO);
+    //chroot to restrict scope of server operations. KILLS LOGGING! AND DNS! PERHAPS MORE!
+    // if (chroot(mail_dir)<0)
+    // {
+    //   perror("chroot");
+    //   print_to_log("chroot failed. Cannot jail cmptd.", LOG_EMERG);
+    //   exit(1);
+    // }
+    // print_to_log("cmtpd after jail", LOG_INFO);
 
     //Drop privilage to nobody with nogroup
+
     if (set_privilage(working_user_passwd->pw_uid, working_user_passwd->pw_gid)<0)
     {
       print_to_log("Dropping privilage has failed. Terminating.", LOG_EMERG);
@@ -149,7 +152,7 @@ int server_init()
     system_init = 1;
   }
   //Check config files in /etc/cmtp. Parse and load if they do.
-
+  print_to_log("cmtp init finished.", LOG_INFO);
   return server_socket;
 }
 
