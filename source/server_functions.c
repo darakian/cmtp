@@ -29,16 +29,16 @@
 //Available varibales
 
 //Constants
-const char cmtp_welcome[26] = {'W', 'e', 'l', 'c', 'o', 'm', 'e', ' ', 't', 'o', ' ', 'c', 'm', 't', 'p', ' ', 'v', 'e', 'r', 's', 'i', 'o', 'n', ' ', CMTP_VERSION, '\n'};
+const char cmtp_welcome[] = {"Welcome to CMTP version < 1\n"};
 const char cmtp_noop[] = "O_O\n";
 const char cmtp_help[] = "Commands: OHAI, MAIL, HELP, NOOP, KEYREQUEST, OBAI\n";
 const char cmtp_obai[] = "Good bye\n";
-const char cmtp_command_OHAI[4] = {'O', 'H', 'A', 'I'};
-const char cmtp_command_MAIL[4] = {'M', 'A', 'I', 'L'};
-const char cmtp_command_HELP[4] = {'H', 'E', 'L', 'P'};
-const char cmtp_command_NOOP[4] = {'N', 'O', 'O', 'P'};
-const char cmtp_command_OBAI[4] = {'O', 'B', 'A', 'I'};
-const char cmtp_command_KEYREQUEST[10] = {'K', 'E', 'Y', 'R', 'E', 'Q', 'U', 'E', 'S', 'T'};
+const char cmtp_command_OHAI[] = {"OHAI\n"};
+const char cmtp_command_MAIL[] = {"MAIL\n"};
+const char cmtp_command_HELP[] = {"HELP\n"};
+const char cmtp_command_NOOP[] = {"NOOP\n"};
+const char cmtp_command_OBAI[] = {"OBAI\n"};
+const char cmtp_command_KEYREQUEST[] = {"KEYREQUEST\n"};
 char home_domain[64] = {0};
 
 //Ensure that server socket is created and listening
@@ -131,7 +131,7 @@ int server_init()
 
     //Configure server socket
     server_socket = socket(AF_INET, SOCK_STREAM, 0);
-    server_address.sin_port = htons(SERVER_PORT);
+    server_address.sin_port = htons(LISTEN_PORT);
   	server_address.sin_family = AF_INET;
   	server_address.sin_addr.s_addr = htonl(INADDR_ANY);
     if (bind(server_socket,(struct sockaddr *)&server_address, sizeof(server_address)) < 0)
@@ -381,7 +381,7 @@ void connection_manager(void * connection_manager_argument)
          printf("Devlivered mail is not destined for this domain. Forward to %s\n", dest_server_buffer);
          #endif /*DEBUG*/
          print_to_log("Mail has arrived for another domain. Forwarding.",LOG_INFO);
-         forwardMessage(thread_connection, unique_file_name, dest_account_buffer)
+         forwardMessage(thread_connection, unique_file_name, dest_account_buffer);
          //Destination is on the web. Forward message.
        }
 
@@ -426,6 +426,73 @@ void connection_manager(void * connection_manager_argument)
 
 int forwardMessage(int connected_socket, int file_to_foward_descriptor, char * dest_server_string)
 {
+  print_to_log("Forward message routine starting.", LOG_INFO);
+  //Find MX record
+  struct sockaddr_storage dest_sockaddr;
+  int mx_family = 0;
+  mx_family = resolve_server(dest_server_string, &dest_sockaddr);
+  int temp_socket = 0;
+
+  //IPv4 case
+  if(mx_family==AF_INET)
+  {
+    temp_socket = socket(AF_INET, SOCK_STREAM, 0);
+    // struct sockaddr_in temp_addr;
+    // temp_addr.sin_port = htons(SEND_PORT);
+    // temp_addr.sin_family = AF_INET;
+    // server_address.sin_addr.s_addr = htonl(INADDR_ANY);
+    // if (bind(temp_socket, &temp_addr,sizeof(struct sockaddr_in))<0)
+    // {
+    //   print_to_log("Binding on send port has failed. Cannot forward message.", LOG_ERR);
+    //   perror("Bind");
+    //   return;
+    // }
+    if ((connect(temp_socket, (struct sockaddr_in *)&dest_sockaddr, sizeof(struct sockaddr_in)))<0)
+    {
+      print_to_log("Binding on send port has failed. Cannot forward message.", LOG_ERR);
+      perror("Bind");
+      return;
+    }
+
+    //Write file to connected socket
+    char temp_byte;
+    while ((temp_byte=read(file_to_foward_descriptor, temp_byte, 1))!=-1)
+    {
+      write(temp_socket, temp_byte, 1);
+    }
+  }
+
+  if(mx_family==AF_INET6)
+  {
+    temp_socket = socket(AF_INET6, SOCK_STREAM, 0);
+    // struct sockaddr_in temp_addr;
+    // temp_addr.sin_port = htons(SEND_PORT);
+    // temp_addr.sin_family = AF_INET;
+    // server_address.sin_addr.s_addr = htonl(INADDR_ANY);
+    // if (bind(temp_socket, &temp_addr,sizeof(struct sockaddr_in))<0)
+    // {
+    //   print_to_log("Binding on send port has failed. Cannot forward message.", LOG_ERR);
+    //   perror("Bind");
+    //   return;
+    // }
+    if ((connect(temp_socket, (struct sockaddr_in6 *)&dest_sockaddr, sizeof(struct sockaddr_in6)))<0)
+    {
+      print_to_log("Binding on send port has failed. Cannot forward message.", LOG_ERR);
+      perror("Bind");
+      return;
+    }
+
+    //Write file to connected socket
+    char temp_byte;
+    while ((temp_byte=read(file_to_foward_descriptor, temp_byte, 1))!=-1)
+    {
+      write(temp_socket, temp_byte, 1);
+    }
+  }
+
+  close(temp_socket);
+
+
   //if (select_available_socket()>0)
   //{
 

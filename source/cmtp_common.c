@@ -47,7 +47,7 @@ char* last_str_split(char* a_str, const char * a_delim)
 }
 
 
-/*Return is of type int and is directly the mx family type. Ohana is hawaiian for family*/
+/*Return is of type int and is just the mx family type. Ohana is hawaiian for family*/
 int resolve_server(char * hostname, struct sockaddr_storage * result)
 {
   pthread_mutex_lock(&dns_lock);

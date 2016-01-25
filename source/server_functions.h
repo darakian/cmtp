@@ -7,7 +7,8 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 
-#define SERVER_PORT 9001
+#define LISTEN_PORT 9001
+#define SEND_PORT 9002
 #define MAX_CONNECTIONS 10
 #define CMTP_VERSION '1'
 #define MAIL_READ_BUFFER 1
@@ -25,7 +26,7 @@ All functions that follow can fail and must fail in an acceptible way (-1 as ret
 
 int server_init();
 
-int forwardMessage(char * messageBuffer, long messageLength, char * dest_server, int dest_server_length);
+int forwardMessage(int connected_socket, int file_to_foward_descriptor, char * dest_server_string);
 
 int sendKey(char * dest_server, int dest_server_length, char * user);
 
