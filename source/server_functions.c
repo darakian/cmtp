@@ -183,7 +183,7 @@ void connection_manager(void * connection_manager_argument)
     //Read in commmand
     do {
       read(thread_connection, thread_command_buffer+i, 1);
-      printf("thread_command_buffer[%d] = %c/%x\n",i,thread_command_buffer[i], thread_command_buffer[i]);
+      //printf("thread_command_buffer[%d] = %c/%x\n",i,thread_command_buffer[i], thread_command_buffer[i]);
       i++;
     } while((i<sizeof(thread_command_buffer))&&(thread_command_buffer[i-1]!='\n'));
     //Test for end of buffer
@@ -381,7 +381,7 @@ void connection_manager(void * connection_manager_argument)
          printf("Devlivered mail is not destined for this domain. Forward to %s\n", dest_server_buffer);
          #endif /*DEBUG*/
          print_to_log("Mail has arrived for another domain. Forwarding.",LOG_INFO);
-         forwardMessage(thread_connection, unique_file_name, dest_account_buffer);
+         forwardMessage(thread_connection, unique_file_name, dest_server_buffer);
          //Destination is on the web. Forward message.
        }
 
@@ -429,9 +429,18 @@ int forwardMessage(int connected_socket, int file_to_foward_descriptor, char * d
   print_to_log("Forward message routine starting.", LOG_INFO);
   //Find MX record
   struct sockaddr_storage dest_sockaddr;
-  int mx_family = 0;
+  int mx_family = -1;
   mx_family = resolve_server(dest_server_string, &dest_sockaddr);
   int temp_socket = 0;
+
+  if ((mx_family!=AF_INET)&&(mx_family!=AF_INET6))
+  {
+    #ifdef DEBUG
+    printf("Invalid mx_family. Cannot forward mail. mx_family = %d\n", mx_family);
+    #endif /*DEBUG*/
+    print_to_log("Invalid MX family on message forward. Cannot forward message.", LOG_INFO);
+    return -1;
+  }
 
   //IPv4 case
   if(mx_family==AF_INET)
@@ -449,9 +458,9 @@ int forwardMessage(int connected_socket, int file_to_foward_descriptor, char * d
     // }
     if ((connect(temp_socket, (struct sockaddr_in *)&dest_sockaddr, sizeof(struct sockaddr_in)))<0)
     {
-      print_to_log("Binding on send port has failed. Cannot forward message.", LOG_ERR);
-      perror("Bind");
-      return;
+      print_to_log("Connecting on send port has failed. Cannot forward message.", LOG_ERR);
+      perror("connect");
+      return -1;
     }
 
     //Write file to connected socket
@@ -477,9 +486,9 @@ int forwardMessage(int connected_socket, int file_to_foward_descriptor, char * d
     // }
     if ((connect(temp_socket, (struct sockaddr_in6 *)&dest_sockaddr, sizeof(struct sockaddr_in6)))<0)
     {
-      print_to_log("Binding on send port has failed. Cannot forward message.", LOG_ERR);
-      perror("Bind");
-      return;
+      print_to_log("Connecting on send port has failed. Cannot forward message.", LOG_ERR);
+      perror("connect");
+      return -1;
     }
 
     //Write file to connected socket
