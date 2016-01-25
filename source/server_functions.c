@@ -472,6 +472,10 @@ int forwardMessage(int connected_socket, int file_to_foward_descriptor, char * d
     {
       write(temp_socket, temp_byte, 1);
     }
+    #ifdef DEBUG
+    printf("Message forwarded via IPv4\n");
+    #endif /*DEBUG*/
+    print_to_log("Forward message via IPv4 complete", LOG_INFO);
   }
 
   if(mx_family==AF_INET6)
@@ -500,6 +504,7 @@ int forwardMessage(int connected_socket, int file_to_foward_descriptor, char * d
     {
       write(temp_socket, temp_byte, 1);
     }
+    print_to_log("Forward message via IPv6 complete", LOG_INFO);
   }
 
   close(temp_socket);

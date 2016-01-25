@@ -62,12 +62,12 @@ int resolve_server(char * hostname, struct sockaddr_storage * result)
   char display_buffer[4096] = {0};
 
   res_length = res_query(hostname, C_IN, T_MX, dns_answer, sizeof(dns_answer));
-  perror("res_query");
   if (ns_initparse(dns_answer, res_length, &msg)<0)
   {
     printf("hostname = %s\n", hostname);
     printf("res_length = %d\n", res_length);
     perror("DNS has gone wrong!");
+    print_to_log("DNS resource query has failed", LOG_ERR);
   }
   else
   {

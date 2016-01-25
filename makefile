@@ -35,4 +35,4 @@ base64: include/base64.c include/base64.h
 	gcc -g include/base64.c $(CFLAGS)
 
 clean:
-	/bin/rm bin/cmtp_client bin/cmtp_server $(OBJECTS)
+	rm bin/* 

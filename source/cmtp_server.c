@@ -20,9 +20,6 @@ int main()
 	int temp_connection = 0;
 	struct sockaddr temp_connection_sockaddr;
 	int temp_adder_length = sizeof(temp_connection_sockaddr);
-	struct timeval select_timeout;
-	select_timeout.tv_sec = 5;
-	select_timeout.tv_usec = 0;
 
 	struct sockaddr_in client_address;
 	client_address.sin_port = 0;
@@ -42,7 +39,7 @@ int main()
 			int * thread_arg = calloc(1, sizeof(int));
 			*thread_arg = temp_connection;
 			temp_connection = -1;
-			if (pthread_create(&connection_thread, NULL, connection_manager, (void *)thread_arg)==0)
+			if (pthread_create(&connection_thread, NULL, connection_manager, (void *)thread_arg)!=0)
 			{
 					print_to_log("Thread error! We're all doomed!", LOG_EMERG);
 					perror("pthread");
