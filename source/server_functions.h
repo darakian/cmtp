@@ -40,5 +40,9 @@ void connection_manager(void * connection_manager_argument);
 
 int select_available_socket(int * connections, int number_of_connections);
 
+int init_jail();
+
+int enter_jail();
+
 
 #endif /* _serverfunctions_h */

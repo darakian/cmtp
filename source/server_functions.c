@@ -6,6 +6,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
+#include <sys/mount.h>
 #include <arpa/nameser.h>
 #include <resolv.h>
 #include <netdb.h>
@@ -101,21 +102,20 @@ int server_init()
     }
 
     //Move to what will be the new root
-    if (chdir(mail_dir)<0)
-    {
-      perror("chroot");
-      print_to_log("chroot failed. Cannot jail cmptd.", LOG_EMERG);
-      exit(1);
-    }
+
 
     // print_to_log("cmtpd before chroot jail", LOG_INFO);
     //chroot to restrict scope of server operations. KILLS LOGGING! AND DNS! PERHAPS MORE!
-    // if (chroot(mail_dir)<0)
-    // {
-    //   perror("chroot");
-    //   print_to_log("chroot failed. Cannot jail cmptd.", LOG_EMERG);
-    //   exit(1);
-    // }
+    if (init_jail()<0)
+    {
+      print_to_log("init_jail returned -1. Cannot proceed", LOG_EMERG);
+      exit(1);
+    }
+    if (enter_jail(mail_dir))
+    {
+      print_to_log("enter_jail returned -1. Cannot proceed", LOG_EMERG);
+      exit(1);
+    }
     // print_to_log("cmtpd after jail", LOG_INFO);
 
     //Drop privilage to nobody with nogroup
@@ -516,6 +516,52 @@ int forwardMessage(int connected_socket, int file_to_foward_descriptor, char * d
   //}
   //Step 1: connect to dest_server
   //Step 2: Write message_buffer to connected socket
+  return 0;
+}
+
+/*
+Jail init function. Ensures that logging and DNS lookups will work from within the jail.
+@return -1 on failure. 0 on success.
+*/
+int init_jail()
+{
+  print_to_log("Initializing cmtpd's jail.", LOG_INFO);
+  create_verify_dir("/var/cmtp/etc");
+  write_to_file(NULL, 0, "/var/cmtp/etc/resolv.conf");
+  if(mount("/etc/resolv.conf", "/var/cmtp/etc/resolv.conf", 0, MS_BIND, 0)<0)
+  {
+    print_to_log("Cannot mount resolv.conf in jail.", LOG_EMERG);
+    perror("mount");
+    return -1;
+  }
+  create_verify_dir("/var/cmtp/dev");
+  write_to_file(NULL, 0, "/var/cmtp/dev/log");
+  if(mount("/dev/log", "/var/cmtp/dev/log", 0, MS_BIND, 0)<0)
+  {
+    print_to_log("Cannot mount /dev/log in jail.", LOG_EMERG);
+    perror("mount");
+    return -1;
+  }
+  print_to_log("jail has been created without error.", LOG_INFO);
+  return 0;
+}
+
+int enter_jail(char * jail_dir)
+{
+  if (chdir(jail_dir)<0)
+  {
+    perror("chroot");
+    print_to_log("chroot failed. Cannot jail cmptd.", LOG_EMERG);
+    return -1;
+  }
+  if (chroot(jail_dir)<0)
+  {
+    perror("chroot");
+    print_to_log("chroot failed. Cannot jail cmptd.", LOG_EMERG);
+    return -1;
+  }
+
+  print_to_log("cmtp has entered its' jail.", LOG_INFO);
   return 0;
 }
 

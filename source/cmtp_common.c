@@ -142,6 +142,7 @@ int create_verify_dir(char * path)
 {
   #ifdef DEBUG
   printf("Entering create_verify_dir subroutine\n");
+  printf("Attempting to create %s\n", path);
   #endif /*DEBUG*/
   char test_file[345] = {0};
   // temp_int = mkdir(path, S_IRWXU);
