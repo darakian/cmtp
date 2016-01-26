@@ -57,7 +57,7 @@ int server_init()
     print_to_log("cmtpd started", LOG_INFO);
 
     //Set working variables
-    char * mail_dir = "/var/cmtp";
+    char * jail_directory = "/var/cmtp";
     char * working_user = "nobody";
     char * config_file = "/etc/cmtpd/cmtpd.conf";
 
@@ -83,7 +83,7 @@ int server_init()
     }
     close(config_file_descriptor);
 
-    if ((create_verify_dir(mail_dir)<0))
+    if ((create_verify_dir(jail_directory)<0))
     {
       exit(1);
     }
@@ -94,7 +94,7 @@ int server_init()
     struct passwd * root_user_passwd;
     working_user_passwd = getpwnam(working_user);
     root_user_passwd = getpwnam("root");;
-    if (((chown(mail_dir, root_user_passwd->pw_uid, root_user_passwd->pw_gid))==1))
+    if (((chown(jail_directory, root_user_passwd->pw_uid, root_user_passwd->pw_gid))==1))
     {
       perror("chown");
       print_to_log("chown of working directories failed. Cannot proceed.", LOG_EMERG);
@@ -111,7 +111,7 @@ int server_init()
       print_to_log("init_jail returned -1. Cannot proceed", LOG_EMERG);
       exit(1);
     }
-    if (enter_jail(mail_dir))
+    if (enter_jail(jail_directory))
     {
       print_to_log("enter_jail returned -1. Cannot proceed", LOG_EMERG);
       exit(1);
