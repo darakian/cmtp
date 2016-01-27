@@ -16,6 +16,7 @@
 #include <fcntl.h>
 #include <syslog.h>
 #include <pthread.h>
+#include <confuse.h>
 
 //Include header
 #include "server_functions.h"
@@ -42,6 +43,12 @@ const char cmtp_command_OBAI[] = {"OBAI\n"};
 const char cmtp_command_KEYREQUEST[] = {"KEYREQUEST\n"};
 char home_domain[64] = {0};
 
+//Need a struct to hold data filled in by parse_config function
+struct config_struct {
+  char domain[255];
+  int connection_timeout_in_seconds;
+};
+
 //Ensure that server socket is created and listening
 //Returns socket file descriptor if able and -1 on error
 int server_init()
@@ -60,6 +67,7 @@ int server_init()
     char * jail_directory = "/var/cmtp";
     char * working_user = "nobody";
     char * config_file = "/etc/cmtpd/cmtpd.conf";
+    struct config_struct working_config;
 
     if (getdomainname(home_domain, sizeof(home_domain))<0)
     {
@@ -74,14 +82,10 @@ int server_init()
     }
 
     //Config file
-    //May rely on libconfig here... maybe libconfuse
-    int config_file_descriptor = 0;
-    if ((config_file_descriptor = open(config_file, O_RDONLY))>0)
+    if (parse_config(config_file, working_config)<0)
     {
-      //Read in public/private key
-      //Read in config and override working variables
+      print_to_log("Cannot read config file. Proceeding with caution", LOG_ERR);
     }
-    close(config_file_descriptor);
 
     if ((create_verify_dir(jail_directory)<0))
     {
@@ -101,11 +105,6 @@ int server_init()
       exit(1);
     }
 
-    //Move to what will be the new root
-
-
-    // print_to_log("cmtpd before chroot jail", LOG_INFO);
-    //chroot to restrict scope of server operations. KILLS LOGGING! AND DNS! PERHAPS MORE!
     if (init_jail()<0)
     {
       print_to_log("init_jail returned -1. Cannot proceed", LOG_EMERG);
@@ -506,16 +505,7 @@ int forwardMessage(int connected_socket, int file_to_foward_descriptor, char * d
     }
     print_to_log("Forward message via IPv6 complete", LOG_INFO);
   }
-
   close(temp_socket);
-
-
-  //if (select_available_socket()>0)
-  //{
-
-  //}
-  //Step 1: connect to dest_server
-  //Step 2: Write message_buffer to connected socket
   return 0;
 }
 
@@ -546,6 +536,10 @@ int init_jail()
   return 0;
 }
 
+/*
+Moves process into the jail directory
+@param Character string denoting the jails location in the file system.
+*/
 int enter_jail(char * jail_dir)
 {
   if (chdir(jail_dir)<0)
@@ -563,6 +557,36 @@ int enter_jail(char * jail_dir)
 
   print_to_log("cmtp has entered its' jail.", LOG_INFO);
   return 0;
+}
+
+/*
+Function to parse the server config file.
+@param Config file location in the file system.
+@param Struct to write results into.
+*/
+int parse_config(char * config_file, struct config_struct * running_config)
+{
+  print_to_log("Parsing config file", LOG_INFO);
+  cfg_opt_t opts[] =
+	{
+	  CFG_STR("domain", "", CFGF_NONE),
+    CFG_STR("connection_timeout_in_seconds", "", CFGF_NONE),
+	  CFG_END()
+	};
+	cfg_t *cfg;
+	cfg = cfg_init(opts, CFGF_NONE);
+	 if(cfg_parse(cfg, config_file) == CFG_PARSE_ERROR)
+   {
+     return -1;
+   }
+   if (strcmp(cfg_getstr(cfg, "domain"),"")!=0)
+   {
+     //Load domain into struct here.
+   }
+   if (cfg_getint(cfg, "connection_timeout_in_seconds")<=100)
+   {
+     //load connection_timeout_in_seconds into struct here.
+   }
 }
 
 //dest_server should be fully qualified. ex. 'hawaii.edu'

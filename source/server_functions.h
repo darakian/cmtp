@@ -40,6 +40,8 @@ void connection_manager(void * connection_manager_argument);
 
 int select_available_socket(int * connections, int number_of_connections);
 
+int parse_config(char * config_file, struct config_struct * running_config);
+
 int init_jail();
 
 int enter_jail();
