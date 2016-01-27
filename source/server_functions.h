@@ -33,7 +33,7 @@ All functions that follow can fail and must fail in an acceptible way (-1 as ret
 
 int server_init();
 
-int forwardMessage(int connected_socket, int file_to_foward_descriptor, char * dest_server_string);
+int forwardMessage(int file_to_foward_descriptor, char * dest_server_string);
 
 int sendKey(char * dest_server, int dest_server_length, char * user);
 

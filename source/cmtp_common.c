@@ -26,8 +26,12 @@ static char log_identity[255];
 static int loginit = 0;
 static pthread_mutex_t dns_lock;
 
-//const char filesystem_safe_base64_string[65] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+_";
-
+/*
+Helper function to the DNS reslover function. This function just gets the last token in a string.
+@param Pointer to the string.
+@param Pointer to a string used as a delimiter.
+@return Pointer to the last substring.
+*/
 char* last_str_split(char* a_str, const char * a_delim)
 {
   char * token;
@@ -47,7 +51,12 @@ char* last_str_split(char* a_str, const char * a_delim)
 }
 
 
-/*Return is of type int and is just the mx family type. Ohana is hawaiian for family*/
+/*
+Simple interface to provide DNS MX record resolution.
+@param Pointer to the c string hostname you would like resolved to an MX record.
+@param Pointer to the struct you would like the results written out to.
+@return Return is of type int and is just the mx family type in the variable ohana. Ohana is hawaiian for family.
+*/
 int resolve_server(char * hostname, struct sockaddr_storage * result)
 {
   pthread_mutex_lock(&dns_lock);
@@ -109,7 +118,11 @@ int resolve_server(char * hostname, struct sockaddr_storage * result)
 }
 
 /*
-filename is expected to be a c string
+Simple interface to write a buffer out to a file (and error check the process).
+@param Pointer to the buffer which will be written out
+@param Length of said buffer
+@param Pointer to the c string which will be used as the filename (where the buffer gets written).
+@return 0 on success, -1 on failure.
 */
 int write_to_file(char * buffer, int buffer_length, char * filename)
 {
@@ -134,9 +147,9 @@ int write_to_file(char * buffer, int buffer_length, char * filename)
 }
 
 /*
-path is expected to be a null terminated string
 Function tries to create a directory and verifies that the directory is writable
-Return -1 on error, 0 on sucess
+@param path to attempt creation and verification on (c string).
+@return 0 on success, -1 on failure.
 */
 int create_verify_dir(char * path)
 {
@@ -179,6 +192,11 @@ int create_verify_dir(char * path)
   return 0;
 }
 
+/*
+Makes an entry in syslog to enable future logging.
+@param Name to be used for future log entries.
+@return 0 on success, -1 on failure.
+*/
 int initlog(char * log_name)
 {
   if (loginit!=0)
@@ -194,25 +212,35 @@ int initlog(char * log_name)
   return 0;
 }
 
-
-//unique_file_name_buffer should be 86 bytes for full encode of the 64 byte hash
-//(4/3 * 64) = 85.333
+/*
+Function is used to generate a unique string used as a filename for incomming mail.
+unique_file_name_buffer should be 86 bytes for full encode of the 64 byte hash
+(4/3 * 64) = 85.333
+@param Salt used to mix up the hashing.
+@param Pointer to a buffer where the unique file name will be written.
+@return Length of the string written to unique_file_name_buffer
+*/
 int generate_unique_string(int salt, char * unique_file_name_buffer)
 {
   struct timespec time_used_in_string_creation;
   clock_gettime(CLOCK_REALTIME, &time_used_in_string_creation);
   char meat_and_potatoes[24];
   memset(meat_and_potatoes, 0, sizeof(meat_and_potatoes));
-  memcpy(&meat_and_potatoes, &time_used_in_string_creation.tv_sec, sizeof(time_used_in_string_creation.tv_sec));
-  memcpy(&meat_and_potatoes+sizeof(time_used_in_string_creation.tv_sec), &salt, sizeof(salt));
-  memcpy(&meat_and_potatoes+sizeof(time_used_in_string_creation.tv_sec)+sizeof(salt), &time_used_in_string_creation.tv_nsec, sizeof(time_used_in_string_creation.tv_nsec));
+  memcpy(meat_and_potatoes, &time_used_in_string_creation.tv_sec, sizeof(time_used_in_string_creation.tv_sec));
+  memcpy(meat_and_potatoes+sizeof(time_used_in_string_creation.tv_sec), &salt, sizeof(salt));
+  memcpy(meat_and_potatoes+sizeof(time_used_in_string_creation.tv_sec)+sizeof(salt), &time_used_in_string_creation.tv_nsec, sizeof(time_used_in_string_creation.tv_nsec));
   unsigned char hash[64]; //64 bytes because hash has a fixed size output
   crypto_generichash(hash, sizeof(hash), (const unsigned char *)meat_and_potatoes, sizeof(meat_and_potatoes),NULL, 0);
   int unique_file_name_length = base64_encode((char *)hash, sizeof(hash), unique_file_name_buffer, sizeof(unique_file_name_buffer), (char *)filesystem_safe_base64_string, 64);
   return unique_file_name_length;
 }
 
-//Used to simplify printing to system log
+/*
+Simple interface to syslog
+@param String to be sent to the log
+@param Log level that syslog will tag it with. LOG_INFO, LOG_ERR, LOG_CRIT, LOG_EMERG, etc...
+@return None.
+*/
 void print_to_log(char * message, int level)
 {
   openlog(log_identity, LOG_PID, LOG_MAIL);
@@ -220,9 +248,13 @@ void print_to_log(char * message, int level)
   closelog();
 }
 
-
-//Used to drop process privilage (though in theory it's more general than that). Should return -1 on failure, 0 otherwise.
-//Inspired/informed by http://www.cs.berkeley.edu/~daw/papers/setuid-usenix02.pdf
+/*
+Used to drop process privilage (though in theory it's more general than that). Should return -1 on failure, 0 otherwise.
+Inspired/informed by http://www.cs.berkeley.edu/~daw/papers/setuid-usenix02.pdf
+@param user id to be used
+@param group id to be used
+@return 0 on success, -1 on failure.
+*/
 int set_privilage(uid_t new_uid, gid_t new_gid)
 {
   if (setresgid(new_gid, new_gid, new_gid)<0)

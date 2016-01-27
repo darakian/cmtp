@@ -377,7 +377,7 @@ void connection_manager(void * connection_manager_argument)
          printf("Devlivered mail is not destined for this domain. Forward to %s\n", dest_server_buffer);
          #endif /*DEBUG*/
          print_to_log("Mail has arrived for another domain. Forwarding.",LOG_INFO);
-         forwardMessage(thread_connection, unique_file_name, dest_server_buffer);
+         forwardMessage(unique_file_name, dest_server_buffer);
          //Destination is on the web. Forward message.
        }
 
@@ -419,8 +419,12 @@ void connection_manager(void * connection_manager_argument)
   }
 }
 
-
-int forwardMessage(int connected_socket, int file_to_foward_descriptor, char * dest_server_string)
+/*
+Forwards a message to its' destination.
+@param File descriptor of the message.
+@param Destination server as a c string.
+*/
+int forwardMessage(int file_to_foward_descriptor, char * dest_server_string)
 {
   print_to_log("Forward message routine starting.", LOG_INFO);
   //Find MX record
@@ -577,10 +581,12 @@ int parse_config(char * config_file, struct config_struct running_config)
    {
      //Load domain into struct here.
    }
-   if (cfg_getint(cfg, "connection_timeout_in_seconds")<=100)
+   if (cfg_getint(cfg, "connection_timeout_in_seconds")<=60)
    {
      //load connection_timeout_in_seconds into struct here.
+     running_config.connection_timeout_in_seconds = cfg_getstr(cfg, "connection_timeout_in_seconds");
    }
+   return 0;
 }
 
 //dest_server should be fully qualified. ex. 'hawaii.edu'
