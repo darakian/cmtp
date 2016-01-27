@@ -43,12 +43,6 @@ const char cmtp_command_OBAI[] = {"OBAI\n"};
 const char cmtp_command_KEYREQUEST[] = {"KEYREQUEST\n"};
 char home_domain[64] = {0};
 
-//Need a struct to hold data filled in by parse_config function
-struct config_struct {
-  char domain[255];
-  int connection_timeout_in_seconds;
-};
-
 //Ensure that server socket is created and listening
 //Returns socket file descriptor if able and -1 on error
 int server_init()
@@ -564,7 +558,7 @@ Function to parse the server config file.
 @param Config file location in the file system.
 @param Struct to write results into.
 */
-int parse_config(char * config_file, struct config_struct * running_config)
+int parse_config(char * config_file, struct config_struct running_config)
 {
   print_to_log("Parsing config file", LOG_INFO);
   cfg_opt_t opts[] =

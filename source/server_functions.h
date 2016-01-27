@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <confuse.h>
 
 #define LISTEN_PORT 9001
 #define SEND_PORT 9002
@@ -18,6 +19,12 @@
 struct connection_manager_structure
 {
   int connection_file_descriptor;
+};
+
+//Need a struct to hold data filled in by parse_config function
+struct config_struct {
+  char domain[255];
+  int connection_timeout_in_seconds;
 };
 
 /*
@@ -40,7 +47,7 @@ void connection_manager(void * connection_manager_argument);
 
 int select_available_socket(int * connections, int number_of_connections);
 
-int parse_config(char * config_file, struct config_struct * running_config);
+int parse_config(char * config_file, struct config_struct running_config);
 
 int init_jail();
 
