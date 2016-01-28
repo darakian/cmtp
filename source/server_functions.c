@@ -498,23 +498,38 @@ int forwardMessage(char * file_to_foward, char * dest_server_string)
 Jail init function. Ensures that logging and DNS lookups will work from within the jail.
 @return -1 on failure. 0 on success.
 */
-int init_jail()
+int init_jail(char * jail_dir)
 {
+  //Move to directory so that setup can be done with relative paths
+  if (chdir(jail_dir)<0)
+  {
+    perror("chdir");
+    print_to_log("chdir failed. Cannot enter jail for setup.", LOG_EMERG);
+    return -1;
+  }
   print_to_log("Initializing cmtpd's jail.", LOG_INFO);
-  create_verify_dir("/var/cmtp/etc");
-  write_to_file(NULL, 0, "/var/cmtp/etc/resolv.conf");
-  if(mount("/etc/resolv.conf", "/var/cmtp/etc/resolv.conf", 0, MS_BIND, 0)<0)
+  create_verify_dir("etc");
+  create_verify_dir("mail");
+  write_to_file(NULL, 0, "etc/resolv.conf");
+  if(mount("/etc/resolv.conf", "etc/resolv.conf", 0, MS_BIND, 0)<0)
   {
     print_to_log("Cannot mount resolv.conf in jail.", LOG_EMERG);
     perror("mount");
     return -1;
   }
-  create_verify_dir("/var/cmtp/dev");
-  write_to_file(NULL, 0, "/var/cmtp/dev/log");
-  if(mount("/dev/log", "/var/cmtp/dev/log", 0, MS_BIND, 0)<0)
+  create_verify_dir("dev");
+  write_to_file(NULL, 0, "dev/log");
+  if(mount("/dev/log", "dev/log", 0, MS_BIND, 0)<0)
   {
     print_to_log("Cannot mount /dev/log in jail.", LOG_EMERG);
     perror("mount");
+    return -1;
+  }
+  //Move to a 'safe' directory before returning.
+  if (chdir("/var")<0)
+  {
+    perror("chdir");
+    print_to_log("chdir failed. Cannot move to /var after jail setup.", LOG_EMERG);
     return -1;
   }
   print_to_log("jail has been created without error.", LOG_INFO);
@@ -530,8 +545,8 @@ int enter_jail(char * jail_dir)
 {
   if (chdir(jail_dir)<0)
   {
-    perror("chroot");
-    print_to_log("chroot failed. Cannot jail cmptd.", LOG_EMERG);
+    perror("chdir");
+    print_to_log("chdir failed. Cannot jail cmptd.", LOG_EMERG);
     return -1;
   }
   if (chroot(jail_dir)<0)
