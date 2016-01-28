@@ -76,7 +76,7 @@ int server_init()
     }
 
     //Config file
-    if (parse_config(config_file, working_config)<0)
+    if (parse_config(config_file, &working_config)<0)
     {
       print_to_log("Cannot read config file. Proceeding with caution", LOG_ERR);
     }
@@ -156,7 +156,7 @@ arguement needs to contain
 file descriptor of the connection
 ... and more? maybe?
 */
-void connection_manager(void * connection_manager_argument)
+void * connection_manager(void * connection_manager_argument)
 {
   #ifdef DEBUG
   printf("Begin connection manager.\n");
@@ -237,7 +237,7 @@ void connection_manager(void * connection_manager_argument)
         if (read(thread_connection, source_account_buffer+source_account_counter, 1) < 1)
         {
           perror("read source_accout_buffer");
-          return;
+          return NULL;
         }
         source_account_counter++;
       } while((source_account_counter<ROUTING_FIELD_SIZE)&&(source_account_buffer[source_account_counter-1]!='\0'));
@@ -246,7 +246,7 @@ void connection_manager(void * connection_manager_argument)
         if (read(thread_connection, &source_server_buffer[source_server_counter], 1) < 1)
         {
           perror("read source_server_buffer");
-          return;
+          return NULL;
         }
         source_server_counter++;
       } while((source_server_counter<ROUTING_FIELD_SIZE)&&(source_server_buffer[source_server_counter-1]!='\0'));
@@ -255,7 +255,7 @@ void connection_manager(void * connection_manager_argument)
         if (read(thread_connection, dest_account_buffer+dest_account_counter, 1) < 1)
         {
           perror("read dest_account_buffer");
-          return;
+          return NULL;
         }
         dest_account_counter++;
       } while((dest_account_counter<ROUTING_FIELD_SIZE)&&(dest_account_buffer[dest_account_counter-1]!='\0'));
@@ -264,7 +264,7 @@ void connection_manager(void * connection_manager_argument)
         if (read(thread_connection, dest_server_buffer+dest_server_counter, 1) < 1)
         {
           perror("read dest_server_buffer");
-          return;
+          return NULL;
         }
         dest_server_counter++;
       } while((dest_server_counter<ROUTING_FIELD_SIZE)&&(dest_server_buffer[dest_server_counter-1]!='\0'));
@@ -298,21 +298,21 @@ void connection_manager(void * connection_manager_argument)
       {
         print_to_log("Read error while reading crypto type", LOG_ERR);
         perror("read crypto_type");
-        return;
+        return NULL;
       }
       write_to_file(crypto_type, 4, unique_file_name);
       if (read(thread_connection, attachment_count, 4) < 4)
       {
         print_to_log("Read error while reading attachment count", LOG_ERR);
         perror("read attachment_count");
-        return;
+        return NULL;
       }
       write_to_file(attachment_count, 4, unique_file_name);
       if (read(thread_connection, message_length, 8) < 8)
       {
         print_to_log("Read error while reading message length", LOG_ERR);
         perror("read message_length");
-        return;
+        return NULL;
       }
       write_to_file(message_length, 8, unique_file_name);
       //This completes the header of the message
@@ -331,7 +331,7 @@ void connection_manager(void * connection_manager_argument)
         {
           print_to_log("read error while reading message body", LOG_ERR);
           perror("read");
-          return;
+          return NULL;
         }
         write_to_file(temp_byte, 1, unique_file_name);
       }
@@ -348,13 +348,13 @@ void connection_manager(void * connection_manager_argument)
         {
           print_to_log("read error while reading message body", LOG_ERR);
           perror("read");
-          return;
+          return NULL;
         }
         write_to_file(temp_byte, 1, unique_file_name);
       }
 
       //Destination cases
-       if ((memcmp(dest_server_buffer, home_domain, dest_server_counter)==0)&&(memcmp(dest_account_buffer,0,1))==0)
+       if ((memcmp(dest_server_buffer, home_domain, dest_server_counter)==0)&&(memcmp(dest_account_buffer,"",1))==0)
        {
          #ifdef DEBUG
          printf("Devlivered mail is for server. Begin processing.\n");
@@ -383,7 +383,7 @@ void connection_manager(void * connection_manager_argument)
 
       //Clean thread_command_buffer
       #ifdef DEBUG
-      printf("Mail section complete. Clearing buffer and returning.\n");
+      printf("Mail section complete. Clearing buffer and return NULLing.\n");
       #endif /*DEBUG*/
       memset(thread_command_buffer, 0, sizeof(thread_command_buffer));
     }
@@ -414,15 +414,16 @@ void connection_manager(void * connection_manager_argument)
       }
       //Clean thread_command_buffer
       memset(thread_command_buffer, 0, sizeof(thread_command_buffer));
-      return;
+      return NULL;
     }
   }
 }
 
 /*
 Forwards a message to its' destination.
-@param File descriptor of the message.
+@param File descriptor of the message.   <---- change to char * and get FD off that
 @param Destination server as a c string.
+@return
 */
 int forwardMessage(int file_to_foward_descriptor, char * dest_server_string)
 {
@@ -562,7 +563,7 @@ Function to parse the server config file.
 @param Config file location in the file system.
 @param Struct to write results into.
 */
-int parse_config(char * config_file, struct config_struct running_config)
+int parse_config(char * config_file, struct config_struct * running_config)
 {
   print_to_log("Parsing config file", LOG_INFO);
   cfg_opt_t opts[] =
@@ -584,7 +585,7 @@ int parse_config(char * config_file, struct config_struct running_config)
    if (cfg_getint(cfg, "connection_timeout_in_seconds")<=60)
    {
      //load connection_timeout_in_seconds into struct here.
-     running_config.connection_timeout_in_seconds = cfg_getstr(cfg, "connection_timeout_in_seconds");
+     running_config->connection_timeout_in_seconds = cfg_getint(cfg, "connection_timeout_in_seconds");
    }
    return 0;
 }

@@ -19,7 +19,7 @@ int main()
 	int server_socket = server_init();
 	int temp_connection = 0;
 	struct sockaddr temp_connection_sockaddr;
-	int temp_adder_length = sizeof(temp_connection_sockaddr);
+	socklen_t temp_addr_length = sizeof(temp_connection_sockaddr);
 
 	struct sockaddr_in client_address;
 	client_address.sin_port = 0;
@@ -29,7 +29,7 @@ int main()
 
 	while(1)
 	{
-		if ((temp_connection=accept(server_socket, (struct sockaddr *)&temp_connection_sockaddr, &temp_adder_length))>-1)
+		if ((temp_connection=accept(server_socket, (struct sockaddr *)&temp_connection_sockaddr, &temp_addr_length))>-1)
 		{
 			//Create thread
 			pthread_t connection_thread;

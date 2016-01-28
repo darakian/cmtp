@@ -43,15 +43,15 @@ int requestKey(char * recieve_buffer, int recieve_length, char * account_request
 /*Accept message should pass the message to the CMAP backend*/
 int acceptMessage();
 
-void connection_manager(void * connection_manager_argument);
+void * connection_manager(void * connection_manager_argument);
 
 int select_available_socket(int * connections, int number_of_connections);
 
-int parse_config(char * config_file, struct config_struct running_config);
+int parse_config(char * config_file, struct config_struct * running_config);
 
 int init_jail();
 
-int enter_jail();
+int enter_jail(char * jail_directory);
 
 
 #endif /* _serverfunctions_h */
