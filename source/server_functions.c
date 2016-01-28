@@ -425,11 +425,12 @@ Forwards a message to its' destination.
 @param Destination server as a c string.
 @return
 */
-int forwardMessage(int file_to_foward_descriptor, char * dest_server_string)
+int forwardMessage(char * file_to_foward, char * dest_server_string)
 {
   print_to_log("Forward message routine starting.", LOG_INFO);
   //Find MX record
   struct sockaddr_storage dest_sockaddr;
+  int file_to_foward_descriptor;
   int mx_family = -1;
   mx_family = resolve_server(dest_server_string, &dest_sockaddr);
   int temp_socket = 0;
@@ -447,16 +448,6 @@ int forwardMessage(int file_to_foward_descriptor, char * dest_server_string)
   if(mx_family==AF_INET)
   {
     temp_socket = socket(AF_INET, SOCK_STREAM, 0);
-    // struct sockaddr_in temp_addr;
-    // temp_addr.sin_port = htons(SEND_PORT);
-    // temp_addr.sin_family = AF_INET;
-    // server_address.sin_addr.s_addr = htonl(INADDR_ANY);
-    // if (bind(temp_socket, &temp_addr,sizeof(struct sockaddr_in))<0)
-    // {
-    //   print_to_log("Binding on send port has failed. Cannot forward message.", LOG_ERR);
-    //   perror("Bind");
-    //   return;
-    // }
     if ((connect(temp_socket, (struct sockaddr_in *)&dest_sockaddr, sizeof(struct sockaddr_in)))<0)
     {
       print_to_log("Connecting on send port has failed. Cannot forward message.", LOG_ERR);
@@ -466,9 +457,14 @@ int forwardMessage(int file_to_foward_descriptor, char * dest_server_string)
 
     //Write file to connected socket
     char temp_byte;
-    while ((temp_byte=read(file_to_foward_descriptor, temp_byte, 1))!=-1)
+    if ((file_to_foward_descriptor = open(file_to_foward, O_RDONLY))<0)
     {
-      write(temp_socket, temp_byte, 1);
+      print_to_log("Cannot open file for forwarding.", LOG_ERR);
+      return -1;
+    }
+    while ((temp_byte=read(file_to_foward_descriptor, &temp_byte, 1))!=-1)
+    {
+      write(temp_socket, &temp_byte, 1);
     }
     #ifdef DEBUG
     printf("Message forwarded via IPv4\n");
@@ -479,16 +475,6 @@ int forwardMessage(int file_to_foward_descriptor, char * dest_server_string)
   if(mx_family==AF_INET6)
   {
     temp_socket = socket(AF_INET6, SOCK_STREAM, 0);
-    // struct sockaddr_in temp_addr;
-    // temp_addr.sin_port = htons(SEND_PORT);
-    // temp_addr.sin_family = AF_INET;
-    // server_address.sin_addr.s_addr = htonl(INADDR_ANY);
-    // if (bind(temp_socket, &temp_addr,sizeof(struct sockaddr_in))<0)
-    // {
-    //   print_to_log("Binding on send port has failed. Cannot forward message.", LOG_ERR);
-    //   perror("Bind");
-    //   return;
-    // }
     if ((connect(temp_socket, (struct sockaddr_in6 *)&dest_sockaddr, sizeof(struct sockaddr_in6)))<0)
     {
       print_to_log("Connecting on send port has failed. Cannot forward message.", LOG_ERR);
@@ -498,9 +484,9 @@ int forwardMessage(int file_to_foward_descriptor, char * dest_server_string)
 
     //Write file to connected socket
     char temp_byte;
-    while ((temp_byte=read(file_to_foward_descriptor, temp_byte, 1))!=-1)
+    while ((temp_byte=read(file_to_foward_descriptor, &temp_byte, 1))!=-1)
     {
-      write(temp_socket, temp_byte, 1);
+      write(temp_socket, &temp_byte, 1);
     }
     print_to_log("Forward message via IPv6 complete", LOG_INFO);
   }
@@ -538,6 +524,7 @@ int init_jail()
 /*
 Moves process into the jail directory
 @param Character string denoting the jails location in the file system.
+@return -1 on failure, 0 on success.
 */
 int enter_jail(char * jail_dir)
 {
@@ -562,6 +549,7 @@ int enter_jail(char * jail_dir)
 Function to parse the server config file.
 @param Config file location in the file system.
 @param Struct to write results into.
+@return -1 on failure, 0 on success.
 */
 int parse_config(char * config_file, struct config_struct * running_config)
 {
@@ -595,22 +583,22 @@ int parse_config(char * config_file, struct config_struct * running_config)
 //Ideally the larger program will be able to do something like connect(resolve_server(hawaii.edu, 10))
 
 //Function to send public key to anyone that asks
-int sendKey(char * dest_server, int dest_server_length, char * user)
-{
-  //Step 1: Connect to dest_server
-  //Step 2: Stick key in socket
-  //Step 3: Hope dest_server gets it
-  return 0;
-}
-
-/*server and server length should probably be a resolved IP structure... maybe*/
-int requestKey(char * recieve_buffer, int recieve_length, char * account_requested, int request_length, char * server, int server_length)
-{
-  //Step 1: Look up MX record holder of server for account_requested
-  //Step 2: Connect to the holder of the MX record
-  //Step 3: Determin if holder is CMTP or SMTP
-    //Step 3a: if SMTP then fail
-  //Step 4: Send key request
-  //Step 5 Await reply and pass reply to any waiting clients
-  return 0;
-}
+// int sendKey(char * dest_server, int dest_server_length, char * user)
+// {
+//   //Step 1: Connect to dest_server
+//   //Step 2: Stick key in socket
+//   //Step 3: Hope dest_server gets it
+//   return 0;
+// }
+//
+// /*server and server length should probably be a resolved IP structure... maybe*/
+// int requestKey(char * reveive_buffer, int reveive_length, char * account_requested, int request_length, char * server, int server_length)
+// {
+//   //Step 1: Look up MX record holder of server for account_requested
+//   //Step 2: Connect to the holder of the MX record
+//   //Step 3: Determin if holder is CMTP or SMTP
+//     //Step 3a: if SMTP then fail
+//   //Step 4: Send key request
+//   //Step 5 Await reply and pass reply to any waiting clients
+//   return 0;
+// }

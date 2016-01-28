@@ -33,12 +33,12 @@ All functions that follow can fail and must fail in an acceptible way (-1 as ret
 
 int server_init();
 
-int forwardMessage(int file_to_foward_descriptor, char * dest_server_string);
+int forwardMessage(char * file_to_foward, char * dest_server_string);
 
 int sendKey(char * dest_server, int dest_server_length, char * user);
 
 /*server and server length should probably be a resolved IP structure... maybe*/
-int requestKey(char * recieve_buffer, int recieve_length, char * account_requested, int request_length, char * server, int server_length);
+int requestKey(char * reveive_buffer, int reveive_length, char * account_requested, int request_length, char * server, int server_length);
 
 /*Accept message should pass the message to the CMAP backend*/
 int acceptMessage();
