@@ -43,8 +43,11 @@ const char cmtp_command_OBAI[] = {"OBAI\n"};
 const char cmtp_command_KEYREQUEST[] = {"KEYREQUEST\n"};
 char home_domain[64] = {0};
 
-//Ensure that server socket is created and listening
-//Returns socket file descriptor if able and -1 on error
+
+/*
+Ensure that server has everything it needs to begin operation.
+@return -1 on failure, a socket file descriptor on success.
+*/
 int server_init()
 {
   static int system_init = 0;
