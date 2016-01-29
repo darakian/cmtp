@@ -575,13 +575,14 @@ int parse_config(char * config_file, struct config_struct * running_config)
   cfg_opt_t opts[] =
 	{
 	  CFG_STR("domain", "", CFGF_NONE),
-    CFG_STR("connection_timeout_in_seconds", "", CFGF_NONE),
+    CFG_INT("connection_timeout_in_seconds", "", CFGF_NONE),
 	  CFG_END()
 	};
 	cfg_t *cfg;
 	cfg = cfg_init(opts, CFGF_NONE);
 	 if(cfg_parse(cfg, config_file) == CFG_PARSE_ERROR)
    {
+     printf("Reading config %s has failed\n", config_file);
      return -1;
    }
    if (strcmp(cfg_getstr(cfg, "domain"),"")!=0)
