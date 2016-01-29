@@ -287,6 +287,7 @@ void * connection_manager(void * connection_manager_argument)
       crypto_generichash(hash, sizeof(hash), (const unsigned char *)meat_and_potatoes, sizeof(meat_and_potatoes),NULL, 0);
 
       //Get file ready to write
+      //TODO needs to be /mail/user/unique_file_name
       char unique_file_name[129] = {0};
       //unique_file_name_length is not currently used. Should be fine.
       int unique_file_name_length = base64_encode((char *)hash, sizeof(hash), unique_file_name, sizeof(unique_file_name), (char *)filesystem_safe_base64_string, 64);
