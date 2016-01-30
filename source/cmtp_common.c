@@ -259,10 +259,12 @@ int set_privilage(char * new_user)
 {
   struct passwd * working_user_passwd;
   working_user_passwd = getpwnam(new_user);
-  char I_need_a_better_log_system[80] = {0};
-  strcat(I_need_a_better_log_system, "Dropping privilage to ");
-  strcat(I_need_a_better_log_system, working_user_passwd->pw_name);
-  print_to_log(I_need_a_better_log_system, LOG_INFO);
+  //char I_need_a_better_log_system[80] = {0};
+  //strcat(I_need_a_better_log_system, "Dropping privilage to ");
+  //strcat(I_need_a_better_log_system, working_user_passwd->pw_name);
+  print_to_log("Attempting to drop privilage", LOG_INFO);
+  printf("Here\n");
+  printf("working uid = %x, gid = %x, name =%s\n", working_user_passwd->pw_uid, working_user_passwd->pw_gid, working_user_passwd->pw_name);
   if (setresgid(working_user_passwd->pw_gid, working_user_passwd->pw_gid, working_user_passwd->pw_gid)<0)
   {
     perror("setresgid");
@@ -275,5 +277,6 @@ int set_privilage(char * new_user)
     print_to_log("Setresuid has failed. Cannot move to least privilage user.", LOG_EMERG);
     return -1;
   }
+  print_to_log("Process has successfully dropped privilage", LOG_INFO);
   return 0;
 }
