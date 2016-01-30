@@ -91,10 +91,8 @@ int server_init()
 
 
     //Set ownership of /var/cmtp
-    struct passwd * working_user_passwd;
     struct passwd * root_user_passwd;
-    working_user_passwd = getpwnam(working_user);
-    root_user_passwd = getpwnam("root");;
+    root_user_passwd = getpwnam("root");
     if (((chown(jail_directory, root_user_passwd->pw_uid, root_user_passwd->pw_gid))==1))
     {
       perror("chown");
@@ -115,13 +113,11 @@ int server_init()
     // print_to_log("cmtpd after jail", LOG_INFO);
 
     //Drop privilage to nobody with nogroup
-
-    if (set_privilage(working_user_passwd->pw_uid, working_user_passwd->pw_gid)<0)
+    if (set_privilage(working_user)<0)
     {
       print_to_log("Dropping privilage has failed. Terminating.", LOG_EMERG);
       exit(1);
     }
-
 
     //Set defaults for some variables and override if they are found in a config file
     //Perhaps have a -F flag for an alternate config file

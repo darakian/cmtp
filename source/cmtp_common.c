@@ -18,6 +18,7 @@
 #include <sodium.h>
 #include <errno.h>
 #include <pthread.h>
+#include <pwd.h>
 
 #include "../include/base64.h"
 #include "cmtp_common.h"
@@ -251,19 +252,24 @@ void print_to_log(char * message, int level)
 /*
 Used to drop process privilage (though in theory it's more general than that). Should return -1 on failure, 0 otherwise.
 Inspired/informed by http://www.cs.berkeley.edu/~daw/papers/setuid-usenix02.pdf
-@param user id to be used
-@param group id to be used
+@param user to be used (c string). Group ID is derived from the user id.
 @return 0 on success, -1 on failure.
 */
-int set_privilage(uid_t new_uid, gid_t new_gid)
+int set_privilage(char * new_user)
 {
-  if (setresgid(new_gid, new_gid, new_gid)<0)
+  struct passwd * working_user_passwd;
+  working_user_passwd = getpwnam(new_user);
+  char I_need_a_better_log_system[80] = {};
+  strcat(I_need_a_better_log_system, "Dropping privilage to ");
+  strcat(I_need_a_better_log_system, working_user_passwd->pw_name);
+  print_to_log(I_need_a_better_log_system, LOG_INFO);
+  if (setresgid(working_user_passwd->pw_gid, working_user_passwd->pw_gid, working_user_passwd->pw_gid)<0)
   {
     perror("setresgid");
     print_to_log("Setresgid has failed. Cannot move to least privilage user.", LOG_EMERG);
     return -1;
   }
-  if (setresuid(new_uid, new_uid, new_uid)<0)
+  if (setresuid(working_user_passwd->pw_uid, working_user_passwd->pw_uid, working_user_passwd->pw_uid)<0)
   {
     perror("setresuid");
     print_to_log("Setresuid has failed. Cannot move to least privilage user.", LOG_EMERG);

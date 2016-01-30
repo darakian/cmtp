@@ -18,6 +18,6 @@ int generate_unique_string();
 
 void print_to_log(char * message, int level);
 
-int set_privilage(uid_t new_uid, gid_t new_gid);
+int set_privilage(char * user);
 
 #endif /* _cmtp_common_h */
