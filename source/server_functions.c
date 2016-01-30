@@ -89,7 +89,23 @@ int server_init()
       exit(1);
     }
 
-
+    //Configure server socket
+    server_socket = socket(AF_INET, SOCK_STREAM, 0);
+    server_address.sin_port = htons(LISTEN_PORT);
+  	server_address.sin_family = AF_INET;
+  	server_address.sin_addr.s_addr = htonl(INADDR_ANY);
+    if (bind(server_socket,(struct sockaddr *)&server_address, sizeof(server_address)) < 0)
+  	{
+      print_to_log("Binding to local socket failed. Cannot continue", LOG_EMERG);
+  		perror("Bind() on server_socket has failed\n");
+      return -1;
+  	}
+  	if (listen(server_socket, 10) < 0)
+  	{
+      print_to_log("Listening on local socket has failed. Cannot continue", LOG_EMERG);
+  		perror("Listen() on server_socket has failed\n");
+      return -1;
+  	}
     //Set ownership of /var/cmtp
     struct passwd * root_user_passwd;
     root_user_passwd = getpwnam("root");
@@ -110,37 +126,14 @@ int server_init()
       print_to_log("enter_jail returned -1. Cannot proceed", LOG_EMERG);
       exit(1);
     }
-    // print_to_log("cmtpd after jail", LOG_INFO);
 
-    //Drop privilage to nobody with nogroup
+    //Drop privilage to working user and associated group
     if (set_privilage(working_user)<0)
     {
       print_to_log("Dropping privilage has failed. Terminating.", LOG_EMERG);
       exit(1);
     }
 
-    //Set defaults for some variables and override if they are found in a config file
-    //Perhaps have a -F flag for an alternate config file
-    //Set filesystem usage limit in config file; 0 = unlimited
-
-
-    //Configure server socket
-    server_socket = socket(AF_INET, SOCK_STREAM, 0);
-    server_address.sin_port = htons(LISTEN_PORT);
-  	server_address.sin_family = AF_INET;
-  	server_address.sin_addr.s_addr = htonl(INADDR_ANY);
-    if (bind(server_socket,(struct sockaddr *)&server_address, sizeof(server_address)) < 0)
-  	{
-      print_to_log("Binding to local socket failed. Cannot continue", LOG_EMERG);
-  		perror("Bind() on server_socket has failed\n");
-      return -1;
-  	}
-  	if (listen(server_socket, 10) < 0)
-  	{
-      print_to_log("Listening on local socket has failed. Cannot continue", LOG_EMERG);
-  		perror("Listen() on server_socket has failed\n");
-      return -1;
-  	}
     system_init = 1;
   }
   //Check config files in /etc/cmtp. Parse and load if they do.
