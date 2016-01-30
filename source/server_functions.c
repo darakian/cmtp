@@ -121,14 +121,14 @@ int server_init()
       print_to_log("init_jail returned -1. Cannot proceed", LOG_EMERG);
       exit(1);
     }
-    if (enter_jail(jail_directory))
-    {
-      print_to_log("enter_jail returned -1. Cannot proceed", LOG_EMERG);
-      exit(1);
-    }
     if (set_privilage(working_user)<0)
     {
       print_to_log("Dropping privilage has failed. Terminating.", LOG_EMERG);
+      exit(1);
+    }
+    if (enter_jail(jail_directory))
+    {
+      print_to_log("enter_jail returned -1. Cannot proceed", LOG_EMERG);
       exit(1);
     }
     printf("Returned from set_privilage\n");
