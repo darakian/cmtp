@@ -518,7 +518,10 @@ int init_jail(char * jail_dir)
     return -1;
   }
   create_verify_dir("dev");
-  write_to_file(NULL, 0, "dev/log");
+  if (access("dev/log", R_OK|W_OK)<0)
+  {
+    write_to_file(NULL, 0, "dev/log");
+  }
   if(mount("/dev/log", "dev/log", 0, MS_BIND, 0)<0)
   {
     print_to_log("Cannot mount /dev/log in jail.", LOG_EMERG);

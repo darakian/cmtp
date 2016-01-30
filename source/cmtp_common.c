@@ -133,7 +133,7 @@ int write_to_file(char * buffer, int buffer_length, char * filename)
   int file_description = open(filename, O_WRONLY|O_APPEND|O_CREAT, S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH);
   if ((file_description)<0)
   {
-    perror("open");
+    perror("write_to_file open");
     print_to_log("Error opening file", LOG_CRIT);
     return -1;
   }
@@ -177,7 +177,7 @@ int create_verify_dir(char * path)
   int file_descriptor = (open(test_file, O_CREAT|O_RDWR, S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH));
   if (file_descriptor== -1)
   {
-    perror("open");
+    perror("create_verify_dir open");
     print_to_log("Opening test file failed. Cannot assume write access to working directory", LOG_CRIT);
     return -1;
   }
@@ -259,7 +259,7 @@ int set_privilage(char * new_user)
 {
   struct passwd * working_user_passwd;
   working_user_passwd = getpwnam(new_user);
-  char I_need_a_better_log_system[80] = {};
+  char I_need_a_better_log_system[80] = {0};
   strcat(I_need_a_better_log_system, "Dropping privilage to ");
   strcat(I_need_a_better_log_system, working_user_passwd->pw_name);
   print_to_log(I_need_a_better_log_system, LOG_INFO);
