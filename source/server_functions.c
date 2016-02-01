@@ -514,6 +514,12 @@ int parse_config(char * config_file, struct config_struct * running_config)
    return 0;
 }
 
+/*
+Processes incomming mail destined for the server daemon. Currently this should check for a subject line 'user_keyrequest' and the names of users in the message body.
+@param thread_connection is the connected socket on which the reply should be sent.
+@param unique_file_name is the message that has already arrived and which should be decrypted, parsed, and replied to.
+@return -1 on failure, 0 on success.
+*/
 int process_server_mail(thread_connection, unique_file_name)
 {
 
