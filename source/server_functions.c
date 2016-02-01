@@ -121,18 +121,11 @@ int server_init()
       print_to_log("init_jail returned -1. Cannot proceed", LOG_EMERG);
       exit(1);
     }
-    if (set_privilage(working_user)<0)
-    {
-      print_to_log("Dropping privilage has failed. Terminating.", LOG_EMERG);
-      exit(1);
-    }
-    if (enter_jail(jail_directory))
+    if (enter_jail(jail_directory, working_user))
     {
       print_to_log("enter_jail returned -1. Cannot proceed", LOG_EMERG);
       exit(1);
     }
-    printf("Returned from set_privilage\n");
-
     system_init = 1;
   }
   //Check config files in /etc/cmtp. Parse and load if they do.
@@ -536,8 +529,12 @@ Moves process into the jail directory
 @param Character string denoting the jails location in the file system.
 @return -1 on failure, 0 on success.
 */
-int enter_jail(char * jail_dir)
+int enter_jail(char * jail_dir, char * new_user)
 {
+  struct passwd * working_user_passwd;
+  working_user_passwd = getpwnam(new_user);
+  print_to_log("Attempting to drop privilage", LOG_INFO);
+  printf("working uid = %x, gid = %x, name =%s\n", working_user_passwd->pw_uid, working_user_passwd->pw_gid, working_user_passwd->pw_name);
   if (chdir(jail_dir)<0)
   {
     perror("chdir");
@@ -550,7 +547,19 @@ int enter_jail(char * jail_dir)
     print_to_log("chroot failed. Cannot jail cmptd.", LOG_EMERG);
     return -1;
   }
-
+  if (setresgid(working_user_passwd->pw_gid, working_user_passwd->pw_gid, working_user_passwd->pw_gid)<0)
+  {
+    perror("setresgid");
+    print_to_log("Setresgid has failed. Cannot move to least privilage user.", LOG_EMERG);
+    return -1;
+  }
+  if (setresuid(working_user_passwd->pw_uid, working_user_passwd->pw_uid, working_user_passwd->pw_uid)<0)
+  {
+    perror("setresuid");
+    print_to_log("Setresuid has failed. Cannot move to least privilage user.", LOG_EMERG);
+    return -1;
+  }
+  print_to_log("Process has successfully dropped privilage", LOG_INFO);
   print_to_log("cmtp has entered its' jail.", LOG_INFO);
   return 0;
 }

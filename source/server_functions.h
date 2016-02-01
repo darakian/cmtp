@@ -51,7 +51,7 @@ int parse_config(char * config_file, struct config_struct * running_config);
 
 int init_jail();
 
-int enter_jail(char * jail_directory);
+int enter_jail(char * jail_directory, char * new_user);
 
 
 #endif /* _serverfunctions_h */
