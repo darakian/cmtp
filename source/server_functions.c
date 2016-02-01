@@ -116,7 +116,7 @@ int server_init()
       exit(1);
     }
 
-    if (init_jail()<0)
+    if (init_jail(jail_directory)<0)
     {
       print_to_log("init_jail returned -1. Cannot proceed", LOG_EMERG);
       exit(1);
@@ -346,6 +346,7 @@ void * connection_manager(void * connection_manager_argument)
          #endif /*DEBUG*/
          print_to_log("Mail has arrived for the server. Processing.",LOG_INFO);
          //Destination is this domain and for the server
+         process_server_mail(thread_connection, unique_file_name);
 
        }
        else if ((memcmp(dest_server_buffer, home_domain, dest_server_counter)==0))
@@ -480,91 +481,6 @@ int forwardMessage(char * file_to_foward, char * dest_server_string)
 }
 
 /*
-Jail init function. Ensures that logging and DNS lookups will work from within the jail.
-@return -1 on failure. 0 on success.
-*/
-int init_jail(char * jail_dir)
-{
-  //Move to directory so that setup can be done with relative paths
-  if (chdir(jail_dir)<0)
-  {
-    perror("chdir");
-    print_to_log("chdir failed. Cannot enter jail for setup.", LOG_EMERG);
-    return -1;
-  }
-  print_to_log("Initializing cmtpd's jail.", LOG_INFO);
-  create_verify_dir("etc");
-  create_verify_dir("mail");
-  write_to_file(NULL, 0, "etc/resolv.conf");
-  if(mount("/etc/resolv.conf", "etc/resolv.conf", 0, MS_BIND, 0)<0)
-  {
-    print_to_log("Cannot mount resolv.conf in jail.", LOG_EMERG);
-    perror("mount");
-    return -1;
-  }
-  create_verify_dir("dev");
-  if (access("dev/log", R_OK|W_OK)<0)
-  {
-    write_to_file(NULL, 0, "dev/log");
-  }
-  if(mount("/dev/log", "dev/log", 0, MS_BIND, 0)<0)
-  {
-    print_to_log("Cannot mount /dev/log in jail.", LOG_EMERG);
-    perror("mount");
-    return -1;
-  }
-  //Move to a 'safe' directory before returning.
-  if (chdir("/var")<0)
-  {
-    perror("chdir");
-    print_to_log("chdir failed. Cannot move to /var after jail setup.", LOG_EMERG);
-    return -1;
-  }
-  print_to_log("jail has been created without error.", LOG_INFO);
-  return 0;
-}
-
-/*
-Moves process into the jail directory
-@param Character string denoting the jails location in the file system.
-@return -1 on failure, 0 on success.
-*/
-int enter_jail(char * jail_dir, char * new_user)
-{
-  struct passwd * working_user_passwd;
-  working_user_passwd = getpwnam(new_user);
-  print_to_log("Attempting to drop privilage", LOG_INFO);
-  printf("working uid = %x, gid = %x, name =%s\n", working_user_passwd->pw_uid, working_user_passwd->pw_gid, working_user_passwd->pw_name);
-  if (chdir(jail_dir)<0)
-  {
-    perror("chdir");
-    print_to_log("chdir failed. Cannot jail cmptd.", LOG_EMERG);
-    return -1;
-  }
-  if (chroot(jail_dir)<0)
-  {
-    perror("chroot");
-    print_to_log("chroot failed. Cannot jail cmptd.", LOG_EMERG);
-    return -1;
-  }
-  if (setresgid(working_user_passwd->pw_gid, working_user_passwd->pw_gid, working_user_passwd->pw_gid)<0)
-  {
-    perror("setresgid");
-    print_to_log("Setresgid has failed. Cannot move to least privilage user.", LOG_EMERG);
-    return -1;
-  }
-  if (setresuid(working_user_passwd->pw_uid, working_user_passwd->pw_uid, working_user_passwd->pw_uid)<0)
-  {
-    perror("setresuid");
-    print_to_log("Setresuid has failed. Cannot move to least privilage user.", LOG_EMERG);
-    return -1;
-  }
-  print_to_log("Process has successfully dropped privilage", LOG_INFO);
-  print_to_log("cmtp has entered its' jail.", LOG_INFO);
-  return 0;
-}
-
-/*
 Function to parse the server config file.
 @param Config file location in the file system.
 @param Struct to write results into.
@@ -596,6 +512,11 @@ int parse_config(char * config_file, struct config_struct * running_config)
      running_config->connection_timeout_in_seconds = cfg_getint(cfg, "connection_timeout_in_seconds");
    }
    return 0;
+}
+
+int process_server_mail(thread_connection, unique_file_name)
+{
+
 }
 
 //dest_server should be fully qualified. ex. 'hawaii.edu'

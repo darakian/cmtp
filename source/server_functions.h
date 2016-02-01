@@ -49,9 +49,7 @@ int select_available_socket(int * connections, int number_of_connections);
 
 int parse_config(char * config_file, struct config_struct * running_config);
 
-int init_jail();
-
-int enter_jail(char * jail_directory, char * new_user);
+int process_server_mail(thread_connection, unique_file_name);
 
 
 #endif /* _serverfunctions_h */

@@ -20,4 +20,8 @@ void print_to_log(char * message, int level);
 
 int set_privilage(char * user);
 
+int init_jail(char * jail_dir);
+
+int enter_jail(char * jail_directory, char * new_user);
+
 #endif /* _cmtp_common_h */
