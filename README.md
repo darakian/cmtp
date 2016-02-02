@@ -1,2 +1,3 @@
 # CMTP
-Under active development. Not currently suitable for use.
+## A secure alternative to SMTP
+Currently under active development and not suitable for use.
