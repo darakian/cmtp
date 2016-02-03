@@ -522,6 +522,13 @@ Processes incomming mail destined for the server daemon. Currently this should c
 */
 int process_server_mail(thread_connection, unique_file_name)
 {
+  //Find the start of the message body
+  //decrypt
+  //Parse subject line
+  //branch on the subject. Only supporting 'user_keyrequest' currently. All other subjects should be trashed.
+  ////parse users listed
+  ////build and send response message
+  //done
 
 }
 
