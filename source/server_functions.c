@@ -50,8 +50,8 @@ Ensure that server has everything it needs to begin operation.
 */
 int server_init()
 {
-  static int system_init = 0;
-  static int server_socket = 0;
+  static uint32_t system_init = 0;
+  static uint32_t server_socket = 0;
   static struct sockaddr_in server_address;
 
   if (system_init != 1)
@@ -150,7 +150,7 @@ void * connection_manager(void * connection_manager_argument)
   #define ROUTING_FIELD_SIZE 255
 
   uint32_t i = 0;
-  int thread_connection = *(int *) connection_manager_argument;
+  uint32_t thread_connection = *(uint32_t *) connection_manager_argument;
   free(connection_manager_argument);
 
   //char mail_message_buffer[MAIL_READ_BUFFER];
@@ -204,13 +204,13 @@ void * connection_manager(void * connection_manager_argument)
 
       //Allocate primary buffers and counters
       char source_account_buffer[ROUTING_FIELD_SIZE];
-      int source_account_counter = 0;
+      uint32_t source_account_counter = 0;
       char source_server_buffer[ROUTING_FIELD_SIZE];
-      int source_server_counter = 0;
+      uint32_t source_server_counter = 0;
       char dest_account_buffer[ROUTING_FIELD_SIZE];
-      int dest_account_counter = 0;
+      uint32_t dest_account_counter = 0;
       char dest_server_buffer[ROUTING_FIELD_SIZE];
-      int dest_server_counter = 0;
+      uint32_t dest_server_counter = 0;
       char crypto_type[sizeof(uint32_t)] = {0};
       char attachment_count[sizeof(uint32_t)] = {0};
       char message_length[sizeof(uint64_t)] = {0};
@@ -271,7 +271,7 @@ void * connection_manager(void * connection_manager_argument)
       //TODO needs to be /mail/user/unique_file_name
       char unique_file_name[129] = {0};
       //unique_file_name_length is not currently used. Should be fine.
-      int unique_file_name_length = base64_encode((char *)hash, sizeof(hash), unique_file_name, sizeof(unique_file_name), (char *)filesystem_safe_base64_string, 64);
+      uint32_t unique_file_name_length = base64_encode((char *)hash, sizeof(hash), unique_file_name, sizeof(unique_file_name), (char *)filesystem_safe_base64_string, 64);
 
       write_to_file(source_account_buffer, source_account_counter, unique_file_name);
       write_to_file(source_server_buffer, source_server_counter, unique_file_name);
@@ -416,10 +416,10 @@ int forwardMessage(char * file_to_foward, char * dest_server_string)
   print_to_log("Forward message routine starting.", LOG_INFO);
   //Find MX record
   struct sockaddr_storage dest_sockaddr;
-  int file_to_foward_descriptor;
-  int mx_family = -1;
+  uint32_t file_to_foward_descriptor;
+  uint32_t mx_family = -1;
   mx_family = resolve_server(dest_server_string, &dest_sockaddr);
-  int temp_socket = 0;
+  uint32_t temp_socket = 0;
 
   if ((mx_family!=AF_INET)&&(mx_family!=AF_INET6))
   {
