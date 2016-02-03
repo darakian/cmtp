@@ -1,0 +1,27 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+
+\title{The Cipher Mail Message Format}
+\author{Jonathan Moroney}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+
+\begin{abstract}
+This document outlines the format of the messages used in the CMTP protocol.
+\end{abstract}
+
+\section{High level overview}
+At the high level a Cipher Mail Message is broken into two classes. Envelope Data and Message Data. Envelope data is the plaintext used for routing a message and determining how to read it. Message data is the encrypted payload. Envelope information includes the sender and receiver, the version number, the log length and log body, the attachment count and attachment lengths, and the message length.
+
+\section{Log Structure}
+
+\section{Message Body Structure}
+
+\section{Attachment Structure}
+
+\end{document}
