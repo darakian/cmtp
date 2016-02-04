@@ -186,6 +186,11 @@ void * connection_manager(void * connection_manager_argument)
       memset(thread_command_buffer, 0, sizeof(thread_command_buffer));
     }
 
+    //USERKEYREQUEST <USER>
+    //Should send the crypto_type followed by USER's public key followed by the USER's public key signed by the server (ie the key encrypted with the servers private key).
+    //Total network traffic will be 4 + 2*sizeof(key).
+    //The signing allows the key to be verified as belonging to a valid user on the server.
+
     //NOOP
     if (memcmp(cmtp_command_NOOP, thread_command_buffer, 4)==0)
     {
