@@ -178,18 +178,23 @@ void * connection_manager(void * connection_manager_argument)
       memset(thread_command_buffer, 0, sizeof(thread_command_buffer));
     }
 
-    //KEYREQUEST
-    //Should send the crypto_type (All 4 bytes!) followed by the server public key
+    //KEYREQUEST <USER>
+    //Should send the crypto_type (All 4 bytes!) followed by the public key of the null terminated user followed by the server signature of the users public key.
     if (i==11&&memcmp(cmtp_command_KEYREQUEST, thread_command_buffer, sizeof(cmtp_command_KEYREQUEST))==0)
     {
+      //Read until null
+      i = 0;
+      char user_keyrequest_buffer[ROUTING_FIELD_SIZE] = {0};
+      //Read in commmand
+      do {
+        read(thread_connection, user_keyrequest_buffer+i, 1);
+        //printf("user_keyrequest_buffer[%d] = %c/%x\n",i,user_keyrequest_buffer[i], user_keyrequest_buffer[i]);
+        i++;
+      } while((i<sizeof(user_keyrequest_buffer))&&(user_keyrequest_buffer[i-1]!='\0'));
       //Clean thread_command_buffer
       memset(thread_command_buffer, 0, sizeof(thread_command_buffer));
     }
 
-    //USERKEYREQUEST <USER>
-    //Should send the crypto_type followed by USER's public key followed by the USER's public key signed by the server (ie the key encrypted with the servers private key).
-    //Total network traffic will be 4 + 2*sizeof(key).
-    //The signing allows the key to be verified as belonging to a valid user on the server.
 
     //NOOP
     if (memcmp(cmtp_command_NOOP, thread_command_buffer, 4)==0)
