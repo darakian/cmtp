@@ -301,13 +301,18 @@ void * connection_manager(void * connection_manager_argument)
       //Get file ready to write
       //TODO needs to be /mail/user/unique_file_name
       char unique_file_name[129] = {0};
+      char base64_username[341] = {0};
+      char unique_file_location[522] = {0};
       //unique_file_name_length is not currently used. Should be fine.
       uint32_t unique_file_name_length = base64_encode((char *)hash, sizeof(hash), unique_file_name, sizeof(unique_file_name), (char *)filesystem_safe_base64_string, 64);
+      uint32_t base64_username_length = base64_encode((char *)dest_account_buffer, sizeof(dest_account_buffer), base64_username, sizeof(base64_username), (char *)filesystem_safe_base64_string, 64);
 
-      write_to_file(source_account_buffer, source_account_counter, unique_file_name);
-      write_to_file(source_server_buffer, source_server_counter, unique_file_name);
-      write_to_file(dest_account_buffer, dest_account_counter, unique_file_name);
-      write_to_file(dest_server_buffer, dest_server_counter, unique_file_name);
+      if (snprintf(unique_file_location, sizeof(unique_file_location), "%s%s%s", "/mail/", base64_username, unique_file_name)<0)
+
+      write_to_file(source_account_buffer, source_account_counter, unique_file_location);
+      write_to_file(source_server_buffer, source_server_counter, unique_file_location);
+      write_to_file(dest_account_buffer, dest_account_counter, unique_file_location);
+      write_to_file(dest_server_buffer, dest_server_counter, unique_file_location);
 
       //crypto_type, attachment_count, and message_length are fixed size buffers
       if (read(thread_connection, crypto_type, 4) < 4)
@@ -316,21 +321,21 @@ void * connection_manager(void * connection_manager_argument)
         perror("read crypto_type");
         return NULL;
       }
-      write_to_file(crypto_type, 4, unique_file_name);
+      write_to_file(crypto_type, 4, unique_file_location);
       if (read(thread_connection, attachment_count, 4) < 4)
       {
         print_to_log("Read error while reading attachment count", LOG_ERR);
         perror("read attachment_count");
         return NULL;
       }
-      write_to_file(attachment_count, 4, unique_file_name);
+      write_to_file(attachment_count, 4, unique_file_location);
       if (read(thread_connection, message_length, 8) < 8)
       {
         print_to_log("Read error while reading message length", LOG_ERR);
         perror("read message_length");
         return NULL;
       }
-      write_to_file(message_length, 8, unique_file_name);
+      write_to_file(message_length, 8, unique_file_location);
       //This completes the header of the message
       //Next we handle the body of the message
       uint64_t numeric_message_length = be64toh(*(uint64_t*)(&(message_length[0])));
@@ -349,7 +354,7 @@ void * connection_manager(void * connection_manager_argument)
           perror("read");
           return NULL;
         }
-        write_to_file(temp_byte, 1, unique_file_name);
+        write_to_file(temp_byte, 1, unique_file_location);
       }
 
       #ifdef DEBUG
@@ -366,7 +371,7 @@ void * connection_manager(void * connection_manager_argument)
           perror("read");
           return NULL;
         }
-        write_to_file(temp_byte, 1, unique_file_name);
+        write_to_file(temp_byte, 1, unique_file_location);
       }
 
       //Destination cases
@@ -392,7 +397,7 @@ void * connection_manager(void * connection_manager_argument)
          printf("Devlivered mail is not destined for this domain. Forward to %s\n", dest_server_buffer);
          #endif /*DEBUG*/
          print_to_log("Mail has arrived for another domain. Forwarding.",LOG_INFO);
-         forwardMessage(unique_file_name, dest_server_buffer);
+         forwardMessage(unique_file_location, dest_server_buffer);
          //Destination is on the web. Forward message.
        }
 
