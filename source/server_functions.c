@@ -303,6 +303,8 @@ void * connection_manager(void * connection_manager_argument)
       char unique_file_name[129] = {0};
       char base64_username[341] = {0};
       char unique_file_location[522] = {0};
+      //TODO Need to check if user is part of this domain. If not the file location should be some temporary storage.
+
       //unique_file_name_length is not currently used. Should be fine.
       uint32_t unique_file_name_length = base64_encode((char *)hash, sizeof(hash), unique_file_name, sizeof(unique_file_name), (char *)filesystem_safe_base64_string, 64);
       uint32_t base64_username_length = base64_encode((char *)dest_account_buffer, sizeof(dest_account_buffer), base64_username, sizeof(base64_username), (char *)filesystem_safe_base64_string, 64);
