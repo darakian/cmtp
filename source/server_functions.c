@@ -184,6 +184,7 @@ void * connection_manager(void * connection_manager_argument)
     {
       //Read until null
       i = 0;
+      char base64_username[341] = {0};
       char user_keyrequest_buffer[ROUTING_FIELD_SIZE] = {0};
       //Read in commmand
       do {
@@ -191,8 +192,18 @@ void * connection_manager(void * connection_manager_argument)
         //printf("user_keyrequest_buffer[%d] = %c/%x\n",i,user_keyrequest_buffer[i], user_keyrequest_buffer[i]);
         i++;
       } while((i<sizeof(user_keyrequest_buffer))&&(user_keyrequest_buffer[i-1]!='\0'));
-      //Clean thread_command_buffer
+      uint32_t base64_username_length = base64_encode((char *)user_keyrequest_buffer, sizeof(user_keyrequest_buffer), base64_username, sizeof(base64_username), (char *)filesystem_safe_base64_string, 64);
+
+      //Check for user's key in /mail/bsae64_username/public.key
+      /*if (access(/mail/base64_username/public.key, R_OK)<0)
+      {
+        //format and write key response.
+      }*/
+
+      //Clean buffers
       memset(thread_command_buffer, 0, sizeof(thread_command_buffer));
+      memset(base64_username, 0, sizeof(base64_username));
+      memset(user_keyrequest_buffer, 0, sizeof(user_keyrequest_buffer));
     }
 
 
