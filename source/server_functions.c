@@ -185,6 +185,7 @@ void * connection_manager(void * connection_manager_argument)
       //Read until null
       i = 0;
       char base64_username[341] = {0};
+      char pub_key_path[358] = {0};
       char user_keyrequest_buffer[ROUTING_FIELD_SIZE] = {0};
       //Read in commmand
       do {
@@ -193,12 +194,12 @@ void * connection_manager(void * connection_manager_argument)
         i++;
       } while((i<sizeof(user_keyrequest_buffer))&&(user_keyrequest_buffer[i-1]!='\0'));
       uint32_t base64_username_length = base64_encode((char *)user_keyrequest_buffer, sizeof(user_keyrequest_buffer), base64_username, sizeof(base64_username), (char *)filesystem_safe_base64_string, 64);
-
-      //Check for user's key in /mail/bsae64_username/public.key
-      /*if (access(/mail/base64_username/public.key, R_OK)<0)
+      snprintf(pub_key_path, sizeof(pub_key_path), "%s%s%s", "/mail/", base64_username, "/public.key");
+      //Check for user's key in /mail/base64_username/public.key
+      if (access(pub_key_path, R_OK)<0)
       {
         //format and write key response.
-      }*/
+      }
 
       //Clean buffers
       memset(thread_command_buffer, 0, sizeof(thread_command_buffer));
@@ -367,8 +368,6 @@ void * connection_manager(void * connection_manager_argument)
          #endif /*DEBUG*/
          print_to_log("Mail has arrived for the server. Processing.",LOG_INFO);
          //Destination is this domain and for the server
-         process_server_mail(thread_connection, unique_file_name);
-
        }
        else if ((memcmp(dest_server_buffer, home_domain, dest_server_counter)==0))
        {
