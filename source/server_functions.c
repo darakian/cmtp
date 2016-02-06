@@ -194,11 +194,20 @@ void * connection_manager(void * connection_manager_argument)
         i++;
       } while((i<sizeof(user_keyrequest_buffer))&&(user_keyrequest_buffer[i-1]!='\0'));
       uint32_t base64_username_length = base64_encode((char *)user_keyrequest_buffer, sizeof(user_keyrequest_buffer), base64_username, sizeof(base64_username), (char *)filesystem_safe_base64_string, 64);
-      snprintf(pub_key_path, sizeof(pub_key_path), "%s%s%s", "/mail/", base64_username, "/public.key");
+      if (snprintf(pub_key_path, sizeof(pub_key_path), "%s%s%s", "/mail/", base64_username, "/public.key")<0)
+      {
+        perror("snprintf");
+        print_to_log("snprintf error. Cannot check for user public key", LOG_ERR);
+      }
       //Check for user's key in /mail/base64_username/public.key
       if (access(pub_key_path, R_OK)<0)
       {
-        //format and write key response.
+        perror("access");
+        print_to_log("Cannot access user public key. User may not exist.", LOG_ERR);
+      }
+      else
+      {
+        //Read public key and reply to request with it.
       }
 
       //Clean buffers
