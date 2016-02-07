@@ -528,7 +528,8 @@ int parse_config(char * config_file, struct config_struct * running_config)
   cfg_opt_t opts[] =
 	{
 	  CFG_STR("domain", "", CFGF_NONE),
-    CFG_INT("connection_timeout_in_seconds", "", CFGF_NONE),
+    CFG_INT("connection_timeout_in_seconds", 0, CFGF_NONE),
+    CFG_INT("max_connections", 0, CFGF_NONE),
 	  CFG_END()
 	};
 	cfg_t *cfg;
@@ -546,6 +547,11 @@ int parse_config(char * config_file, struct config_struct * running_config)
    {
      //load connection_timeout_in_seconds into struct here.
      running_config->connection_timeout_in_seconds = cfg_getint(cfg, "connection_timeout_in_seconds");
+   }
+   if (cfg_getint(cfg, "max_connections")<=1000)
+   {
+     //load connection_timeout_in_seconds into struct here.
+     running_config->max_connections = cfg_getint(cfg, "max_connections");
    }
    return 0;
 }

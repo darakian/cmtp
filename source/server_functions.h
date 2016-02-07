@@ -25,6 +25,7 @@ struct connection_manager_structure
 struct config_struct {
   char domain[255];
   int connection_timeout_in_seconds;
+  int max_connections;
 };
 
 /*
