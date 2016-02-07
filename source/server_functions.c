@@ -304,6 +304,7 @@ void * connection_manager(void * connection_manager_argument)
       //Get file ready to write
       //TODO needs to be /mail/user/unique_file_name
       char unique_file_name[129] = {0};
+      
       char base64_username[341] = {0};
       char unique_file_location[522] = {0};
       //TODO Need to check if user is part of this domain. If not the file location should be some temporary storage.
