@@ -34,10 +34,6 @@ int main()
 	{
 		if ((temp_connection=accept(server_socket, (struct sockaddr *)&temp_connection_sockaddr, &temp_addr_length))>-1)
 		{
-			while(1)
-			{
-				
-			}
 			//Create thread
 			pthread_t connection_thread;
 			//printf("FD %d confirmed as set. Passing connection to connection_manager\n", j);
