@@ -16,8 +16,11 @@
 
 int main()
 {
-	int server_socket = server_init();
-	int temp_connection = 0;
+	sem_t thread_count;
+	uint32_t max_connections = 0;
+	uint32_t server_socket = server_init(max_connections);
+	sem_init(&thread_count, 0, max_connections);
+	uint32_t temp_connection = 0;
 	struct sockaddr temp_connection_sockaddr;
 	socklen_t temp_addr_length = sizeof(temp_connection_sockaddr);
 

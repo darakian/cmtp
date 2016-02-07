@@ -42,13 +42,14 @@ const char cmtp_command_NOOP[] = {"NOOP\n"};
 const char cmtp_command_OBAI[] = {"OBAI\n"};
 const char cmtp_command_KEYREQUEST[] = {"KEYREQUEST\n"};
 char home_domain[64] = {0};
+uint32_t MAX_CONNECTIONS = 10;
 
 
 /*
 Ensure that server has everything it needs to begin operation.
 @return -1 on failure, a socket file descriptor on success.
 */
-int server_init()
+int server_init(uint32_t maximum_connections)
 {
   static uint32_t system_init = 0;
   static uint32_t server_socket = 0;
@@ -83,6 +84,8 @@ int server_init()
     {
       print_to_log("Cannot read config file. Proceeding with caution", LOG_ERR);
     }
+    //Allows caller to know max connections
+    maximum_connections = working_config.max_connections;
 
     if ((create_verify_dir(jail_directory)<0))
     {

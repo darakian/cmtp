@@ -7,14 +7,13 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <confuse.h>
+#include <semaphore.h>
 
 #define LISTEN_PORT 9001
 #define SEND_PORT 9002
-#define MAX_CONNECTIONS 10
 #define CMTP_VERSION '1'
 #define MAIL_READ_BUFFER 1
 #define CMTP_DIRECTORY /var/cmtp
-
 
 struct connection_manager_structure
 {
