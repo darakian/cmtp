@@ -190,13 +190,31 @@ void * connection_manager(void * connection_manager_argument)
       char base64_username[341] = {0};
       char pub_key_path[358] = {0};
       char user_keyrequest_buffer[ROUTING_FIELD_SIZE] = {0};
-      //Read in commmand
+      char domain_keyrequest_buffer[ROUTING_FIELD_SIZE] = {0};
+      //Read in username
       do {
         read(thread_connection, user_keyrequest_buffer+i, 1);
         //printf("user_keyrequest_buffer[%d] = %c/%x\n",i,user_keyrequest_buffer[i], user_keyrequest_buffer[i]);
         i++;
       } while((i<sizeof(user_keyrequest_buffer))&&(user_keyrequest_buffer[i-1]!='\0'));
+      if (memcmp(user_keyrequest_buffer, 0, 1)==0)
+      {
+        //Wants server key. Reply and return.
+      }
+
       uint32_t base64_username_length = base64_encode((char *)user_keyrequest_buffer, sizeof(user_keyrequest_buffer), base64_username, sizeof(base64_username), (char *)filesystem_safe_base64_string, 64);
+
+      do {
+        read(thread_connection, domain_keyrequest_buffer+i, 1);
+        //printf("domain_keyrequest_buffer[%d] = %c/%x\n",i,domain_keyrequest_buffer[i], domain_keyrequest_buffer[i]);
+        i++;
+      } while((i<sizeof(domain_keyrequest_buffer))&&(domain_keyrequest_buffer[i-1]!='\0'));
+
+      if (memcmp(&domain_keyrequest_buffer, &home_domain, ROUTING_FIELD_SIZE)!=0)
+      {
+        //Keyrequest is for a different domain. Send error message and return.
+      }
+
       if (snprintf(pub_key_path, sizeof(pub_key_path), "%s%s%s", "/mail/", base64_username, "/public.key")<0)
       {
         perror("snprintf");
