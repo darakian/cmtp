@@ -27,11 +27,15 @@ struct config_struct {
   int max_connections;
 };
 
+struct init_params {
+  int max_available_connections;
+};
+
 /*
 All functions that follow can fail and must fail in an acceptible way (-1 as return value)
 */
 
-int server_init();
+int server_init(struct init_params * passback_params);
 
 int forwardMessage(char * file_to_foward, char * dest_server_string);
 

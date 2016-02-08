@@ -17,8 +17,9 @@
 int main()
 {
 	sem_t thread_count;
+	struct init_params running_params;
 	uint32_t max_connections = 0;
-	uint32_t server_socket = server_init(max_connections);
+	uint32_t server_socket = server_init(&running_params);
 	sem_init(&thread_count, 0, max_connections);
 	uint32_t temp_connection = 0;
 	struct sockaddr temp_connection_sockaddr;

@@ -49,7 +49,7 @@ uint32_t MAX_CONNECTIONS = 10;
 Ensure that server has everything it needs to begin operation.
 @return -1 on failure, a socket file descriptor on success.
 */
-int server_init(uint32_t maximum_connections)
+int server_init(struct init_params * passback_params)
 {
   static uint32_t system_init = 0;
   static uint32_t server_socket = 0;
@@ -85,7 +85,7 @@ int server_init(uint32_t maximum_connections)
       print_to_log("Cannot read config file. Proceeding with caution", LOG_ERR);
     }
     //Allows caller to know max connections
-    maximum_connections = working_config.max_connections;
+    passback_params->max_available_connections = working_config.max_connections;
 
     if ((create_verify_dir(jail_directory)<0))
     {
@@ -304,7 +304,7 @@ void * connection_manager(void * connection_manager_argument)
       //Get file ready to write
       //TODO needs to be /mail/user/unique_file_name
       char unique_file_name[129] = {0};
-      
+
       char base64_username[341] = {0};
       char unique_file_location[522] = {0};
       //TODO Need to check if user is part of this domain. If not the file location should be some temporary storage.
