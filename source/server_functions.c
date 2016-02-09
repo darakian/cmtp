@@ -93,7 +93,7 @@ int server_init(struct init_params * passback_params)
     //Check for Keys
     if (access("/etc/cmtp/public.key", R_OK)<0)||(access("/etc/cmtp/private.key",R_OK)<0)
     {
-      //Key error has occured. At least one of the two keys does not exist. NUKE EVERYTHING (recreate keys).
+      //Key error has occured. At least one of the two keys does not exist. NUKE EVERYTHING!!! (ie. recreate keys).
       //TODO section
       //Am unclear on if I need a second set of keys for signing. Probably not, but it's worth looking into before proceeding.
     }
