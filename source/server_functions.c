@@ -41,6 +41,7 @@ const char cmtp_command_HELP[] = {"HELP\n"};
 const char cmtp_command_NOOP[] = {"NOOP\n"};
 const char cmtp_command_OBAI[] = {"OBAI\n"};
 const char cmtp_command_KEYREQUEST[] = {"KEYREQUEST\n"};
+const char zero_byte = '\0';
 char home_domain[64] = {0};
 uint32_t MAX_CONNECTIONS = 10;
 static char server_public_key[64] = {0};
@@ -89,8 +90,8 @@ int server_init(struct init_params * passback_params)
     passback_params->max_available_connections = working_config.max_connections;
 
     //Read in public and private Keys
-    uint32_t public_key_descriptor = -1;
-    uint32_t private_key_descriptor = -1;
+    int32_t public_key_descriptor = -1;
+    int32_t private_key_descriptor = -1;
     if ((public_key_descriptor = open("/etc/cmtp/public.key", O_RDONLY))<0)
     {
       perror("open");
@@ -236,7 +237,7 @@ void * connection_manager(void * connection_manager_argument)
         //printf("user_keyrequest_buffer[%d] = %c/%x\n",i,user_keyrequest_buffer[i], user_keyrequest_buffer[i]);
         i++;
       } while((i<sizeof(user_keyrequest_buffer))&&(user_keyrequest_buffer[i-1]!='\0'));
-      if (memcmp(user_keyrequest_buffer, 0, 1)==0)
+      if (memcmp(&user_keyrequest_buffer, &zero_byte, 1)==0)
       {
         //Wants server key. Reply and return.
       }
@@ -513,7 +514,7 @@ int forwardMessage(char * file_to_foward, char * dest_server_string)
   print_to_log("Forward message routine starting.", LOG_INFO);
   //Find MX record
   struct sockaddr_storage dest_sockaddr;
-  uint32_t file_to_foward_descriptor;
+  int32_t file_to_foward_descriptor;
   uint32_t mx_family = -1;
   mx_family = resolve_server(dest_server_string, &dest_sockaddr);
   uint32_t temp_socket = 0;
