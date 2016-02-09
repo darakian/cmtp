@@ -90,6 +90,13 @@ int server_init(struct init_params * passback_params)
     //Allows caller to know max connections
     passback_params->max_available_connections = working_config.max_connections;
 
+    //Check for Keys
+    if (access("/etc/cmtp/public.key", R_OK)<0)||(access("/etc/cmtp/private.key",R_OK)<0)
+    {
+      //Key error has occured. At least one of the two keys does not exist. NUKE EVERYTHING (recreate keys).
+      //TODO section
+      //Am unclear on if I need a second set of keys for signing. Probably not, but it's worth looking into before proceeding.
+    }
     //Read in public and private Keys
     int32_t public_key_descriptor = -1;
     int32_t private_key_descriptor = -1;
@@ -110,7 +117,6 @@ int server_init(struct init_params * passback_params)
       perror("close");
       print_to_log("Cannot close public key", LOG_ERR);
     }
-
     if ((private_key_descriptor = open("/etc/cmtp/public.key", O_RDONLY))<0)
     {
       perror("open");
