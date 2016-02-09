@@ -20,7 +20,7 @@ int main()
 	struct init_params running_params;
 	uint32_t max_connections = 0;
 	uint32_t server_socket = server_init(&running_params);
-	sem_init(&thread_count, 0, running_params->max_available_connections);
+	sem_init(&thread_count, 0, running_params.max_available_connections);
 	uint32_t temp_connection = 0;
 	struct sockaddr temp_connection_sockaddr;
 	socklen_t temp_addr_length = sizeof(temp_connection_sockaddr);

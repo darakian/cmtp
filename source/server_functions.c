@@ -43,7 +43,8 @@ const char cmtp_command_OBAI[] = {"OBAI\n"};
 const char cmtp_command_KEYREQUEST[] = {"KEYREQUEST\n"};
 char home_domain[64] = {0};
 uint32_t MAX_CONNECTIONS = 10;
-
+static char server_public_key[64] = {0};
+static char server_private_key[64] = {0};
 
 /*
 Ensure that server has everything it needs to begin operation.
@@ -86,6 +87,44 @@ int server_init(struct init_params * passback_params)
     }
     //Allows caller to know max connections
     passback_params->max_available_connections = working_config.max_connections;
+
+    //Read in public and private Keys
+    uint32_t public_key_descriptor = -1;
+    uint32_t private_key_descriptor = -1;
+    if ((public_key_descriptor = open("/etc/cmtp/public.key", O_RDONLY))<0)
+    {
+      perror("open");
+      print_to_log("Cannot open public key. Error, Error!", LOG_CRIT);
+      return -1;
+    }
+    if (read(public_key_descriptor, &server_public_key, sizeof(server_public_key))<0)
+    {
+      perror("read");
+      print_to_log("Cannot read public key.", LOG_CRIT);
+      return -1;
+    }
+    if (close(public_key_descriptor)<0)
+    {
+      perror("close");
+      print_to_log("Cannot close public key", LOG_ERR);
+    }
+
+    if ((private_key_descriptor = open("/etc/cmtp/public.key", O_RDONLY))<0)
+    {
+      perror("open");
+      print_to_log("Cannot open private key. Error, Error!", LOG_ERR);
+    }
+    if (read(private_key_descriptor, &server_private_key, sizeof(server_private_key))<0)
+    {
+      perror("read");
+      print_to_log("Cannot read private key.", LOG_CRIT);
+      return -1;
+    }
+    if (close(private_key_descriptor)<0)
+    {
+      perror("close");
+      print_to_log("Cannot close private key", LOG_ERR);
+    }
 
     if ((create_verify_dir(jail_directory)<0))
     {
