@@ -95,11 +95,13 @@ int server_init(struct init_params * passback_params)
     int32_t public_key_descriptor = -1;
     int32_t private_key_descriptor = -1;
     //Check for Keys
+    create_verify_dir("/etc/cmtp/");
     if ((access("/etc/cmtp/public.key", R_OK)<0)||(access("/etc/cmtp/private.key",R_OK)<0))
     {
+      printf("Attempting to create keys\n");
       //Key error has occured. At least one of the two keys does not exist. NUKE EVERYTHING!!! (ie. recreate keys).
       crypto_sign_ed25519_keypair(server_public_key, server_private_key);
-      if ((public_key_descriptor=open("/etc/cmtp/public.key", O_WRONLY))<0)
+      if ((public_key_descriptor=open("/etc/cmtp/public.key", O_WRONLY|O_CREAT, S_IRUSR|S_IWUSR))<0)
       {
         perror("open");
         print_to_log("Error opening public key. Cannot store public key", LOG_ERR);
@@ -115,12 +117,12 @@ int server_init(struct init_params * passback_params)
         print_to_log("Cannot close public key", LOG_ERR);
       }
 
-      if ((private_key_descriptor=open("/etc/cmtp/public.key", O_WRONLY))<0)
+      if ((private_key_descriptor=open("/etc/cmtp/private.key", O_WRONLY|O_CREAT, S_IRUSR|S_IWUSR))<0)
       {
         perror("open");
         print_to_log("Error opening private key. Cannot store public key", LOG_ERR);
       }
-      if (write(private_key_descriptor, &server_public_key, sizeof(server_public_key))<0)
+      if (write(private_key_descriptor, &server_private_key, sizeof(server_private_key))<0)
       {
         perror("write");
         print_to_log("Error writing private key. Cannot store public key", LOG_ERR);
