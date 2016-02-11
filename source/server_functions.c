@@ -281,7 +281,9 @@ void * connection_manager(void * connection_manager_argument)
         //printf("user_keyrequest_buffer[%d] = %c/%x\n",i,user_keyrequest_buffer[i], user_keyrequest_buffer[i]);
         i++;
       } while((i<sizeof(user_keyrequest_buffer))&&(user_keyrequest_buffer[i-1]!='\0'));
-      if (memcmp(&user_keyrequest_buffer, &zero_byte, 1)==0)
+      if (memcmp(user_keyrequest_buffer, &zero_byte, 1)==0)
+      //try this
+      //if(user_keyrequest_buffer[0]==0)
       {
         unsigned char signature[crypto_sign_BYTES];
         crypto_sign_detached(signature, NULL, server_public_key, sizeof(server_public_key), server_private_key);
