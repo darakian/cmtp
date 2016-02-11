@@ -55,6 +55,10 @@ In figure 1 we see the a graphical overview of the message format. A single row 
 The log is simply defined as a collection of line feed terminated, utf-8 messages. The log is to be used by any entity processing the specific piece of mail and can be used for general status messages as well as for more critical issues.
 
 \section{Message Body Structure}
+\subsection{Internal Header}
+Ya... need to write this down.
+\subsection{Internal Body}
+The easy part here. This is simply utf-8 text.
 
 \section{Attachment Structure}
 The Attachment is a simple structure. The first 255 bytes of the structure is reserved for the utf-8 file name and the rest of the structure is for actual file data. The file name should be null terminated unless it is using all 255 bytes for name data.
