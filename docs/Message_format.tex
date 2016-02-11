@@ -57,5 +57,6 @@ The log is simply defined as a collection of line feed terminated, utf-8 message
 \section{Message Body Structure}
 
 \section{Attachment Structure}
+The Attachment is a simple structure. The first 255 bytes of the structure is reserved for the utf-8 file name and the rest of the structure is for actual file data. The file name should be null terminated unless it is using all 255 bytes for name data.
 
 \end{document}
