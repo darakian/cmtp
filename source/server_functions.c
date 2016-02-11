@@ -35,10 +35,12 @@ const char cmtp_welcome[] = {"Welcome to CMTP version < 1\n"};
 const char cmtp_noop[] = "O_O\n";
 const char cmtp_help[] = "Commands: OHAI, MAIL, HELP, NOOP, KEYREQUEST, OBAI\n";
 const char cmtp_obai[] = "Good bye\n";
+const char cmtp_login[] = "T_T\n";
 const char cmtp_command_OHAI[] = {"OHAI\n"};
 const char cmtp_command_MAIL[] = {"MAIL\n"};
 const char cmtp_command_HELP[] = {"HELP\n"};
 const char cmtp_command_NOOP[] = {"NOOP\n"};
+const char cmtp_command_LOGIN[] = {"LOGIN\n"};
 const char cmtp_command_OBAI[] = {"OBAI\n"};
 const char cmtp_command_KEYREQUEST[] = {"KEYREQUEST\n"};
 const char zero_byte = '\0';
@@ -265,7 +267,7 @@ void * connection_manager(void * connection_manager_argument)
       memset(thread_command_buffer, 0, sizeof(thread_command_buffer));
     }
 
-    //KEYREQUEST <USER>
+    //KEYREQUEST <USER> <DOMAIN>
     //Should send the crypto_type (All 4 bytes!) followed by the public key of the null terminated user followed by the server signature of the users public key.
     if (i==11&&memcmp(cmtp_command_KEYREQUEST, thread_command_buffer, sizeof(cmtp_command_KEYREQUEST))==0)
     {
@@ -339,6 +341,15 @@ void * connection_manager(void * connection_manager_argument)
       //Clean thread_command_buffer
       memset(thread_command_buffer, 0, sizeof(thread_command_buffer));
     }
+
+    //LOGIN <USER>
+    if (memcmp(cmtp_command_NOOP, thread_command_buffer, 4)==0)
+    {
+      write(thread_connection, cmtp_login, sizeof(cmtp_login));
+      //Clean thread_command_buffer
+      memset(thread_command_buffer, 0, sizeof(thread_command_buffer));
+    }
+
 
     //MAIL
     if (memcmp(cmtp_command_MAIL, thread_command_buffer, 4)==0)
