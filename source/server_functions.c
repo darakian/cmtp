@@ -333,7 +333,6 @@ void * connection_manager(void * connection_manager_argument)
       memset(user_keyrequest_buffer, 0, sizeof(user_keyrequest_buffer));
     }
 
-
     //NOOP
     if (memcmp(cmtp_command_NOOP, thread_command_buffer, 4)==0)
     {
@@ -343,13 +342,14 @@ void * connection_manager(void * connection_manager_argument)
     }
 
     //LOGIN <USER>
+    //How a user initiates a login. For now server will simply send public and private keys to the user.
+    //In the future this can be made more elaborate with the user signing something to prove they can decrypt the private key.
     if (memcmp(cmtp_command_NOOP, thread_command_buffer, 4)==0)
     {
       write(thread_connection, cmtp_login, sizeof(cmtp_login));
       //Clean thread_command_buffer
       memset(thread_command_buffer, 0, sizeof(thread_command_buffer));
     }
-
 
     //MAIL
     if (memcmp(cmtp_command_MAIL, thread_command_buffer, 4)==0)
