@@ -35,7 +35,7 @@ In figure 1 we see the a graphical overview of the message format. A single row 
 
 \subsection{Field Defenitions}
 \begin{description}
-  \item[Version] \hfill \\ A four byte integer used to mark crypto version in use.
+  \item[Version] \hfill \\ A four byte integer used to mark the version of the message structure. The type of cryptography in use is also defined by this number. This document covers version 1.
   \item[Attachment Count] \hfill \\ A four byte integer used to mark how many attachment fields follow.
   \item[Log Length] \hfill \\ An eight byte integer (long) used to mark how many bytes are in the log field.
   \item[Body Length] \hfill \\  An eight byte integer (long) used to mark how many bytes are in the message body field.
@@ -53,6 +53,11 @@ In figure 1 we see the a graphical overview of the message format. A single row 
 
 \section{Log Structure}
 The log is simply defined as a collection of line feed terminated, utf-8 messages. The log is to be used by any entity processing the specific piece of mail and can be used for general status messages as well as for more critical issues.
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.5\linewidth]{log_format.eps}
+\caption{Cipher Mail Log Format}
+\end{figure}
 
 \section{Message Body Structure}
 \subsection{Internal Header}
