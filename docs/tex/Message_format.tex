@@ -61,7 +61,7 @@ The log is simply defined as a collection of line feed terminated, utf-8 message
 
 \section{Message Body Structure}
 \subsection{Internal Header}
-The internal header of a cipher mail message is structure with four fields: Reply To, Carbon copy, Subject, and Date. Each field is a null terminated utf-8 string. An empty field is represented by a null character which means that the smallest possible internal header is 4 bytes long (four null characters).
+The internal header of a cipher mail message needs to contain a variable amount of information; A Subject line/field, a Reply To address, Carbon Copy addresses, and a Creation Date. The Subject, Reply To and Carbon Copies all need to be utf-8 strings, but the date is free to be a more efficient data type. The variable number of carbon copies means we need a length descriptor at the beginning of the message header. 4 bytes should be enough and individual fields can be null terminated.
 \subsection{Internal Body}
 This section is simply a block of utf-8 encoded text. Any non-text data should be transmitted through attachments.
 
