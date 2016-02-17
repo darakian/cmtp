@@ -1,0 +1,36 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+
+\title{The Cipher Mail Transport Protocol Interface}
+\author{Jonathan Moroney}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+
+%\begin{abstract}
+%\end{abstract}
+
+\section{High level overview}
+The Cipher Mail Transport Protocol (CMTP) uses a text based, command/reply interface similar to that of the Simple Mail Transport Protocol (SMTP). The commands for CMTP have been designed to make stateless implementation easy. All commands are terminated by a line feed (\textbackslash n).
+\begin{description}
+  \item [OHAI] \hfill \\
+  This command is used to identify a CMTP client to a CMTP server. This is the CMTP analog to SMTPs HELO/EHLO though there are no parameters that follow.
+  \item [MAIL] \hfill \\
+  This command is used to initiate a mail transfer. After the command is issued the CMTP server should expect a self describing CMTP message to follow and should reply after it has been received.
+  \item [KEYREQUEST <USER> <DOMAIN>] \hfill \\
+  This command is used to request a public key for some user on some domain. The parameters USER and DOMAIN are null terminated.
+  \item [NOOP] \hfill \\
+  This command does nothing but prompt a reply from the CMTP server.
+  \item [LOGIN <USER>] \hfill \\
+  This command is used to initiate a user login.
+  \item [HELP] \hfill \\
+  This command is used by users that need to RTFM.
+  \item [OBAI] \hfill \\
+  This command is used to terminate a connection.
+\end{description}
+
+\end{document}
