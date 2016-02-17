@@ -15,7 +15,7 @@
 %\end{abstract}
 
 \section{High level overview}
-The Cipher Mail Transport Protocol (CMTP) uses a text based, command/reply interface similar to that of the Simple Mail Transport Protocol (SMTP). The commands for CMTP have been designed to make stateless implementation easy. All commands are terminated by a line feed (\textbackslash n).
+The Cipher Mail Transport Protocol (CMTP) uses a text based, command/reply interface similar to that of the Simple Mail Transport Protocol (SMTP). The commands for CMTP have been designed to make stateless implementation easy. All commands are ASCII strings terminated by a line feed (\textbackslash n). ASCII is used over utf-8 for commands as each ASCII character corresponds to one byte.
 \begin{description}
   \item [OHAI] \hfill \\
   This command is used to identify a CMTP client to a CMTP server. This is the CMTP analog to SMTPs HELO/EHLO though there are no parameters that follow.
@@ -32,5 +32,21 @@ The Cipher Mail Transport Protocol (CMTP) uses a text based, command/reply inter
   \item [OBAI] \hfill \\
   This command is used to terminate a connection.
 \end{description}
+
+\section{Deep Dive}
+\subsection{OHAI}
+The OHAI command is in place to prevent SMTP clients from seeing a CMTP server as a valid SMTP server. Conveniently OHAI is four characters long which should mean even the oldest SMTP client should fail in a defined way when attempting to connect to a CMTP server.
+\subsection{MAIL}
+The MAIL command is a stand alone command which servers only to tell the CMTP server that a message is to follow. The CMTP message is self describing in length so that a server knows when it has received the entire thing. Subsequently no state is needed in order to pass a message.
+\subsection{KEYREQUEST <USER> <DOMAIN>}
+UNDER CONSTRUCTION
+\subsection{NOOP}
+The NOOP command exists because SMTP has a NOOP command. This may be removed if a better reason for existence cannot be found.
+\subsection{LOGIN <USER>}
+UNDER CONSTRUCTION
+\subsection{HELP}
+The help command exists because people will be dumb given the chance and in that inevitability the help command is here to... help.
+\subsection{OBAI}
+The OBAI command is in place to terminate a connection. Connections may terminate for other reasons (time outs, tcp connection breaking, etc...), but OBAI allows for a graceful exit. 
 
 \end{document}
