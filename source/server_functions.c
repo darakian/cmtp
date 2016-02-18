@@ -323,7 +323,7 @@ void * connection_manager(void * connection_manager_argument)
       }
       else         //Read public key and reply to request with it.
       {
-        uint32_t user_key_descriptor = open(pub_key_path, O_RDONLY);
+        int32_t user_key_descriptor = open(pub_key_path, O_RDONLY);
         if (user_key_descriptor<0)
         {
           perror("open");
