@@ -261,7 +261,7 @@ void * connection_manager(void * connection_manager_argument)
     //Reset buffer and read again until newline
 
     //OHAI
-    if (memcmp(cmtp_command_OHAI, thread_command_buffer, 4)==0)
+    if (memcmp(cmtp_command_OHAI, thread_command_buffer, sizeof(cmtp_command_OHAI))==0)
     {
       write(thread_connection, cmtp_ohai_response, sizeof(cmtp_ohai_response));
       //Clean thread_command_buffer
@@ -349,7 +349,7 @@ void * connection_manager(void * connection_manager_argument)
     }
 
     //NOOP
-    if (memcmp(cmtp_command_NOOP, thread_command_buffer, 4)==0)
+    if (memcmp(cmtp_command_NOOP, thread_command_buffer, sizeof(cmtp_command_NOOP))==0)
     {
       write(thread_connection, cmtp_noop, sizeof(cmtp_noop));
       //Clean thread_command_buffer
@@ -359,7 +359,7 @@ void * connection_manager(void * connection_manager_argument)
     //LOGIN <USER>
     //How a user initiates a login. For now server will simply send public and private keys to the user.
     //In the future this can be made more elaborate with the user signing something to prove they can decrypt the private key.
-    if (memcmp(cmtp_command_NOOP, thread_command_buffer, 4)==0)
+    if (memcmp(cmtp_command_LOGIN, thread_command_buffer, sizeof(cmtp_command_LOGIN))==0)
     {
       write(thread_connection, cmtp_login, sizeof(cmtp_login));
       //Clean thread_command_buffer
@@ -367,7 +367,7 @@ void * connection_manager(void * connection_manager_argument)
     }
 
     //MAIL
-    if (memcmp(cmtp_command_MAIL, thread_command_buffer, 4)==0)
+    if (memcmp(cmtp_command_MAIL, thread_command_buffer, sizeof(cmtp_command_MAIL))==0)
     {
       #ifdef DEBUG
       printf("Entering MAIL subroutine\n");
@@ -554,7 +554,7 @@ void * connection_manager(void * connection_manager_argument)
     //End MAIL section
 
     //HELP
-    if (memcmp(cmtp_command_HELP, thread_command_buffer, 4)==0)
+    if (memcmp(cmtp_command_HELP, thread_command_buffer, sizeof(cmtp_command_HELP))==0)
     {
       write(thread_connection, cmtp_help, sizeof(cmtp_help));
 

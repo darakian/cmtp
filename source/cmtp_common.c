@@ -298,9 +298,12 @@ int init_jail(char * jail_dir)
   write_to_file(NULL, 0, "etc/resolv.conf");
   if(mount("/etc/resolv.conf", "etc/resolv.conf", 0, MS_BIND, 0)<0)
   {
-    print_to_log("Cannot mount resolv.conf in jail.", LOG_EMERG);
-    perror("mount");
-    return -1;
+    if (access("etc/resolv.conf", R_OK)<0)
+    {
+      print_to_log("Cannot mount resolv.conf in jail.", LOG_EMERG);
+      perror("First jail mount");
+      return -1;
+    }
   }
   create_verify_dir("dev");
   if (access("dev/log", R_OK|W_OK)<0)
@@ -309,9 +312,12 @@ int init_jail(char * jail_dir)
   }
   if(mount("/dev/log", "dev/log", 0, MS_BIND, 0)<0)
   {
-    print_to_log("Cannot mount /dev/log in jail.", LOG_EMERG);
-    perror("mount");
-    return -1;
+    if (access("dev/log", R_OK)<0)
+    {
+      print_to_log("Cannot mount /dev/log in jail.", LOG_EMERG);
+      perror("Second jail mount");
+      return -1;
+    }
   }
   //Move to a 'safe' directory before returning.
   if (chdir("/var")<0)
