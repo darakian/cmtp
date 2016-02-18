@@ -43,7 +43,7 @@ const char cmtp_command_NOOP[] = {"NOOP\n"};
 const char cmtp_command_LOGIN[] = {"LOGIN\n"};
 const char cmtp_command_OBAI[] = {"OBAI\n"};
 const char cmtp_command_KEYREQUEST[] = {"KEYREQUEST\n"};
-const char zero_byte = '\0';
+const char termination_char = '\0';
 const char crypto_version[4] = {0};
 char home_domain[64] = {0};
 uint32_t MAX_CONNECTIONS = 10;
@@ -255,6 +255,8 @@ void * connection_manager(void * connection_manager_argument)
       //printf("thread_command_buffer[%d] = %c/%x\n",i,thread_command_buffer[i], thread_command_buffer[i]);
       i++;
     } while((i<sizeof(thread_command_buffer))&&(thread_command_buffer[i-1]!='\n'));
+    //Change \n to \0 by way of a termination character variable
+
     //Test for end of buffer
     //Send error to other end
     //Reset buffer and read again until newline
@@ -277,13 +279,15 @@ void * connection_manager(void * connection_manager_argument)
       char pub_key_path[358] = {0};
       char user_keyrequest_buffer[ROUTING_FIELD_SIZE] = {0};
       char domain_keyrequest_buffer[ROUTING_FIELD_SIZE] = {0};
+      unsigned char user_public_key[crypto_sign_ed25519_PUBLICKEYBYTES] = {0};
+      unsigned char signature_of_public_key[crypto_sign_BYTES] = {0};
       //Read in username
       do {
         read(thread_connection, user_keyrequest_buffer+i, 1);
         //printf("user_keyrequest_buffer[%d] = %c/%x\n",i,user_keyrequest_buffer[i], user_keyrequest_buffer[i]);
         i++;
       } while((i<sizeof(user_keyrequest_buffer))&&(user_keyrequest_buffer[i-1]!='\0'));
-      if (memcmp(user_keyrequest_buffer, &zero_byte, 1)==0)
+      if (memcmp(user_keyrequest_buffer, &termination_char, 1)==0)
       //try this
       //if(user_keyrequest_buffer[0]==0)
       {
@@ -322,9 +326,25 @@ void * connection_manager(void * connection_manager_argument)
         perror("access");
         print_to_log("Cannot access user public key. User may not exist.", LOG_ERR);
       }
-      else
+      else         //Read public key and reply to request with it.
       {
-        //Read public key and reply to request with it.
+        uint32_t user_key_descriptor = open(pub_key_path, O_RDONLY);
+        if (user_key_descriptor<0)
+        {
+          perror("open");
+          print_to_log("Cannot open user public key", LOG_ERR);
+        }
+        if (read(user_key_descriptor, user_public_key, sizeof(user_public_key))<0)
+        {
+          perror("read");
+          print_to_log("Error reading user public key", LOG_ERR);
+        }
+        //Sign key and store signature in signature_of_public_key
+        crypto_sign_detached(signature_of_public_key, NULL, user_public_key, sizeof(user_public_key), server_private_key);
+        //Send it all
+        write(thread_connection, crypto_version, sizeof(crypto_version));
+        write(thread_connection, user_public_key, sizeof(user_public_key));
+        write(thread_connection, signature_of_public_key, sizeof(signature_of_public_key));
       }
 
       //Clean buffers
