@@ -697,35 +697,3 @@ int parse_config(char * config_file, struct config_struct * running_config)
    }
    return 0;
 }
-
-/*
-Processes incomming mail destined for the server daemon. Currently this should check for a subject line 'user_keyrequest' and the names of users in the message body.
-@param thread_connection is the connected socket on which the reply should be sent.
-@param unique_file_name is the message that has already arrived and which should be decrypted, parsed, and replied to.
-@return -1 on failure, 0 on success.
-*/
-
-//dest_server should be fully qualified. ex. 'hawaii.edu'
-//This function will be returning (or filling in) a sockaddr for use in a tcp connection
-//Ideally the larger program will be able to do something like connect(resolve_server(hawaii.edu, 10))
-
-//Function to send public key to anyone that asks
-// int sendKey(char * dest_server, int dest_server_length, char * user)
-// {
-//   //Step 1: Connect to dest_server
-//   //Step 2: Stick key in socket
-//   //Step 3: Hope dest_server gets it
-//   return 0;
-// }
-//
-// /*server and server length should probably be a resolved IP structure... maybe*/
-// int requestKey(char * reveive_buffer, int reveive_length, char * account_requested, int request_length, char * server, int server_length)
-// {
-//   //Step 1: Look up MX record holder of server for account_requested
-//   //Step 2: Connect to the holder of the MX record
-//   //Step 3: Determin if holder is CMTP or SMTP
-//     //Step 3a: if SMTP then fail
-//   //Step 4: Send key request
-//   //Step 5 Await reply and pass reply to any waiting clients
-//   return 0;
-// }
