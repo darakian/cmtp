@@ -16,6 +16,8 @@
 
 \section{High level overview}
 The Cipher Mail Transport Protocol (CMTP) uses a text based, command/reply interface similar to that of the Simple Mail Transport Protocol (SMTP). The commands for CMTP have been designed to make stateless implementation easy. All commands are ASCII strings terminated by a line feed (\textbackslash n). ASCII is used over utf-8 for commands as each ASCII character corresponds to one byte.
+%Change termination char to null char
+
 \begin{description}
   \item [OHAI] \hfill \\
   This command is used to identify a CMTP client to a CMTP server. This is the CMTP analog to SMTPs HELO/EHLO though there are no parameters that follow.
