@@ -1,0 +1,72 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{graphicx}
+\usepackage{float}
+
+\title{The Cipher Mail Message Format}
+\author{Jonathan Moroney}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+
+%\begin{abstract}
+%This document outlines the format of the messages used in the CMTP protocol.
+%\end{abstract}
+
+\section{High level overview}
+At the high level a Cipher Mail Message is broken into two classes. Envelope Data and Message Data. Envelope data is the plaintext used for routing a message and determining how to read it. Message data is the encrypted payload. Envelope information includes the sender and receiver, the version number, the log length and log body, the attachment count and attachment lengths, and the message length. All data is in network order on the wire. That is Big Endian.
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.5\linewidth]{message_format.eps}
+\caption{Cipher Mail Message Format}
+\end{figure}
+In figure 1 we see the a graphical overview of the message format. A single row is 8 bytes and a sawtooth bottom means variable length. Abreviations are:
+\begin{enumerate}
+  \item A.Count = Attachment Count
+  \item D.Account = Destination Account
+  \item D.Domain = Destination Domain
+  \item S.Account = Source Account
+  \item S.Domain = Source Domain
+\end{enumerate}
+
+\subsection{Field Defenitions}
+\begin{description}
+  \item[Version] \hfill \\ A four byte integer used to mark the version of the message structure. The type of cryptography in use is also defined by this number. This document covers version 1.
+  \item[Attachment Count] \hfill \\ A four byte integer used to mark how many attachment fields follow.
+  \item[Log Length] \hfill \\ An eight byte integer (long) used to mark how many bytes are in the log field.
+  \item[Body Length] \hfill \\  An eight byte integer (long) used to mark how many bytes are in the message body field.
+  \item[Destination Account] \hfill \\ A null terminated utf-8 string used to denote the recipient account of the message. Max length is 255 bytes.
+  \item[Destination Domain] \hfill \\ A null terminated utf-8 string used to denote the recipient domain of the message. Max length is 255 bytes.
+  \item[Source Account] \hfill \\ A null terminated utf-8 string used to denote the sender account of the message. Max length is 255 bytes.
+  \item[Source Domain] \hfill \\ A null terminated utf-8 string used to denote the sender domain of the message. Max length is 255 bytes.
+  \item[Log] \hfill \\ Discussed in section II.
+  \item[Message Body] \hfill \\ Discussed in section III.
+  \item[Attachment Length] \hfill \\ An eight byte integer (long) used to mark how many bytes are in next attachment body.
+  \item[Attachment Body] \hfill \\ Discussed in section IV.
+  
+\end{description}
+
+
+\section{Log Structure}
+The log is simply defined as a collection of line feed terminated, utf-8 messages. The log is to be used by any entity processing the specific piece of mail and can be used for general status messages as well as for more critical issues.
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.5\linewidth]{log_format.eps}
+\caption{Cipher Mail Log Format}
+\end{figure}
+
+\section{Message Body Structure}
+\subsection{Internal Header}
+The internal header of a cipher mail message needs to contain a variable amount of information; A Subject line/field, a Reply To address, Carbon Copy addresses, and a Creation Date. As such the header itself is a variable length structure with each line item being a utf-8 string terminated by a null character. The ordering of the fields is Reply-To, Subject, Date, Carbon Copies. The carbon copies are {username}{\textbackslash 0}{domain}{\textbackslash 0} and are terminated by a double null. ie. {\textbackslash 0}{\textbackslash 0}.
+%Change to be subject, reply to, date, CC list terminated by a null string. No need for a 4 byte header header
+\subsection{Internal Body}
+This section is simply a block of utf-8 encoded text. Any non-text data should be transmitted through attachments.
+
+\section{Attachment Structure}
+The Attachment is a simple structure. The first 255 bytes of the structure is reserved for the utf-8 file name and the rest of the structure is for actual file data. The file name should be null terminated unless it is using all 255 bytes for name data.
+
+\end{document}
