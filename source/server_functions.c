@@ -32,6 +32,7 @@
 
 //Constants
 const char cmtp_welcome[] = {"Welcome to CMTP version < 1\n"};
+const char cmtp_ohai_response[] = {"HAI!!! :3"};
 const char cmtp_noop[] = "O_O\n";
 const char cmtp_help[] = "Commands: OHAI, MAIL, HELP, NOOP, KEYREQUEST, OBAI\n";
 const char cmtp_obai[] = "Good bye\n";
@@ -241,6 +242,7 @@ void * connection_manager(void * connection_manager_argument)
   uint32_t i = 0;
   uint32_t thread_connection = *(uint32_t *) connection_manager_argument;
   free(connection_manager_argument);
+  write(thread_connection, cmtp_welcome, sizeof(cmtp_welcome));
 
   //char mail_message_buffer[MAIL_READ_BUFFER];
   char thread_command_buffer[THREAD_COMMAND_BUFFER_SIZE] = {0};
@@ -264,7 +266,7 @@ void * connection_manager(void * connection_manager_argument)
     //OHAI
     if (memcmp(cmtp_command_OHAI, thread_command_buffer, 4)==0)
     {
-      write(thread_connection, cmtp_welcome, sizeof(cmtp_welcome));
+      write(thread_connection, cmtp_ohai_response, sizeof(cmtp_ohai_response));
       //Clean thread_command_buffer
       memset(thread_command_buffer, 0, sizeof(thread_command_buffer));
     }
