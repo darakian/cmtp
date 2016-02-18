@@ -254,11 +254,8 @@ void * connection_manager(void * connection_manager_argument)
     //Read in commmand
     do {
       read(thread_connection, thread_command_buffer+i, 1);
-      //printf("thread_command_buffer[%d] = %c/%x\n",i,thread_command_buffer[i], thread_command_buffer[i]);
       i++;
-    } while((i<sizeof(thread_command_buffer))&&(thread_command_buffer[i-1]!='\n'));
-    //Change \n to \0 by way of a termination character variable
-
+    } while((i<sizeof(thread_command_buffer))&&(thread_command_buffer[i-1]!=termination_char));
     //Test for end of buffer
     //Send error to other end
     //Reset buffer and read again until newline
