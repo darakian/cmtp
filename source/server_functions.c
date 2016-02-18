@@ -291,15 +291,14 @@ void * connection_manager(void * connection_manager_argument)
       //try this
       //if(user_keyrequest_buffer[0]==0)
       {
-        unsigned char signature[crypto_sign_BYTES];
-        crypto_sign_detached(signature, NULL, server_public_key, sizeof(server_public_key), server_private_key);
+        crypto_sign_detached(signature_of_public_key, NULL, server_public_key, sizeof(server_public_key), server_private_key);
         //Wants server key. Reply and return.
         //Send crypto_type first
         write(thread_connection, crypto_version, sizeof(crypto_version));
         //Then the public key
         write(thread_connection, server_public_key, sizeof(server_public_key));
         //Then the signed public key
-        write(thread_connection, signature, sizeof(signature));
+        write(thread_connection, signature_of_public_key, sizeof(signature_of_public_key));
       }
 
       uint32_t base64_username_length = base64_encode((char *)user_keyrequest_buffer, sizeof(user_keyrequest_buffer), base64_username, sizeof(base64_username), (char *)filesystem_safe_base64_string, 64);
