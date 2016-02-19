@@ -295,10 +295,10 @@ int init_jail(char * jail_dir)
   print_to_log("Initializing cmtpd's jail.", LOG_INFO);
   create_verify_dir("etc");
   create_verify_dir("mail");
-  write_to_file(NULL, 0, "etc/resolv.conf");
-  if(mount("/etc/resolv.conf", "etc/resolv.conf", 0, MS_BIND, 0)<0)
+  if (access("etc/resolv.conf", R_OK)<0)
   {
-    if (access("etc/resolv.conf", R_OK)<0)
+    write_to_file(NULL, 0, "etc/resolv.conf");
+    if(mount("/etc/resolv.conf", "etc/resolv.conf", 0, MS_BIND, 0)<0)
     {
       print_to_log("Cannot mount resolv.conf in jail.", LOG_EMERG);
       perror("First jail mount");
@@ -309,16 +309,14 @@ int init_jail(char * jail_dir)
   if (access("dev/log", R_OK|W_OK)<0)
   {
     write_to_file(NULL, 0, "dev/log");
-  }
-  if(mount("/dev/log", "dev/log", 0, MS_BIND, 0)<0)
-  {
-    if (access("dev/log", R_OK)<0)
+    if(mount("/dev/log", "dev/log", 0, MS_BIND, 0)<0)
     {
       print_to_log("Cannot mount /dev/log in jail.", LOG_EMERG);
       perror("Second jail mount");
       return -1;
     }
   }
+
   //Move to a 'safe' directory before returning.
   if (chdir("/var")<0)
   {
