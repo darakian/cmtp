@@ -1,5 +1,6 @@
 all: cmtp_server cmtp_client
 
+CC = gcc
 OBJECTS = cmtp_common.o client_functions.o server_functions.o
 CLIENT_SOURCE = source/cmtp_client.c source/cmtp_common.c source/client_functions.c include/base64.c
 SERVER_SOURCE = source/cmtp_server.c source/cmtp_common.c source/server_functions.c include/base64.c
@@ -14,27 +15,27 @@ CFLAGS=-g -Wall -Wextra -pedantic -pipe -O0
 cmtp_server: $(SERVER_SOURCE)
 ifndef nodebug
 	mkdir -p bin
-	gcc $(SERVER_SOURCE) $(CFLAGS) -DDEBUG=true -D_GNU_SOURCE $(SERVER_LIBS) -o bin/cmtp_server
+	$(CC) $(SERVER_SOURCE) $(CFLAGS) -DDEBUG=true -D_GNU_SOURCE $(SERVER_LIBS) -o bin/cmtp_server
 	@echo $@ made in debug mode
 else
 	mkdir -p bin
-	gcc $(SERVER_SOURCE) $(CFLAGS) -D_GNU_SOURCE $(SERVER_LIBS) -o bin/cmtp_server
+	$(CC) $(SERVER_SOURCE) $(CFLAGS) -D_GNU_SOURCE $(SERVER_LIBS) -o bin/cmtp_server
 	@echo $@ made
 endif
 
 cmtp_client: $(CLIENT_SOURCE)
 ifndef nodebug
 	mkdir -p bin
-	gcc $(CLIENT_SOURCE) $(CFLAGS) -DDEBUG=true $(CLIENT_LIBS) -o bin/cmtp_client
+	$(CC) $(CLIENT_SOURCE) $(CFLAGS) -DDEBUG=true $(CLIENT_LIBS) -o bin/cmtp_client
 	@echo $@ made in debug mode
 else
 	mkdir -p bin
-	gcc $(CLIENT_SOURCE) $(CFLAGS) $(CLIENT_LIBS) -o bin/cmtp_client
+	$(CC) $(CLIENT_SOURCE) $(CFLAGS) $(CLIENT_LIBS) -o bin/cmtp_client
 	@echo $@ made
 endif
 
 base64: include/base64.c include/base64.h
-	gcc -g include/base64.c $(CFLAGS)
+	$(CC) -g include/base64.c $(CFLAGS)
 
 clean:
 	rm bin/*
