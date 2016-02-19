@@ -163,14 +163,17 @@ int create_verify_dir(char * path)
   char test_file[345] = {0};
   // temp_int = mkdir(path, S_IRWXU);
   // printf("temp_int = %d\n", temp_int);
-  if (mkdir(path, S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH)<0)
+  if (access(path, R_OK|W_OK)<0)
   {
-    if (errno!=EEXIST)
+    if (mkdir(path, S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH)<0)
     {
-      perror("mkdir");
-      print_to_log("failed to create directory", LOG_INFO);
-      print_to_log(path, LOG_INFO);
-      return -1;
+      if (errno!=EEXIST)
+      {
+        perror("mkdir");
+        print_to_log("failed to create directory", LOG_INFO);
+        print_to_log(path, LOG_INFO);
+        return -1;
+      }
     }
   }
   strcat(test_file, path);

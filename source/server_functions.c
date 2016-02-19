@@ -323,7 +323,7 @@ void * connection_manager(void * connection_manager_argument)
       //Check for user's key in /mail/base64_username/public.key
       if (access(pub_key_path, R_OK)<0)
       {
-        perror("access");
+        perror("user access");
         print_to_log("Cannot access user public key. User may not exist.", LOG_ERR);
       }
       else         //Read public key and reply to request with it.
