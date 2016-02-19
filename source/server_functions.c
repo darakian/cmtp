@@ -302,51 +302,52 @@ void * connection_manager(void * connection_manager_argument)
         write(thread_connection, signature_of_public_key, sizeof(signature_of_public_key));
         //Need to end here. Might need to functionize this code.
       }
-      uint32_t base64_username_length = base64_encode((char *)user_keyrequest_buffer, sizeof(user_keyrequest_buffer), base64_username, sizeof(base64_username), (char *)filesystem_safe_base64_string, 64);
+      else
+      {
+        uint32_t base64_username_length = base64_encode((char *)user_keyrequest_buffer, sizeof(user_keyrequest_buffer), base64_username, sizeof(base64_username), (char *)filesystem_safe_base64_string, 64);
+        do {
+          read(thread_connection, domain_keyrequest_buffer+i, 1);
+          //printf("domain_keyrequest_buffer[%d] = %c/%x\n",i,domain_keyrequest_buffer[i], domain_keyrequest_buffer[i]);
+          i++;
+        } while((i<sizeof(domain_keyrequest_buffer))&&(domain_keyrequest_buffer[i-1]!='\0'));
 
-      do {
-        read(thread_connection, domain_keyrequest_buffer+i, 1);
-        //printf("domain_keyrequest_buffer[%d] = %c/%x\n",i,domain_keyrequest_buffer[i], domain_keyrequest_buffer[i]);
-        i++;
-      } while((i<sizeof(domain_keyrequest_buffer))&&(domain_keyrequest_buffer[i-1]!='\0'));
-
-      if (memcmp(&domain_keyrequest_buffer, &home_domain, ROUTING_FIELD_SIZE)!=0)
-      {
-        //Keyrequest is for a different domain. Send error message and return.
-      }
-
-      if (snprintf(pub_key_path, sizeof(pub_key_path), "%s%s%s", "/mail/", base64_username, "/public.key")<0)
-      {
-        perror("snprintf");
-        print_to_log("snprintf error. Cannot check for user public key", LOG_ERR);
-      }
-      //Check for user's key in /mail/base64_username/public.key
-      if (access(pub_key_path, R_OK)<0)
-      {
-        perror("user access");
-        print_to_log("Cannot access user public key. User may not exist.", LOG_ERR);
-      }
-      else         //Read public key and reply to request with it.
-      {
-        int32_t user_key_descriptor = open(pub_key_path, O_RDONLY);
-        if (user_key_descriptor<0)
+        if (memcmp(&domain_keyrequest_buffer, &home_domain, ROUTING_FIELD_SIZE)!=0)
         {
-          perror("open");
-          print_to_log("Cannot open user public key", LOG_ERR);
+          //Keyrequest is for a different domain. Send error message and return.
         }
-        if (read(user_key_descriptor, user_public_key, sizeof(user_public_key))<0)
-        {
-          perror("read");
-          print_to_log("Error reading user public key", LOG_ERR);
-        }
-        //Sign key and store signature in signature_of_public_key
-        crypto_sign_detached(signature_of_public_key, NULL, user_public_key, sizeof(user_public_key), server_private_key);
-        //Send it all
-        write(thread_connection, crypto_version, sizeof(crypto_version));
-        write(thread_connection, user_public_key, sizeof(user_public_key));
-        write(thread_connection, signature_of_public_key, sizeof(signature_of_public_key));
-      }
 
+        if (snprintf(pub_key_path, sizeof(pub_key_path), "%s%s%s", "/mail/", base64_username, "/public.key")<0)
+        {
+          perror("snprintf");
+          print_to_log("snprintf error. Cannot check for user public key", LOG_ERR);
+        }
+        //Check for user's key in /mail/base64_username/public.key
+        if (access(pub_key_path, R_OK)<0)
+        {
+          perror("user access");
+          print_to_log("Cannot access user public key. User may not exist.", LOG_ERR);
+        }
+        else         //Read public key and reply to request with it.
+        {
+          int32_t user_key_descriptor = open(pub_key_path, O_RDONLY);
+          if (user_key_descriptor<0)
+          {
+            perror("open");
+            print_to_log("Cannot open user public key", LOG_ERR);
+          }
+          if (read(user_key_descriptor, user_public_key, sizeof(user_public_key))<0)
+          {
+            perror("read");
+            print_to_log("Error reading user public key", LOG_ERR);
+          }
+          //Sign key and store signature in signature_of_public_key
+          crypto_sign_detached(signature_of_public_key, NULL, user_public_key, sizeof(user_public_key), server_private_key);
+          //Send it all
+          write(thread_connection, crypto_version, sizeof(crypto_version));
+          write(thread_connection, user_public_key, sizeof(user_public_key));
+          write(thread_connection, signature_of_public_key, sizeof(signature_of_public_key));
+        }
+      }
       //Clean buffers
       memset(thread_command_buffer, 0, sizeof(thread_command_buffer));
       memset(base64_username, 0, sizeof(base64_username));
