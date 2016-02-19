@@ -254,11 +254,6 @@ void * connection_manager(void * connection_manager_argument)
     //Read in commmand
     do {
       read(thread_connection, thread_command_buffer+i, 1);
-      //printf("Have: %s\n", thread_command_buffer);
-      //printf("%x%x%x%x%x\n", thread_command_buffer[0], thread_command_buffer[1], thread_command_buffer[2], thread_command_buffer[3], thread_command_buffer[4]);
-      //printf("Want: %s\n", cmtp_command_OHAI);
-      //printf("%x%x%x%x%x\n", cmtp_command_OHAI[0], cmtp_command_OHAI[1], cmtp_command_OHAI[2], cmtp_command_OHAI[3], cmtp_command_OHAI[4]);
-      //printf("%d\n", memcmp(cmtp_command_OHAI, thread_command_buffer, sizeof(cmtp_command_OHAI)-1));
       i++;
     } while((i<sizeof(thread_command_buffer))&&(thread_command_buffer[i-1]!=termination_char));
     //Test for end of buffer
