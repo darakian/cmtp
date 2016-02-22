@@ -41,7 +41,11 @@ The OHAI command is in place to prevent SMTP clients from seeing a CMTP server a
 \subsection{MAIL}
 The MAIL command is a stand alone command which servers only to tell the CMTP server that a message is to follow. The CMTP message is self describing in length so that a server knows when it has received the entire thing. Subsequently no state is needed in order to pass a message.
 \subsection{KEYREQUEST <USER> <DOMAIN>}
-UNDER CONSTRUCTION
+The KEYREQUEST command takes at least one parameter and at most two. The user parameter is required while the domain parameter is not. Each parameter is null terminated. In the case that the domain parameter is not present the CMTP server should assume that the user is local to it. The reply format is \newline
+[Version][UserPublicKey][ServerSigOfKey][\textbackslash 0]. \newline
+Errors and messages use a similar reply format but with the Version = 0 which corresponds to the plaintext crypto case \newline
+[Version][Message][ServerSigOfMessage][\textbackslash 0]. \newline
+In this way delays and 'no key' messages can be passed back to the client.
 \subsection{NOOP}
 The NOOP command exists because SMTP has a NOOP command. This may be removed if a better reason for existence cannot be found.
 \subsection{LOGIN <USER>}
