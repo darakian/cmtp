@@ -294,6 +294,7 @@ void * connection_manager(void * connection_manager_argument)
         //Wants server key. Reply and return.
         write(thread_connection, crypto_version, sizeof(crypto_version));
         write(thread_connection, server_public_key, sizeof(server_public_key));
+        write(thread_connection, &termination_char, sizeof(termination_char));
         write(thread_connection, signature_of_public_key, sizeof(signature_of_public_key));
         //Need to end here. Might need to functionize this code.
       }
@@ -340,6 +341,7 @@ void * connection_manager(void * connection_manager_argument)
           //Send it all
           write(thread_connection, crypto_version, sizeof(crypto_version));
           write(thread_connection, user_public_key, sizeof(user_public_key));
+          write(thread_connection, &termination_char, sizeof(termination_char));
           write(thread_connection, signature_of_public_key, sizeof(signature_of_public_key));
         }
       }
