@@ -45,7 +45,11 @@ The KEYREQUEST command takes at least one parameter and at most two. The user pa
 [Version][UserPublicKey][\textbackslash 0][ServerSigOfKey][\textbackslash 0]. \newline
 Errors and messages use a similar reply format but with the Version = 0 which corresponds to the plaintext crypto case \newline
 [Version][Message][\textbackslash 0][ServerSigOfMessage][\textbackslash 0]. \newline
-In this way delays and 'no key' messages can be passed back to the client.
+In this way delays and 'no key' messages can be passed back to the client. Currently the only error message is
+\begin{description}
+  \item [KEYNOTAVAILABLE] \hfill \\
+   Used as a reply if requested key does not exist. On the wire this looks like [Version][KEYNOTAVAILABLE][\textbackslash 0][ServerSigOfMessage][\textbackslash 0]
+\end{description}
 \subsection{NOOP}
 The NOOP command exists because SMTP has a NOOP command. This may be removed if a better reason for existence cannot be found.
 \subsection{LOGIN <USER>}
