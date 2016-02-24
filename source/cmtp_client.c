@@ -24,6 +24,18 @@ struct addrinfo * addr_result;
 
 int main(int argc, char *argv[])
 {
+  int client_socket = 0;
+  if (initlog("cmtp_client")<0)
+  {
+    perror("Log cannot be opened. Terminating.");
+    exit(1);
+  }
+  if ((client_socket = client_init())<0)
+  {
+    perror("client init");
+    print_to_log("Client init failed. Terminating", LOG_CRIT);
+    exit(1);
+  }
   ns_msg msg;
   ns_rr rr;
   int res_length = 0;

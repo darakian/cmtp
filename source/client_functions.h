@@ -13,7 +13,7 @@
 
 int client_init();
 
-int connect_remoteV4(struct sockaddr * remote_sockaddr);
+int connect_remoteV4(struct sockaddr_in * remote_sockaddr);
 
 int send_message(char * header_buffer, int header_buffer_length, char * message_buffer, int message_buffer_length);
 

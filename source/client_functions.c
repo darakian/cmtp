@@ -18,7 +18,7 @@
 static int init = 0;
 static char * local_account;
 static int local_account_length = 0;
-int client_socket = 0;
+
 struct sockaddr_in client_address;
 
 
@@ -33,6 +33,7 @@ Takes client program to init level 1
 */
 int client_init()
 {
+	int client_socket = 0;
 	if (init == 1)
 	{
 		return 1;
@@ -47,14 +48,14 @@ int client_init()
 		return -1;
 	}
 	init = 1;
-	return 1;
+	return client_socket;
 }
 
 /*
 Create connection to remote host using local client_socket created in client_init() and using an input sockaddr
 ie. take client to init level 2
 */
-int connect_remoteV4(struct sockaddr * remote_sockaddr)
+int connect_remoteV4(struct sockaddr_in * remote_sockaddr)
 {
 	if (client_init() != 1)
 	{
@@ -105,7 +106,7 @@ int build_header(char * recipient, int recipient_length, int crypto_type, int at
 	//sender + recipient + crypto type + attachment_count
 	int target = 0;
 	//Max header size in bytes is 255*4 + 8 = 1028
-	char * maximal_header[MAX_HEADER];
+	char * maximal_header[MAX_HEADER] = {0};
 	memcpy(maximal_header[target], local_account, local_account_length);
 	target += local_account_length;
 	memcpy(maximal_header[target], recipient, recipient_length);
