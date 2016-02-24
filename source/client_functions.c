@@ -8,6 +8,7 @@
 #include <netinet/in.h>
 #include <arpa/nameser.h>
 #include <resolv.h>
+#include <assert.h>
 
 //Include crypto
 #include <sodium.h>
@@ -38,6 +39,11 @@ int client_init()
 	{
 		return 1;
 	}
+	if (initlog("cmtp_client")<0)
+  {
+    perror("Log cannot be opened. Terminating.");
+    exit(1);
+  }
 	client_socket = socket(AF_INET, SOCK_STREAM, 0);
 	client_address.sin_port = htons(CLIENT_PORT);
 	client_address.sin_family = AF_INET;
@@ -55,7 +61,7 @@ int client_init()
 Create connection to remote host using local client_socket created in client_init() and using an input sockaddr
 ie. take client to init level 2
 */
-int connect_remoteV4(struct sockaddr_in * remote_sockaddr)
+int connect_remoteV4(uint32_t socket, struct sockaddr_in * remote_sockaddr)
 {
 	if (client_init() != 1)
 	{
@@ -69,7 +75,7 @@ int connect_remoteV4(struct sockaddr_in * remote_sockaddr)
 	//struct sockaddr_in* temp_addr = (struct sockaddr_in*)remote_sockaddr;
 	//printf("ai_addr hostname ->  %s\n", inet_ntoa(temp_addr->sin_addr));
 
-	if (connect(client_socket, (const struct sockaddr *) remote_sockaddr, sizeof(*remote_sockaddr)) < 0)
+	if (connect(socket, (const struct sockaddr *) remote_sockaddr, sizeof(*remote_sockaddr)) < 0)
 	{
 		perror("Client connection error");
 	}
@@ -85,7 +91,7 @@ int connect_remoteV6()
 	return 0;
 }
 
-int send_message(char * header_buffer, int header_buffer_length, char * message_buffer, int message_buffer_length)
+int send_message(uint32_t socket, char * header_buffer, int header_buffer_length, char * message_buffer, int message_buffer_length)
 {
 	if (init != 2)
 	{
@@ -96,7 +102,7 @@ int send_message(char * header_buffer, int header_buffer_length, char * message_
 	char send_buffer[header_buffer_length + message_buffer_length];
 	memcpy(&send_buffer[0], header_buffer, header_buffer_length);
 	memcpy(&send_buffer[header_buffer_length], message_buffer, message_buffer_length);
-	write(client_socket, send_buffer, sizeof(send_buffer));
+	write(socket, send_buffer, sizeof(send_buffer));
 	return 0;
 }
 
@@ -165,14 +171,14 @@ int encrypt_all_attachmets(int * sizes, unsigned char * * attachments, int num_a
 	return 1;
 }
 
-int request_key(char * user, char * server, char * keyBuffer)
+int request_key(uint32_t socket, char * user, char * server, char * keyBuffer)
 {
 	//Step 1: Construct request message
 	//Step 2: Send request message to CMTP server and await reply
 	return 0;
 }
 
-int login(char * server, char * saltedLogin, int saltedLoginLength, char * cipherKeyBuffer)
+int login(uint32_t socket, char * server, char * saltedLogin, int saltedLoginLength, char * cipherKeyBuffer)
 {
 	//TODO
 	return 0;

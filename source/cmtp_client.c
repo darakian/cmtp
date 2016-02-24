@@ -12,6 +12,7 @@
 #include <string.h>
 #include <netdb.h>
 #include <netinet/in.h>
+#include <syslog.h>
 
 #include <sodium.h>
 
@@ -25,11 +26,6 @@ struct addrinfo * addr_result;
 int main(int argc, char *argv[])
 {
   int client_socket = 0;
-  if (initlog("cmtp_client")<0)
-  {
-    perror("Log cannot be opened. Terminating.");
-    exit(1);
-  }
   if ((client_socket = client_init())<0)
   {
     perror("client init");
@@ -76,7 +72,7 @@ int main(int argc, char *argv[])
     perror("Client socket init has failed");
   }
 
-  connect_remoteV4(insock);
+  connect_remoteV4(client_socket, insock);
 
 
 
