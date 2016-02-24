@@ -81,6 +81,7 @@ int connect_remoteV4(struct sockaddr * remote_sockaddr)
 int connect_remoteV6()
 {
 	//TODO
+	return 0;
 }
 
 int send_message(char * header_buffer, int header_buffer_length, char * message_buffer, int message_buffer_length)
@@ -95,6 +96,7 @@ int send_message(char * header_buffer, int header_buffer_length, char * message_
 	memcpy(&send_buffer[0], header_buffer, header_buffer_length);
 	memcpy(&send_buffer[header_buffer_length], message_buffer, message_buffer_length);
 	write(client_socket, send_buffer, sizeof(send_buffer));
+	return 0;
 }
 
 int build_header(char * recipient, int recipient_length, int crypto_type, int attachment_count, char * return_buffer)
@@ -117,7 +119,7 @@ int build_header(char * recipient, int recipient_length, int crypto_type, int at
 	return 0;
 }
 
-int build_message(char * body, long body_length, char * recipient_key, char * attachments, long attachments_length,  char * cipher_buffer)
+int build_message(unsigned char * body, long body_length, unsigned char * recipient_key, char * attachments, long attachments_length,  char * cipher_buffer)
 {
 	//Step 1: Encipher body and attachments
 	char * crypto_buffer = calloc(1, 8 + body_length + attachments_length);
@@ -135,7 +137,7 @@ int build_message(char * body, long body_length, char * recipient_key, char * at
 	return 1;
 }
 
-int encrypt_all_attachmets(int * sizes, char * * attachments, int num_attachments)
+int encrypt_all_attachmets(int * sizes, unsigned char * * attachments, int num_attachments)
 {
 	int size = 0;
 	//Get recipient_pk from another function. Using recipient_pk = 0 only for testing
@@ -152,7 +154,7 @@ int encrypt_all_attachmets(int * sizes, char * * attachments, int num_attachment
 		offsets[i] = size;
 		size += sizes[i];
 	}
-	char * result = calloc(1, size);
+	unsigned char * result = calloc(1, size);
 	for (int i = 0; i<num_attachments;i++)
 	{
 		crypto_box_seal(result+offsets[i], attachments[i], sizes[i], &recipient_pk);
@@ -162,18 +164,21 @@ int encrypt_all_attachmets(int * sizes, char * * attachments, int num_attachment
 	return 1;
 }
 
-int requestKey(char * user, char * server, char * keyBuffer)
+int request_key(char * user, char * server, char * keyBuffer)
 {
 	//Step 1: Construct request message
 	//Step 2: Send request message to CMTP server and await reply
+	return 0;
 }
 
 int login(char * server, char * saltedLogin, int saltedLoginLength, char * cipherKeyBuffer)
 {
 	//TODO
+	return 0;
 }
 
-int decipherKey(char * passWord, char * cipherKeyBuffer, char * clearKeyBuffer)
+int decipher_private_key(char * passWord, char * cipherKeyBuffer, char * clearKeyBuffer)
 {
 	//TODO
+	return 0;
 }

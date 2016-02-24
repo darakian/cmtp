@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
   ns_rr rr;
   int res_length = 0;
   struct sockaddr_in * insock;
-  struct sockaddr_storage sock_storage = {};
+  struct sockaddr_storage sock_storage;
   // if (sodium_init()==-1)
   // {
   //   perror("Crypto error");
