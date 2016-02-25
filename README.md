@@ -2,7 +2,8 @@
 The Cipher Mail Transport Protocol (CMTP) is a secure alternative to SMTP.
 ## cmtpd
 A reference implementation for a CMTP server.  
-__status__: Currently under active development and not suitable for use.
+__status__: Currently under active development and in initial alpha state.  
+Will return local keys. Will not return remote keys.
 ## cmtp-client
 A reference implementation for a cmtp client  
-__status__: Non-functional. Development work is focused on the cmtpd.
+__status__: Currently under active development. Working prototype expected by March.
