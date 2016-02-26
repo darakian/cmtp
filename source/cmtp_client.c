@@ -37,10 +37,6 @@ int main(int argc, char *argv[])
   int res_length = 0;
   struct sockaddr_in * insock;
   struct sockaddr_storage sock_storage;
-
-  // int file_descriptor;
-  // file_descriptor = open(argv[1], O_RDONLY);
-  // res_init();
   const char *host = argv[1];
   int ohana = resolve_server(argv[1], &sock_storage);
   if (ohana==AF_INET)
@@ -51,10 +47,6 @@ int main(int argc, char *argv[])
       printf("Setting port of insock\n" );
       insock->sin_port=25;
     }
-    printf("insock.sin_family = %d\n",insock->sin_family);
-    printf("insock.sin_port = %d\n", insock->sin_port);
-    printf("insock hostname ->  %s\n", inet_ntoa(insock->sin_addr));
-
   }
   else if (ohana==AF_INET6)
   {
