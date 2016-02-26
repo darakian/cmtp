@@ -37,11 +37,6 @@ int main(int argc, char *argv[])
   int res_length = 0;
   struct sockaddr_in * insock;
   struct sockaddr_storage sock_storage;
-  // if (sodium_init()==-1)
-  // {
-  //   perror("Crypto error");
-  //   return -1;
-  // }
 
   // int file_descriptor;
   // file_descriptor = open(argv[1], O_RDONLY);

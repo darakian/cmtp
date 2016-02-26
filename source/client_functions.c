@@ -44,6 +44,12 @@ int client_init()
     perror("Log cannot be opened. Terminating.");
     exit(1);
   }
+	if (sodium_init()==-1)
+	{
+		perror("Sodium cannot init. Exiting");
+		print_to_log("Sodium init error. Exiting.", LOG_CRIT);
+		exit(1);
+	}
 	client_socket = socket(AF_INET, SOCK_STREAM, 0);
 	client_address.sin_port = htons(CLIENT_PORT);
 	client_address.sin_family = AF_INET;
