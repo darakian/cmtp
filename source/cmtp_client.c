@@ -38,30 +38,12 @@ int main(int argc, char *argv[])
   struct sockaddr_in * insock;
   struct sockaddr_storage sock_storage;
   const char *host = argv[1];
-  int ohana = resolve_server(argv[1], &sock_storage);
-  if (ohana==AF_INET)
-  {
-    insock = (struct sockaddr_in *) (&sock_storage);
-    if (insock->sin_port==0)
-    {
-      printf("Setting port of insock\n" );
-      insock->sin_port=25;
-    }
-  }
-  else if (ohana==AF_INET6)
-  {
-    struct sockaddr_in6 * insock6 = (struct sockaddr_in6 *) (&sock_storage);
-    //Do some ipv6 things
-  }
-
-  if (client_init()!=1)
-  {
-    perror("Client socket init has failed");
-  }
-
-  connect_remoteV4(client_socket, insock);
-
-
-
-
+  /*Steps:
+  1. Take user as input arg[1]
+  2. Check local system for user private keyBuffer
+  3. Prompt user for password and decrypt password
+  4. Prompt for recipient address
+  5. Fork to prefered editor
+  6. "send"
+  */
 }
