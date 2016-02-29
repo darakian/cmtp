@@ -57,13 +57,17 @@ int main(int argc, char *argv[])
   5. Fork to prefered editor
   6. "send"
   */
+
+  //Exit if username exceeds CMTP limit
   if (strlen(local_user)>255)
   {
     perror("Username too long");
     print_to_log("Username too long. Exiting.", LOG_CRIT);
     exit(1);
   }
+  //Base64-ify the username
   uint32_t base64_username_length = base64_encode((char *)local_user, sizeof(local_user), base64_username, sizeof(base64_username), (char *)filesystem_safe_base64_string, 64);
+  //Check for user private key. Perhaps this should be a call to LOGIN on the server
   snprintf(user_key_path, sizeof(user_key_path), "%s%s%s", "/var/cmtp/mail/", base64_username, "/private.key");
   if (access(user_key_path, R_OK)<0)
   {
@@ -74,4 +78,6 @@ int main(int argc, char *argv[])
     print_to_log("Access to private key failed. Aborting", LOG_CRIT);
     exit(1);
   }
+
+
 }
