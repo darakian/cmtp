@@ -9,6 +9,7 @@
 #include <arpa/nameser.h>
 #include <resolv.h>
 #include <assert.h>
+#include <syslog.h>
 
 //Include crypto
 #include <sodium.h>
