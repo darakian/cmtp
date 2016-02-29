@@ -23,16 +23,6 @@ static int local_account_length = 0;
 
 struct sockaddr_in client_address;
 
-
-/*
-Init levels:
-1 = socket created and ready to connect
-2 = connection to a specific host made and sending is possible
-*/
-
-/*
-Takes client program to init level 1
-*/
 int client_init()
 {
 	int client_socket = 0;
