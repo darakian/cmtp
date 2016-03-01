@@ -60,11 +60,6 @@ ie. take client to init level 2
 */
 int connect_remoteV4(uint32_t socket, struct sockaddr_in * remote_sockaddr)
 {
-	if (client_init() != 1)
-	{
-		return -1;
-	}
-
 	struct sockaddr_in * test_addr = (struct sockaddr_in *) remote_sockaddr;
 	test_addr->sin_family = AF_INET;
 	test_addr->sin_port = htons(25);
@@ -76,9 +71,8 @@ int connect_remoteV4(uint32_t socket, struct sockaddr_in * remote_sockaddr)
 	{
 		perror("Client connection error");
 	}
+	write(socket,"OHAI\0",5);
 	//printf("Connection made\n");
-
-	init = 2;
 	return 1;
 }
 
@@ -86,6 +80,26 @@ int connect_remoteV6()
 {
 	//TODO
 	return 0;
+}
+
+int login(uint32_t socket, char * username, char * key_buffer)
+{
+	char login_buffer[6+255] = {0};
+	char reception_buffer[4+32+1+16+1] = {0};
+	uint32_t login_buffer_length = snprintf(login_buffer, sizeof(login_buffer), "%s%s", "LOGIN\0", username);
+	if (write(socket, login_buffer, login_buffer_length)<0)
+	{
+		perror("write");
+		print_to_log("Error writing login request to socket", LOG_ERR);
+		return -1;
+	}
+	if (read(socket, reception_buffer, sizeof(reception_buffer))<0)
+	{
+		perror("read");
+		print_to_log("Error reading from socket after login attempt.", LOG_ERR);
+		return -1;
+	}
+	//Else we have what we want
 }
 
 int send_message(uint32_t socket, char * header_buffer, int header_buffer_length, char * message_buffer, int message_buffer_length)
@@ -168,16 +182,10 @@ int encrypt_all_attachmets(int * sizes, unsigned char * * attachments, int num_a
 	return 1;
 }
 
-int request_key(uint32_t socket, char * user, char * server, char * keyBuffer)
+int request_key(uint32_t socket, char * user, char * server, char * key_buffer)
 {
 	//Step 1: Construct request message
 	//Step 2: Send request message to CMTP server and await reply
-	return 0;
-}
-
-int login(uint32_t socket, char * server, char * saltedLogin, int saltedLoginLength, char * cipherKeyBuffer)
-{
-	//TODO
 	return 0;
 }
 
