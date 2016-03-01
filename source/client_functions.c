@@ -71,8 +71,13 @@ int connect_remoteV4(uint32_t socket, struct sockaddr_in * remote_sockaddr)
 	{
 		perror("Client connection error");
 	}
-	write(socket,"OHAI\0",5);
-	//printf("Connection made\n");
+	if (write(socket,"OHAI\0",5)<0)
+	{
+		perror("write");
+		print_to_log("Cannot write to connected socket.", LOG_EMERG);
+		return -1;
+	}
+	//Should read for a CMTP response here in order to verify that the connection is a CMTP connection.
 	return 1;
 }
 
@@ -99,7 +104,8 @@ int login(uint32_t socket, char * username, char * key_buffer)
 		print_to_log("Error reading from socket after login attempt.", LOG_ERR);
 		return -1;
 	}
-	//Else we have what we want
+	//Else we have what we want.
+	//Need to lock down LOGIN documentation before proceeding
 }
 
 int send_message(uint32_t socket, char * header_buffer, int header_buffer_length, char * message_buffer, int message_buffer_length)
