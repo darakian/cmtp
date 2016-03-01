@@ -26,11 +26,11 @@ endif
 cmtp_client: $(CLIENT_SOURCE)
 ifndef nodebug
 	mkdir -p bin
-	$(CC) $(CLIENT_SOURCE) $(CFLAGS) -DDEBUG=true $(CLIENT_LIBS) -o bin/cmtp_client
+	$(CC) $(CLIENT_SOURCE) $(CFLAGS) -D_GNU_SOURCE -DDEBUG=true $(CLIENT_LIBS) -o bin/cmtp_client
 	@echo $@ made in debug mode
 else
 	mkdir -p bin
-	$(CC) $(CLIENT_SOURCE) $(CFLAGS) $(CLIENT_LIBS) -o bin/cmtp_client
+	$(CC) $(CLIENT_SOURCE) $(CFLAGS) -D_GNU_SOURCE $(CLIENT_LIBS) -o bin/cmtp_client
 	@echo $@ made
 endif
 
