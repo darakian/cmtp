@@ -16,7 +16,6 @@
 
 #include <sodium.h>
 
-//Make common.h
 #include "../include/base64.h"
 #include "cmtp_common.h"
 #include "client_functions.h"
@@ -35,7 +34,7 @@ int main(int argc, char *argv[])
   char user_key_path[400] = {0};
   char * local_user = argv[1];
   char base64_username[341] = {0};
-
+  char user_password[255] = {0};
 
 
   if ((client_socket = client_init())<0)
@@ -57,12 +56,16 @@ int main(int argc, char *argv[])
   5. Fork to prefered editor
   6. "send"
   */
-
-  //Exit if username exceeds CMTP limit
-  if (strlen(local_user)>255)
+  printf("Password Please:\n");
+  if (fgets(user_password, sizeof(user_password), stdin)==NULL)
   {
-    perror("Username too long");
-    print_to_log("Username too long. Exiting.", LOG_CRIT);
+    perror("fgets");
+  }
+  //Exit if username exceeds CMTP limit
+  if ((strlen(local_user)>255)||(strlen(user_password)<=0))
+  {
+    perror("Username too long or password too short");
+    print_to_log("Username too long or password too short. Exiting.", LOG_CRIT);
     exit(1);
   }
   //Base64-ify the username
@@ -78,6 +81,8 @@ int main(int argc, char *argv[])
     print_to_log("Access to private key failed. Aborting", LOG_CRIT);
     exit(1);
   }
+
+
 
 
 }
