@@ -104,16 +104,22 @@ int login(uint32_t socket, char * username, char * key_buffer)
 
 int send_message(uint32_t socket, char * header_buffer, int header_buffer_length, char * message_buffer, int message_buffer_length)
 {
-	if (init != 2)
+	if (init != 1)
 	{
+		perror("client init has not run. Cannot send mail.");
+		print_to_log("client init has not run. Cannot send mail.", LOG_ERR);
 		return -1;
 	}
 	//Should do SMTP like 'HELO'/'ELOH' here when implemented
-
 	char send_buffer[header_buffer_length + message_buffer_length];
 	memcpy(&send_buffer[0], header_buffer, header_buffer_length);
 	memcpy(&send_buffer[header_buffer_length], message_buffer, message_buffer_length);
-	write(socket, send_buffer, sizeof(send_buffer));
+	if (write(socket, send_buffer, sizeof(send_buffer))<0)
+	{
+		perror("Write");
+		print_to_log("Sending message failed.", LOG_ERR);
+		return -1;
+	}
 	return 0;
 }
 
