@@ -43,6 +43,7 @@ int main(int argc, char *argv[])
     print_to_log("Client init failed. Terminating", LOG_CRIT);
     exit(1);
   }
+  request_key(client_socket, "test123", "again", user_key_path);
   ns_msg msg;
   ns_rr rr;
   int res_length = 0;
@@ -81,6 +82,7 @@ int main(int argc, char *argv[])
     print_to_log("Access to private key failed. Aborting", LOG_CRIT);
     exit(1);
   }
+
 
 
 
