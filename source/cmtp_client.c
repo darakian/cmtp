@@ -44,8 +44,8 @@ int main(int argc, char *argv[])
     exit(1);
   }
   request_key(client_socket, "test123", "again", user_key_path);
-  ns_msg msg;
-  ns_rr rr;
+  //ns_msg msg;
+  //ns_rr rr;
   int res_length = 0;
   struct sockaddr_in * insock;
   struct sockaddr_storage sock_storage;

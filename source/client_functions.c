@@ -15,6 +15,7 @@
 #include <sodium.h>
 
 #include "client_functions.h"
+#include "cmtp_common.h"
 
 //Globals
 static int init = 0;
@@ -113,6 +114,7 @@ int login(uint32_t socket, char * username, char * key_buffer)
 	}
 	//Else we have what we want.
 	//Need to lock down LOGIN documentation before proceeding
+	return 0;
 }
 
 int send_message(uint32_t socket, char * header_buffer, int header_buffer_length, char * message_buffer, int message_buffer_length)
@@ -203,8 +205,9 @@ int encrypt_all_attachmets(int * sizes, unsigned char * * attachments, int num_a
 
 int request_key(uint32_t socket, char * user, char * server, char * key_buffer)
 {
+	uint32_t version = 0;
 	uint32_t request_buffer_length = strlen(user) + strlen(server)+sizeof(cmtp_command_KEYREQUEST)+3;
-	char reception_buffer[4+32+64] = {0};
+	char reception_buffer[4+crypto_sign_ed25519_SECRETKEYBYTES+crypto_sign_BYTES] = {0};
 	char request_buffer[(2*255)+sizeof(cmtp_command_KEYREQUEST)+1] = {0};
 	if (snprintf(request_buffer, sizeof(request_buffer), "%s%s%s%s%s%s", cmtp_command_KEYREQUEST, '\0', user, '\0',server, '\0')<0)
 	{
@@ -226,6 +229,17 @@ int request_key(uint32_t socket, char * user, char * server, char * key_buffer)
 		print_to_log("Cannot read reply from key request.", LOG_ERR);
 	}
 	//Verify and copy result to key_buffer
+	char network_version_buffer[4] = {0};
+	memcpy(network_version_buffer, reception_buffer, 4);
+	version = ntohl((uint32_t)network_version_buffer);
+	//Only version 1 is supported here.
+	if (version!=1)
+	{
+		perror("Key version unsupported");
+		print_to_log("Unsupported key type recived", LOG_ERR);
+		return -1;
+	}
+
 	return 0;
 }
 
