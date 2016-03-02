@@ -28,6 +28,7 @@ const char cmtp_command_NOOP[] = {"NOOP"};
 const char cmtp_command_LOGIN[] = {"LOGIN"};
 const char cmtp_command_OBAI[] = {"OBAI"};
 const char cmtp_command_KEYREQUEST[] = {"KEYREQUEST"};
+char server_public_key[crypto_sign_ed25519_PUBLICKEYBYTES] = {0};
 
 struct sockaddr_in client_address;
 
@@ -231,7 +232,7 @@ int request_key(uint32_t socket, char * user, char * server, char * key_buffer)
 	//Verify and copy result to key_buffer
 	char network_version_buffer[4] = {0};
 	memcpy(network_version_buffer, reception_buffer, 4);
-	version = ntohl((uint32_t)network_version_buffer);
+	version = ntohl((uint32_t)&network_version_buffer);
 	//Only version 1 is supported here.
 	if (version!=1)
 	{
@@ -239,7 +240,15 @@ int request_key(uint32_t socket, char * user, char * server, char * key_buffer)
 		print_to_log("Unsupported key type recived", LOG_ERR);
 		return -1;
 	}
-
+	memcpy(reception_buffer+4, key_buffer, crypto_sign_ed25519_SECRETKEYBYTES);
+	//check signature
+	if (crypto_sign_verify_detached(reception_buffer+4+crypto_sign_ed25519_SECRETKEYBYTES, reception_buffer+4, crypto_sign_ed25519_SECRETKEYBYTES, server_public_key) != 0)
+	{
+    perror("crypto_sign_verify_detached");
+		print_to_log("Signature is not valid for delieverd key", LOG_ERR);
+		memset(key_buffer, 0, crypto_sign_ed25519_SECRETKEYBYTES);
+		return -1;
+	}
 	return 0;
 }
 
