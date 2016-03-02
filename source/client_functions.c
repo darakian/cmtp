@@ -20,6 +20,13 @@
 static int init = 0;
 static char * local_account;
 static int local_account_length = 0;
+const char cmtp_command_OHAI[] = {"OHAI"};
+const char cmtp_command_MAIL[] = {"MAIL"};
+const char cmtp_command_HELP[] = {"HELP"};
+const char cmtp_command_NOOP[] = {"NOOP"};
+const char cmtp_command_LOGIN[] = {"LOGIN"};
+const char cmtp_command_OBAI[] = {"OBAI"};
+const char cmtp_command_KEYREQUEST[] = {"KEYREQUEST"};
 
 struct sockaddr_in client_address;
 
@@ -196,12 +203,33 @@ int encrypt_all_attachmets(int * sizes, unsigned char * * attachments, int num_a
 
 int request_key(uint32_t socket, char * user, char * server, char * key_buffer)
 {
-	//Step 1: Construct request message
-	//Step 2: Send request message to CMTP server and await reply
+	uint32_t request_buffer_length = strlen(user) + strlen(server)+sizeof(cmtp_command_KEYREQUEST)+3;
+	char reception_buffer[4+32+64] = {0};
+	char request_buffer[(2*255)+sizeof(cmtp_command_KEYREQUEST)+1] = {0};
+	if (snprintf(request_buffer, sizeof(request_buffer), "%s%s%s%s%s%s", cmtp_command_KEYREQUEST, '\0', user, '\0',server, '\0')<0)
+	{
+		perror("snprintf");
+		print_to_log("Cannot construct key request buffer.", LOG_ERR);
+		return -1;
+	}
+	//printf("%d\n", request_buffer_length);
+	//printf("%s\n", request_buffer);
+	if (write(socket, request_buffer, request_buffer_length)<0)
+	{
+		perror("write");
+		print_to_log("Cannot send key request.", LOG_ERR);
+		return -1;
+	}
+	if (read(socket, reception_buffer, sizeof(reception_buffer))<0)
+	{
+		perror("read");
+		print_to_log("Cannot read reply from key request.", LOG_ERR);
+	}
+	//Verify and copy result to key_buffer
 	return 0;
 }
 
-int decipher_private_key(char * passWord, char * cipherKeyBuffer, char * clearKeyBuffer)
+int decipher_private_key(char * password, char * cipher_key_buffer, char * clear_key_buffer)
 {
 	//TODO
 	return 0;
