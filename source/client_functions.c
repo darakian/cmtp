@@ -210,7 +210,7 @@ int request_key(uint32_t socket, char * user, char * server, char * key_buffer)
 	uint32_t request_buffer_length = strlen(user) + strlen(server)+sizeof(cmtp_command_KEYREQUEST)+3;
 	char reception_buffer[4+crypto_sign_ed25519_SECRETKEYBYTES+crypto_sign_BYTES] = {0};
 	char request_buffer[(2*255)+sizeof(cmtp_command_KEYREQUEST)+1] = {0};
-	if (snprintf(request_buffer, sizeof(request_buffer), "%s%s%s%s%s%s", cmtp_command_KEYREQUEST, '\0', user, '\0',server, '\0')<0)
+	if (snprintf(request_buffer, sizeof(request_buffer), "%s%c%s%c%s%c", cmtp_command_KEYREQUEST, '\0', user, '\0',server, '\0')<0)
 	{
 		perror("snprintf");
 		print_to_log("Cannot construct key request buffer.", LOG_ERR);
@@ -230,9 +230,7 @@ int request_key(uint32_t socket, char * user, char * server, char * key_buffer)
 		print_to_log("Cannot read reply from key request.", LOG_ERR);
 	}
 	//Verify and copy result to key_buffer
-	char network_version_buffer[4] = {0};
-	memcpy(network_version_buffer, reception_buffer, 4);
-	version = ntohl((uint32_t)&network_version_buffer);
+	version = ntohl(*(uint32_t *)reception_buffer);
 	//Only version 1 is supported here.
 	if (version!=1)
 	{
@@ -240,7 +238,7 @@ int request_key(uint32_t socket, char * user, char * server, char * key_buffer)
 		print_to_log("Unsupported key type recived", LOG_ERR);
 		return -1;
 	}
-	memcpy(reception_buffer+4, key_buffer, crypto_sign_ed25519_SECRETKEYBYTES);
+	memcpy(key_buffer, reception_buffer+4, crypto_sign_ed25519_SECRETKEYBYTES);
 	//check signature
 	if (crypto_sign_verify_detached(reception_buffer+4+crypto_sign_ed25519_SECRETKEYBYTES, reception_buffer+4, crypto_sign_ed25519_SECRETKEYBYTES, server_public_key) != 0)
 	{
