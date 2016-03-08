@@ -275,3 +275,21 @@ int decipher_private_key(char * password, char * cipher_key_buffer, char * clear
 	//TODO
 	return 0;
 }
+
+uint32_t menu_prompt()
+{
+	char option;
+	printf("Welcome to Shorebird version <1\n");
+	printf("**********MENU**********\n");
+	printf("1: Set Recipient\n");
+	printf("2: Compose message\n");
+	printf("3: Add an attachment (NOT YET WORKING)\n");
+	printf("4: Send message\n");
+	printf("5: Quit\n");
+	printf("*********/MENU**********\n");
+	if (fgets(option, sizeof(option), stdin)==NULL)
+  {
+    perror("fgets");
+  }
+	return (uint32_t)option;
+}

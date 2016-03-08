@@ -31,5 +31,7 @@ int request_key(uint32_t socket, char * user, char * server, char * keyBuffer);
 
 int decipher_private_key(char * passWord, char * cipherKeyBuffer, char * clearKeyBuffer);
 
+uint32_t menu_prompt();
+
 
 #endif
