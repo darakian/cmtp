@@ -29,7 +29,7 @@ const char cmtp_command_NOOP[] = {"NOOP"};
 const char cmtp_command_LOGIN[] = {"LOGIN"};
 const char cmtp_command_OBAI[] = {"OBAI"};
 const char cmtp_command_KEYREQUEST[] = {"KEYREQUEST"};
-char server_public_key[crypto_sign_ed25519_PUBLICKEYBYTES] = {0};
+unsigned char server_public_key[crypto_sign_ed25519_PUBLICKEYBYTES] = {0};
 
 struct sockaddr_in client_address;
 
@@ -224,11 +224,11 @@ int encrypt_all_attachmets(int * sizes, unsigned char * * attachments, int num_a
 	return 1;
 }
 
-int request_key(uint32_t socket, char * user, char * server, char * key_buffer)
+int32_t request_key(uint32_t socket, char * user, char * server, unsigned char * key_buffer)
 {
 	uint32_t version = 0;
 	uint32_t request_buffer_length = strlen(user) + strlen(server)+sizeof(cmtp_command_KEYREQUEST)+3;
-	char reception_buffer[4+crypto_sign_ed25519_SECRETKEYBYTES+crypto_sign_BYTES] = {0};
+	unsigned char reception_buffer[4+crypto_sign_ed25519_SECRETKEYBYTES+crypto_sign_BYTES] = {0};
 	char request_buffer[(2*255)+sizeof(cmtp_command_KEYREQUEST)+1] = {0};
 	if (snprintf(request_buffer, sizeof(request_buffer), "%s%c%s%c%s%c", cmtp_command_KEYREQUEST, '\0', user, '\0',server, '\0')<0)
 	{
@@ -270,7 +270,7 @@ int request_key(uint32_t socket, char * user, char * server, char * key_buffer)
 	return 0;
 }
 
-int decipher_private_key(char * password, char * cipher_key_buffer, char * clear_key_buffer)
+int32_t decipher_private_key(char * password, unsigned char * cipher_key_buffer, unsigned char * clear_key_buffer)
 {
 	//TODO
 	return 0;
@@ -278,7 +278,7 @@ int decipher_private_key(char * password, char * cipher_key_buffer, char * clear
 
 uint32_t menu_prompt()
 {
-	char option;
+	char option = {0};
 	printf("Welcome to Shorebird version <1\n");
 	printf("**********MENU**********\n");
 	printf("1: Set Recipient\n");
@@ -287,7 +287,7 @@ uint32_t menu_prompt()
 	printf("4: Send message\n");
 	printf("5: Quit\n");
 	printf("*********/MENU**********\n");
-	if (fgets(option, sizeof(option), stdin)==NULL)
+	if (fgets(&option, sizeof(option), stdin)==NULL)
   {
     perror("fgets");
   }

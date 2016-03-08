@@ -27,9 +27,9 @@ int build_message(unsigned char * body, long body_length, unsigned char * recipi
 
 int encrypt_all_attachmets(int * sizes, unsigned char * * attachments, int num_attachments);
 
-int request_key(uint32_t socket, char * user, char * server, char * keyBuffer);
+int32_t request_key(uint32_t socket, char * user, char * server, unsigned char * key_buffer);
 
-int decipher_private_key(char * passWord, char * cipherKeyBuffer, char * clearKeyBuffer);
+int32_t decipher_private_key(char * password, unsigned char * cipher_key_buffer, unsigned char * clear_key_buffer);
 
 uint32_t menu_prompt();
 
