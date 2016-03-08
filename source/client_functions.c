@@ -10,6 +10,7 @@
 #include <resolv.h>
 #include <assert.h>
 #include <syslog.h>
+#include <sys/wait.h>
 
 //Include crypto
 #include <sodium.h>
@@ -139,11 +140,30 @@ int send_message(uint32_t socket, char * header_buffer, int header_buffer_length
 	return 0;
 }
 
-int build_header(char * recipient, int recipient_length, int crypto_type, int attachment_count, char * return_buffer)
+int32_t write_message(char * temp_file)
+{
+	pid_t child_pid = -1;
+	int32_t wait_result = 0;
+	if(child_pid = fork())
+  {
+		//Parent
+		int32_t status = -1;
+		wait_result = waitpid(child_pid, &status, 0);
+		return 0;
+	}
+	else
+	{
+		//Child
+		execlp("nano", "nano", "-m",  "tmp.file", NULL);
+	}
+	return -1;
+}
+
+int32_t build_header(char * recipient, uint32_t recipient_length, uint32_t crypto_type, uint32_t attachment_count, char * return_buffer)
 {
 	//Concat buffers
 	//sender + recipient + crypto type + attachment_count
-	int target = 0;
+	int32_t target = 0;
 	//Max header size in bytes is 255*4 + 8 = 1028
 	char * maximal_header[MAX_HEADER] = {0};
 	memcpy(maximal_header[target], local_account, local_account_length);

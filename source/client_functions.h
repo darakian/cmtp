@@ -19,7 +19,9 @@ int login(uint32_t socket, char * username, char * key_buffer);
 
 int send_message(uint32_t socket, char * header_buffer, int header_buffer_length, char * message_buffer, int message_buffer_length);
 
-int build_header(char * recipient, int recipient_length, int crypto_type, int attachment_count, char * return_buffer);
+int write_message(char * temp_file);
+
+int32_t build_header(char * recipient, uint32_t recipient_length, uint32_t crypto_type, uint32_t attachment_count, char * return_buffer);
 
 int build_message(unsigned char * body, long body_length, unsigned char * recipient_key, char * attachments, long attachments_length,  char * cipher_buffer);
 
