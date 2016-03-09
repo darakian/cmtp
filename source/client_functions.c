@@ -129,8 +129,8 @@ int send_message(uint32_t socket, char * header_buffer, int header_buffer_length
 	}
 	//Should do SMTP like 'HELO'/'ELOH' here when implemented
 	char send_buffer[header_buffer_length + message_buffer_length];
-	memcpy(&send_buffer[0], header_buffer, header_buffer_length);
-	memcpy(&send_buffer[header_buffer_length], message_buffer, message_buffer_length);
+	memcpy(send_buffer, header_buffer, header_buffer_length);
+	memcpy(send_buffer+header_buffer_length, message_buffer, message_buffer_length);
 	if (write(socket, send_buffer, sizeof(send_buffer))<0)
 	{
 		perror("Write");
@@ -278,7 +278,7 @@ int32_t decipher_private_key(char * password, unsigned char * cipher_key_buffer,
 
 uint32_t menu_prompt()
 {
-	char option = {0};
+	char option[2] = {0};
 	printf("Welcome to Shorebird version <1\n");
 	printf("**********MENU**********\n");
 	printf("1: Set Recipient\n");
@@ -287,11 +287,11 @@ uint32_t menu_prompt()
 	printf("4: Send message\n");
 	printf("5: Quit\n");
 	printf("*********/MENU**********\n");
-	if (fgets(&option, sizeof(option)+2, stdin)==NULL)
+	if (fgets(option, sizeof(option), stdin)==NULL)
   {
     perror("fgets");
   }
-	return (uint32_t)option;
+	return (uint32_t)option[0];
 }
 
 uint32_t create_recipient_string(char * user, char * domain, char * full)
@@ -304,7 +304,7 @@ uint32_t prompt_input_string(char * descriptor, char * storage)
 {
 	char welcome = "Please type in ";
 	printf("%s%s\n", welcome, descriptor);
-	if (fgets(&storage, 255, stdin)==NULL)
+	if (fgets(storage, 255, stdin)==NULL)
   {
     perror("fgets");
   }
