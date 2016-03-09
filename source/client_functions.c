@@ -287,9 +287,26 @@ uint32_t menu_prompt()
 	printf("4: Send message\n");
 	printf("5: Quit\n");
 	printf("*********/MENU**********\n");
-	if (fgets(&option, sizeof(option), stdin)==NULL)
+	if (fgets(&option, sizeof(option)+2, stdin)==NULL)
   {
     perror("fgets");
   }
 	return (uint32_t)option;
+}
+
+uint32_t create_recipient_string(char * user, char * domain, char * full)
+{
+	snprintf(full, sizeof(user)+sizeof(domain), "%s%d%s%d", user, '\0', domain, '\0');
+	return sizeof(user)+sizeof(domain);
+}
+
+uint32_t prompt_input_string(char * descriptor, char * storage)
+{
+	char welcome = "Please type in ";
+	printf("%s%s\n", welcome, descriptor);
+	if (fgets(&storage, 255, stdin)==NULL)
+  {
+    perror("fgets");
+  }
+	return sizeof(storage);
 }

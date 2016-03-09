@@ -77,17 +77,29 @@ int main(int argc, char *argv[])
     exit(1);
   }
 
+  char temp_file = "/var/tmp/cmtp_compose";
+  char recipient_user[256] = {0};
+  char recipient_domain[256] = {0};
   uint32_t option = 0;
-  while((option=menu_prompt())!=5)
+  while((option=(menu_prompt()-48))!=5)
   {
+    printf("option = %x\n", option);
     //Do the thing
     switch(option)
     {
       case 1 :
       print_to_log("User setting recipient", LOG_INFO);
+      prompt_input_string("recipient user", recipient_user);
+      prompt_input_string("recipient domain", recipient_domain);
+      printf("%s %s\n", recipient_user, recipient_domain);
       break;
       case 2 :
       print_to_log("User composing message", LOG_INFO);
+      if(write_message(temp_file)<0)
+      {
+        perror("write_message");
+        print_to_log("composing a message has gone wrong.", LOG_ERR);
+      }
       break;
       case 3 :
       print_to_log("User adding attachment", LOG_INFO);
@@ -95,7 +107,7 @@ int main(int argc, char *argv[])
       case 4 :
       print_to_log("User has sent a message", LOG_INFO);
       break;
-      case 5 :
+      case 5 : //Exit case
       print_to_log("User has terminated Shorebird. Exiting", LOG_INFO);
       exit(0);
       break;
