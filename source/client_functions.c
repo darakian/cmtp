@@ -38,7 +38,7 @@ int client_init()
 	int client_socket = 0;
 	if (init == 1)
 	{
-		return 1;
+		return -1;
 	}
 	if (initlog("cmtp_client")<0)
   {
