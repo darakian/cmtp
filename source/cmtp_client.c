@@ -25,16 +25,18 @@ struct addrinfo * addr_result;
 
 int main(int argc, char *argv[])
 {
-  if (argc != 2)
+  if (argc != 3)
   {
-    printf("Usage: cmtp_client <USERNAME>\n");
+    printf("Usage: cmtp_client <USERNAME> <DOMAIN>\n");
     exit(1);
   }
   int client_socket = 0;
+  unsigned char user_key_buffer[sizeof(crypto_sign_ed25519_SECRETKEYBYTES)] = {0};
   char user_key_path[400] = {0};
   char * local_user = argv[1];
   char base64_username[341] = {0};
   char user_password[255] = {0};
+  printf("Here\n");
 
 
   if ((client_socket = client_init())<0)
@@ -43,20 +45,12 @@ int main(int argc, char *argv[])
     print_to_log("Client init failed. Terminating", LOG_CRIT);
     exit(1);
   }
-  request_key(client_socket, "test123", "again", user_key_path);
+  //request_key(client_socket, argv[1], argv[2], user_key_buffer);
   //ns_msg msg;
   //ns_rr rr;
   int res_length = 0;
   struct sockaddr_in * insock;
   struct sockaddr_storage sock_storage;
-  /*Steps:
-  1. Take user as input arg[1]
-  2. Check local system for user private keyBuffer
-  3. Prompt user for password and decrypt password
-  4. Prompt for recipient address
-  5. Fork to prefered editor
-  6. "send"
-  */
   printf("Password Please:\n");
   if (fgets(user_password, sizeof(user_password), stdin)==NULL)
   {
@@ -82,6 +76,34 @@ int main(int argc, char *argv[])
     print_to_log("Access to private key failed. Aborting", LOG_CRIT);
     exit(1);
   }
+
+  uint32_t option = 0;
+  while((option=menu_prompt())!=5)
+  {
+    //Do the thing
+    switch(option)
+    {
+      case 1 :
+      print_to_log("User setting recipient", LOG_INFO);
+      break;
+      case 2 :
+      print_to_log("User composing message", LOG_INFO);
+      break;
+      case 3 :
+      print_to_log("User adding attachment", LOG_INFO);
+      break;
+      case 4 :
+      print_to_log("User has sent a message", LOG_INFO);
+      break;
+      case 5 :
+      print_to_log("User has terminated Shorebird. Exiting", LOG_INFO);
+      exit(0);
+      break;
+
+    }
+  }
+
+
 
 
 
