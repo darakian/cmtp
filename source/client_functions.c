@@ -11,6 +11,7 @@
 #include <assert.h>
 #include <syslog.h>
 #include <sys/wait.h>
+#include <ctype.h>
 
 //Include crypto
 #include <sodium.h>
@@ -278,7 +279,7 @@ int32_t decipher_private_key(char * password, unsigned char * cipher_key_buffer,
 
 uint32_t menu_prompt()
 {
-	char option[2] = {0};
+	char option[20] = {0};
 	printf("Welcome to Shorebird version <1\n");
 	printf("**********MENU**********\n");
 	printf("1: Set Recipient\n");
@@ -291,6 +292,7 @@ uint32_t menu_prompt()
   {
     perror("fgets");
   }
+	printf("read %x\n", option[0]);
 	return (uint32_t)option[0];
 }
 
@@ -302,11 +304,28 @@ uint32_t create_recipient_string(char * user, char * domain, char * full)
 
 uint32_t prompt_input_string(char * descriptor, char * storage)
 {
-	char welcome = "Please type in ";
+	char * welcome = "Please type in ";
 	printf("%s%s\n", welcome, descriptor);
-	if (fgets(storage, 255, stdin)==NULL)
+	if (fgets(storage, sizeof(storage), stdin)==NULL)
   {
     perror("fgets");
   }
+	printf("size of storage = %d\n", sizeof(storage));
 	return sizeof(storage);
+}
+
+//Return first valid user input char on a line and removes from the input all trailing chars
+char read_input()
+{
+	char input [2];
+	char result = '\0';
+	while (1)
+	{
+		fgets (input, sizeof (input), stdin);
+		if (input [0] == '\n')
+		  return result;
+  	if ((! isspace (input [0])) && (result == '\0'))
+		  result = input [0];
+	}
+	return result;
 }

@@ -81,9 +81,9 @@ int main(int argc, char *argv[])
   char recipient_user[256] = {0};
   char recipient_domain[256] = {0};
   uint32_t option = 0;
-  while((option=(menu_prompt()-48))!=5)
+  while((option=(menu_prompt()-48)))
   {
-    printf("option = %x\n", option);
+    printf("option = %d\n", option);
     //Do the thing
     switch(option)
     {
@@ -111,7 +111,8 @@ int main(int argc, char *argv[])
       print_to_log("User has terminated Shorebird. Exiting", LOG_INFO);
       exit(0);
       break;
-
+      default :
+      break;
     }
   }
 
