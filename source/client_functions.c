@@ -307,11 +307,6 @@ uint32_t prompt_input_string(char * descriptor, char * storage)
 	char * welcome = "Please type in ";
 	char input[256] = {0};
 	printf("%s%s\n", welcome, descriptor);
-	// if (read_input(3, storage)<0)
-	// {
-	// 	perror("read_input");
-	// 	print_to_log("Error reading user input", LOG_ERR);
-	// }
 	if (fgets(input, sizeof(input), stdin)==NULL)
   {
     perror("fgets");
@@ -320,25 +315,4 @@ uint32_t prompt_input_string(char * descriptor, char * storage)
 	printf("length of storage = %d\n", strlen(storage));
 	printf("storage = %s\n", storage);
 	return sizeof(storage);
-}
-
-//Return first length (upto 255) valid chars from stdin. Clears stdin. Returns length of characters read.
-int32_t read_input(uint32_t length, char * return_buffer)
-{
-	if (length>256)
-	{
-		return -1;
-	}
-	char input [256] = {0};
-	for (uint32_t i = 0; i<=length; i++)
-	{
-		printf("Here\n");
-		fgets (input+i, 1, stdin);
-		if (input[i] == '\n')
-		{
-			memcpy(return_buffer, input, i);
-			return i;
-		}
-	}
-	return -1;
 }
