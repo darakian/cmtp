@@ -81,7 +81,7 @@ int main(int argc, char *argv[])
   char recipient_user[256] = {0};
   char recipient_domain[256] = {0};
   char recipient_full[512] = {0};
-  char header_buffer[maximal_header] = {0};
+  char header_buffer[MAX_HEADER] = {0};
   uint32_t recipient_length = 0;
   uint32_t option = 0;
   while((option=(menu_prompt()-48)))
