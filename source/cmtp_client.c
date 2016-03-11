@@ -81,6 +81,8 @@ int main(int argc, char *argv[])
   char recipient_user[256] = {0};
   char recipient_domain[256] = {0};
   char recipient_full[512] = {0};
+  char header_buffer[maximal_header] = {0};
+  uint32_t recipient_length = 0;
   uint32_t option = 0;
   while((option=(menu_prompt()-48)))
   {
@@ -92,7 +94,7 @@ int main(int argc, char *argv[])
       print_to_log("User setting recipient", LOG_INFO);
       prompt_input_string("recipient user", recipient_user);
       prompt_input_string("recipient domain", recipient_domain);
-      create_recipient_string(recipient_user, recipient_domain, recipient_full);
+      recipient_length = create_recipient_string(recipient_user, recipient_domain, recipient_full);
       break;
       case 2 :
       print_to_log("User composing message", LOG_INFO);
@@ -107,6 +109,23 @@ int main(int argc, char *argv[])
       print_to_log("User adding attachment", LOG_INFO);
       break;
       case 4 :
+      if ((strlen(recipient_full)==0)||(access(temp_file, R_OK)<0))
+      {
+        printf("Please fill in a recipient and write a message");
+        break;
+      }
+      else
+      {
+        //Build header
+        //build_header(char * recipient, uint32_t recipient_length, uint32_t crypto_type, uint32_t attachment_count, char * return_buffer)
+        if (build_header(recipient_full, recipient_length, 1, 0, header_buffer)<0)
+        {
+          perror("build_header");
+          print_to_log("Failed to build message header", LOG_ERR);
+        }
+      }
+      //Encrypt message
+
       print_to_log("User has sent a message", LOG_INFO);
       break;
       case 5 : //Exit case
