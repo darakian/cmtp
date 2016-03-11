@@ -287,12 +287,12 @@ uint32_t menu_prompt()
 	printf("3: Add an attachment (NOT YET WORKING)\n");
 	printf("4: Send message\n");
 	printf("5: Quit\n");
-	printf("*********/MENU**********\n");
+	printf("************************\n");
 	if (fgets(option, sizeof(option), stdin)==NULL)
   {
     perror("fgets");
   }
-	printf("read %x\n", option[0]);
+	//printf("read %x\n", option[0]);
 	return (uint32_t)option[0];
 }
 
@@ -305,27 +305,40 @@ uint32_t create_recipient_string(char * user, char * domain, char * full)
 uint32_t prompt_input_string(char * descriptor, char * storage)
 {
 	char * welcome = "Please type in ";
+	char input[256] = {0};
 	printf("%s%s\n", welcome, descriptor);
-	if (fgets(storage, sizeof(storage), stdin)==NULL)
+	// if (read_input(3, storage)<0)
+	// {
+	// 	perror("read_input");
+	// 	print_to_log("Error reading user input", LOG_ERR);
+	// }
+	if (fgets(input, sizeof(input), stdin)==NULL)
   {
     perror("fgets");
   }
-	printf("size of storage = %d\n", sizeof(storage));
+	memcpy(storage, input, strlen(input)-1);
+	printf("length of storage = %d\n", strlen(storage));
+	printf("storage = %s\n", storage);
 	return sizeof(storage);
 }
 
-//Return first valid user input char on a line and removes from the input all trailing chars
-char read_input()
+//Return first length (upto 255) valid chars from stdin. Clears stdin. Returns length of characters read.
+int32_t read_input(uint32_t length, char * return_buffer)
 {
-	char input [2];
-	char result = '\0';
-	while (1)
+	if (length>256)
 	{
-		fgets (input, sizeof (input), stdin);
-		if (input [0] == '\n')
-		  return result;
-  	if ((! isspace (input [0])) && (result == '\0'))
-		  result = input [0];
+		return -1;
 	}
-	return result;
+	char input [256] = {0};
+	for (uint32_t i = 0; i<=length; i++)
+	{
+		printf("Here\n");
+		fgets (input+i, 1, stdin);
+		if (input[i] == '\n')
+		{
+			memcpy(return_buffer, input, i);
+			return i;
+		}
+	}
+	return -1;
 }

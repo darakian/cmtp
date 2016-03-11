@@ -80,6 +80,7 @@ int main(int argc, char *argv[])
   char temp_file = "/var/tmp/cmtp_compose";
   char recipient_user[256] = {0};
   char recipient_domain[256] = {0};
+  char recipient_full[512] = {0};
   uint32_t option = 0;
   while((option=(menu_prompt()-48)))
   {
@@ -91,7 +92,9 @@ int main(int argc, char *argv[])
       print_to_log("User setting recipient", LOG_INFO);
       prompt_input_string("recipient user", recipient_user);
       prompt_input_string("recipient domain", recipient_domain);
-      printf("%s %s\n", recipient_user, recipient_domain);
+      printf("%s%s\n", recipient_user, recipient_domain);
+      create_recipient_string(recipient_user, recipient_domain, recipient_full);
+      printf("%s\n", recipient_full);
       break;
       case 2 :
       print_to_log("User composing message", LOG_INFO);
