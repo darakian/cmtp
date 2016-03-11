@@ -143,6 +143,7 @@ int send_message(uint32_t socket, char * header_buffer, int header_buffer_length
 
 int32_t write_message(char * temp_file)
 {
+	printf("temp_file = %s\n", temp_file);
 	pid_t child_pid = -1;
 	int32_t wait_result = 0;
 	if(child_pid = fork())
@@ -155,7 +156,7 @@ int32_t write_message(char * temp_file)
 	else
 	{
 		//Child
-		execlp("nano", "nano", "-m",  "tmp.file", NULL);
+		execlp("nano", "nano", "-m",  temp_file, NULL);
 	}
 	return -1;
 }
@@ -302,6 +303,7 @@ uint32_t create_recipient_string(char * user, char * domain, char * full)
 	return sizeof(user)+sizeof(domain);
 }
 
+//Gets input from user. Removes trailing newline character.
 uint32_t prompt_input_string(char * descriptor, char * storage)
 {
 	char * welcome = "Please type in ";
@@ -312,7 +314,5 @@ uint32_t prompt_input_string(char * descriptor, char * storage)
     perror("fgets");
   }
 	memcpy(storage, input, strlen(input)-1);
-	printf("length of storage = %d\n", strlen(storage));
-	printf("storage = %s\n", storage);
 	return sizeof(storage);
 }
