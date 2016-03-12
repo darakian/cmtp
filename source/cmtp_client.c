@@ -82,6 +82,7 @@ int main(int argc, char *argv[])
   char recipient_domain[256] = {0};
   char recipient_full[512] = {0};
   char header_buffer[MAX_HEADER] = {0};
+  uint32_t header_buffer_length = 0;
   uint32_t recipient_length = 0;
   uint32_t option = 0;
   while((option=(menu_prompt()-48)))
@@ -119,12 +120,14 @@ int main(int argc, char *argv[])
         //Build header
         //build_header(char * recipient, uint32_t recipient_length, uint32_t crypto_type, uint32_t attachment_count, char * return_buffer)
         printf("Attempting to build header\n");
-        if (build_header(recipient_full, recipient_length, 1, 0, header_buffer)<0)
+        if ((header_buffer_length = build_header(recipient_full, recipient_length, 1, 0, header_buffer))<0)
         {
           perror("build_header");
           print_to_log("Failed to build message header", LOG_ERR);
         }
         printf("Header built!\n");
+        printf("header length = %d\n", header_buffer_length);
+        printf("%s\n", header_buffer);
       }
       //Encrypt message
 

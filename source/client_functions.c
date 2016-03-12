@@ -178,7 +178,7 @@ int32_t build_header(char * recipient, uint32_t recipient_length, uint32_t crypt
 	target += 4;
 	memcpy(return_buffer, maximal_header, target);
 	//Return !0 if error
-	return 0;
+	return target;
 }
 
 int build_message(unsigned char * body, long body_length, unsigned char * recipient_key, char * attachments, long attachments_length,  char * cipher_buffer)
@@ -299,8 +299,8 @@ uint32_t menu_prompt()
 
 uint32_t create_recipient_string(char * user, char * domain, char * full)
 {
-	snprintf(full, sizeof(user)+sizeof(domain), "%s%d%s%d", user, '\0', domain, '\0');
-	return sizeof(user)+sizeof(domain);
+	snprintf(full, strlen(user)+strlen(domain), "%s%d%s%d", user, '\0', domain, '\0');
+	return strlen(user)+strlen(domain);
 }
 
 //Gets input from user. Removes trailing newline character.
