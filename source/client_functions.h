@@ -25,7 +25,7 @@ uint32_t prompt_input_string(char * descriptor, char * storage);
 
 uint32_t create_recipient_string(char * user, char * domain, char * full);
 
-int32_t build_header(char * recipient, uint32_t recipient_length, uint32_t crypto_type, uint32_t attachment_count, char * return_buffer);
+int32_t build_header(char * recipient, uint32_t recipient_length, uint32_t version, uint32_t attachment_count, uint64_t log_length, char * return_buffer);
 
 int build_message(unsigned char * body, long body_length, unsigned char * recipient_key, char * attachments, long attachments_length,  char * cipher_buffer);
 
