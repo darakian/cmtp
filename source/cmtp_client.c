@@ -86,7 +86,7 @@ int main(int argc, char *argv[])
   uint32_t option = 0;
   while((option=(menu_prompt()-48)))
   {
-    printf("option = %d\n", option);
+    //printf("option = %d\n", option);
     //Do the thing
     switch(option)
     {

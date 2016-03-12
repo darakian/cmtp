@@ -156,7 +156,7 @@ int32_t write_message(char * temp_file)
 	else
 	{
 		//Child
-		execlp("nano", "nano", "-m",  temp_file, NULL);
+		execlp("vi", "vi",  temp_file, NULL);
 	}
 	return -1;
 }
