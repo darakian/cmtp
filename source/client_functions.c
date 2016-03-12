@@ -168,13 +168,13 @@ int32_t build_header(char * recipient, uint32_t recipient_length, uint32_t crypt
 	int32_t target = 0;
 	//Max header size in bytes is 255*4 + 8 = 1028
 	char * maximal_header[MAX_HEADER] = {0};
-	memcpy(maximal_header[target], local_account, local_account_length);
+	memcpy(maximal_header+target, local_account, local_account_length);
 	target += local_account_length;
-	memcpy(maximal_header[target], recipient, recipient_length);
+	memcpy(maximal_header+target, recipient, recipient_length);
 	target += recipient_length;
-	memcpy(maximal_header[target], &crypto_type, 4);
+	memcpy(maximal_header+target, &crypto_type, 4);
 	target += 4;
-	memcpy(maximal_header[target], &attachment_count, 4);
+	memcpy(maximal_header+target, &attachment_count, 4);
 	target += 4;
 	memcpy(return_buffer, maximal_header, target);
 	//Return !0 if error
