@@ -45,6 +45,15 @@ int main(int argc, char *argv[])
     print_to_log("Client init failed. Terminating", LOG_CRIT);
     exit(1);
   }
+
+  if (set_local_params(argv[1], argv[2])<0)
+  {
+    // printf("user = %s\n", argv[1]);
+    // printf("domain = %s\n", argv[2]);
+    perror("set_local_params");
+    print_to_log("Cannot set local parameters", LOG_ERR);
+    exit(1);
+  }
   //request_key(client_socket, argv[1], argv[2], user_key_buffer);
   //ns_msg msg;
   //ns_rr rr;

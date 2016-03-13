@@ -21,6 +21,8 @@ int send_message(uint32_t socket, char * header_buffer, int header_buffer_length
 
 int write_message(char * temp_file);
 
+int32_t set_local_params(char * local_user, char * local_domain);
+
 uint32_t prompt_input_string(char * descriptor, char * storage);
 
 uint32_t create_recipient_string(char * user, char * domain, char * full);
