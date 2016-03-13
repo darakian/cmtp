@@ -33,7 +33,6 @@ int main(int argc, char *argv[])
   int client_socket = 0;
   unsigned char user_key_buffer[sizeof(crypto_sign_ed25519_SECRETKEYBYTES)] = {0};
   char user_key_path[400] = {0};
-  char * local_user = argv[1];
   char base64_username[341] = {0};
   char user_password[255] = {0};
   printf("Here\n");
@@ -66,14 +65,14 @@ int main(int argc, char *argv[])
     perror("fgets");
   }
   //Exit if username exceeds CMTP limit
-  if ((strlen(local_user)>255)||(strlen(user_password)<=0))
+  if ((strlen(argv[1])>255)||(strlen(user_password)<=0))
   {
     perror("Username too long or password too short");
     print_to_log("Username too long or password too short. Exiting.", LOG_CRIT);
     exit(1);
   }
   //Base64-ify the username
-  uint32_t base64_username_length = base64_encode((char *)local_user, sizeof(local_user), base64_username, sizeof(base64_username), (char *)filesystem_safe_base64_string, 64);
+  uint32_t base64_username_length = base64_encode(argv[1], strlen(argv[1]), base64_username, sizeof(base64_username), (char *)filesystem_safe_base64_string, 64);
   //Check for user private key. Perhaps this should be a call to LOGIN on the server
   snprintf(user_key_path, sizeof(user_key_path), "%s%s%s", "/var/cmtp/mail/", base64_username, "/private.key");
   if (access(user_key_path, R_OK)<0)
