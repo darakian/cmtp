@@ -32,6 +32,7 @@ int main(int argc, char *argv[])
   }
   int client_socket = 0;
   unsigned char user_key_buffer[sizeof(crypto_sign_ed25519_SECRETKEYBYTES)] = {0};
+  unsigned char recipient_key_buffer[sizeof(crypto_sign_ed25519_SECRETKEYBYTES)] = {0};
   char user_key_path[400] = {0};
   char base64_username[341] = {0};
   char user_password[255] = {0};
@@ -104,6 +105,7 @@ int main(int argc, char *argv[])
       prompt_input_string("recipient user", recipient_user);
       prompt_input_string("recipient domain", recipient_domain);
       recipient_length = create_recipient_string(recipient_user, recipient_domain, recipient_full);
+      request_key(client_socket, recipient_user, recipient_domain, recipient_key_buffer);
       break;
       case 2 :
       print_to_log("User composing message", LOG_INFO);
@@ -154,7 +156,7 @@ int main(int argc, char *argv[])
         }
       }
       //Encrypt message
-      if (build_message(temp_file_buffer, temp_file_size, unsigned char * recipient_key, NULL, 0,  encrypted_file_buffer)<0)
+      if (build_message(temp_file_buffer, temp_file_size, recipient_key_buffer, NULL, 0,  encrypted_file_buffer)<0)
       {
         perror("build_message");
         print_to_log("Error building encrypred message", LOG_ERR);
