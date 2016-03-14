@@ -54,12 +54,7 @@ int main(int argc, char *argv[])
     print_to_log("Cannot set local parameters", LOG_ERR);
     exit(1);
   }
-  //request_key(client_socket, argv[1], argv[2], user_key_buffer);
-  //ns_msg msg;
-  //ns_rr rr;
-  int res_length = 0;
-  struct sockaddr_in * insock;
-  struct sockaddr_storage sock_storage;
+  
   printf("Password Please:\n");
   if (fgets(user_password, sizeof(user_password), stdin)==NULL)
   {
@@ -73,7 +68,7 @@ int main(int argc, char *argv[])
     exit(1);
   }
   //Base64-ify the username
-  uint32_t base64_username_length = base64_encode(argv[1], strlen(argv[1]), base64_username, sizeof(base64_username), (char *)filesystem_safe_base64_string, 64);
+  base64_encode(argv[1], strlen(argv[1]), base64_username, sizeof(base64_username), (char *)filesystem_safe_base64_string, 64);
   //Check for user private key. Perhaps this should be a call to LOGIN on the server
   snprintf(user_key_path, sizeof(user_key_path), "%s%s%s", "/var/cmtp/mail/", base64_username, "/private.key");
   if (access(user_key_path, R_OK)<0)
@@ -91,7 +86,7 @@ int main(int argc, char *argv[])
   char recipient_domain[256] = {0};
   char recipient_full[512] = {0};
   char header_buffer[MAX_HEADER] = {0};
-  uint32_t header_buffer_length = 0;
+  int32_t header_buffer_length = 0;
   uint32_t recipient_length = 0;
   uint32_t option = 0;
   while((option=(menu_prompt()-48)))
@@ -147,7 +142,7 @@ int main(int argc, char *argv[])
       unsigned char * encrypted_file_buffer = calloc(1, temp_file_size);
       int32_t temp_file_descriptor = 0;
       temp_file_descriptor = open(temp_file, O_RDONLY);
-      for (int32_t i = 0; i<=temp_file_size; i++)
+      for (uint32_t i = 0; i<=temp_file_size; i++)
       {
         if (read(temp_file_descriptor, temp_file_buffer, 1)<0)
         {

@@ -163,12 +163,16 @@ int32_t write_message(char * temp_file)
 {
 	printf("temp_file = %s\n", temp_file);
 	pid_t child_pid = -1;
-	int32_t wait_result = 0;
-	if(child_pid = fork())
+	if((child_pid = fork()))
   {
 		//Parent
 		int32_t status = -1;
-		wait_result = waitpid(child_pid, &status, 0);
+		if(waitpid(child_pid, &status, 0)<0)
+		{
+			perror("waitpid");
+			print_to_log("Error waiting on child in fork", LOG_ERR);
+		}
+
 		return 0;
 	}
 	else
@@ -199,7 +203,7 @@ int32_t build_header(char * recipient, uint32_t recipient_length, uint32_t versi
 	return target;
 }
 
-int build_message(unsigned char * body, long body_length, unsigned char * recipient_key, char * attachments, long attachments_length,  char * cipher_buffer)
+int build_message(unsigned char * body, long body_length, unsigned char * recipient_key, char * attachments, long attachments_length,  unsigned char * cipher_buffer)
 {
 	//Step 1: Encipher body and attachments
 	char * crypto_buffer = calloc(1, 8 + body_length + attachments_length);
@@ -214,7 +218,8 @@ int build_message(unsigned char * body, long body_length, unsigned char * recipi
 	memset(body_buffer, 0, 8+body_length);
 	memcpy(crypto_buffer, attachments, attachments_length);
 	//Step 3: Return everything as cipher_buffer
-	cipher_buffer = crypto_buffer;
+	memcpy(cipher_buffer, crypto_buffer, sizeof(crypto_buffer));
+	free(crypto_buffer);
 	return 1;
 }
 
