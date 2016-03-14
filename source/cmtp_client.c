@@ -137,7 +137,28 @@ int main(int argc, char *argv[])
         printf("header length = %d\n", header_buffer_length);
         printf("%s\n", header_buffer);
       }
+      //Read file back in and get a char * to it
+      struct stat temp_file_stats;
+      stat(temp_file, &temp_file_stats);
+      uint32_t temp_file_size = temp_file_stats.st_size;
+      unsigned char * temp_file_buffer = calloc(1, temp_file_size);
+      unsigned char * encrypted_file_buffer = calloc(1, temp_file_size);
+      int32_t temp_file_descriptor = 0;
+      temp_file_descriptor = open(temp_file, O_RDONLY);
+      for (int32_t i = 0; i<=temp_file_size; i++)
+      {
+        if (read(temp_file_descriptor, temp_file_buffer, 1)<0)
+        {
+          perror("read");
+          print_to_log("Error reading in users message", LOG_ERR);
+        }
+      }
       //Encrypt message
+      if (build_message(temp_file_buffer, temp_file_size, unsigned char * recipient_key, NULL, 0,  encrypted_file_buffer)<0)
+      {
+        perror("build_message");
+        print_to_log("Error building encrypred message", LOG_ERR);
+      }
 
       print_to_log("User has sent a message", LOG_INFO);
       break;

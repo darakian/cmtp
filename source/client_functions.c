@@ -211,6 +211,7 @@ int build_message(unsigned char * body, long body_length, unsigned char * recipi
 	memcpy(body_buffer + 8, cipherd_body, body_length);
 	memcpy(crypto_buffer, body_buffer, 8+body_length);
 	free (body_buffer);
+	memset(body_buffer, 0, 8+body_length);
 	memcpy(crypto_buffer, attachments, attachments_length);
 	//Step 3: Return everything as cipher_buffer
 	cipher_buffer = crypto_buffer;
