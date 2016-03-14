@@ -300,7 +300,7 @@ void * connection_manager(void * connection_manager_argument)
       }
       else
       {
-        uint32_t base64_username_length = base64_encode((char *)user_keyrequest_buffer, sizeof(user_keyrequest_buffer), base64_username, sizeof(base64_username), (char *)filesystem_safe_base64_string, 64);
+        uint32_t base64_username_length = base64_encode((char *)user_keyrequest_buffer, strlen(user_keyrequest_buffer), base64_username, strlen(base64_username), (char *)filesystem_safe_base64_string, 64);
         do {
           read(thread_connection, domain_keyrequest_buffer+i, 1);
           //printf("domain_keyrequest_buffer[%d] = %c/%x\n",i,domain_keyrequest_buffer[i], domain_keyrequest_buffer[i]);
@@ -373,7 +373,7 @@ void * connection_manager(void * connection_manager_argument)
         read(thread_connection, login_username_buffer+i, 1);
         i++;
       } while((i<sizeof(thread_command_buffer))&&(thread_command_buffer[i-1]!=termination_char));
-      uint32_t base64_username_length = base64_encode((char *)login_username_buffer, sizeof(login_username_buffer), base64_username, sizeof(base64_username), (char *)filesystem_safe_base64_string, 64);
+      uint32_t base64_username_length = base64_encode((char *)login_username_buffer, strlen(login_username_buffer), base64_username, strlen(base64_username), (char *)filesystem_safe_base64_string, 64);
       if (snprintf(priv_key_path, sizeof(priv_key_path), "%s%s%s", "/mail/", base64_username, "/private.key")<0)
       {
         perror("snprintf");
@@ -476,7 +476,7 @@ void * connection_manager(void * connection_manager_argument)
 
       //unique_file_name_length is not currently used. Should be fine.
       uint32_t unique_file_name_length = base64_encode((char *)hash, sizeof(hash), unique_file_name, sizeof(unique_file_name), (char *)filesystem_safe_base64_string, 64);
-      uint32_t base64_username_length = base64_encode((char *)dest_account_buffer, sizeof(dest_account_buffer), base64_username, sizeof(base64_username), (char *)filesystem_safe_base64_string, 64);
+      uint32_t base64_username_length = base64_encode((char *)dest_account_buffer, strlen(dest_account_buffer), base64_username, strlen(base64_username), (char *)filesystem_safe_base64_string, 64);
 
       if (snprintf(unique_file_location, sizeof(unique_file_location), "%s%s%s", "/mail/", base64_username, unique_file_name)<0)
 
