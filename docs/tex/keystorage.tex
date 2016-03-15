@@ -1,0 +1,19 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+
+\title{The Xzibit Key System Design}
+\author{Jonathan Moroney}
+
+\begin{document}
+
+\maketitle
+\section{Introduction}
+Public key crypto-systems are well known and well respected as a method of securely passing messages and have been in use for a number of years. The most well known public key crypto-system is the OpenPGP message passing protocol which itself has a number of implementations ranging from the Free software GnuPrivacyGuard (GPG) to the commercial products developed by Pretty Good Privacy Corporation. For the purposes of this paper I will simply use the term OpenPGP to generically refer to this system and these programs. Further the reader is expected to either understand public key crypto-systems or to be able to research them. This is not a primer on public key cryptography.
+\subsection{OpenPGP}
+OpenPGP works on top of the SMTP mail network to pass messages and this obviates the need to redevelop a network of systems to pass messages; a pragmatic choice for a new system to be sure. However, OpenPGP is a public key crypto-system and thus requires users to have and to exchange keys in order for the system to work. Ideally it would be nice for the message passing infrastructure to all pass keys, but given that OpenPGP's origin in on the SMTP infrastructure this is not possible. So, the OpenPGP system originally tasked the user with key management and thus doomed itself to a niche of tech savvy users. The idea of key servers and automatic key retrieval has since been introduced, but the non-default nature of them has limited their adoption to the tech savvy niches and to corporations willing to pay for automation. 
+\subsection{The technically illiterate}
+The technical challenge of deploying OpenPGP has prevented the non-technical user from adopting it and has left us with (E)SMTP as the standard used by the majority of email users. This is a obviously a problem for the non-technical user as all of their traffic is in the clear, but it is also a problem for the technical user who needs to be in contact with the non-technical user. It is this author's opinion that it is not that public key cryptography is difficult to use, but rather that it is difficult to setup and to maintain. It's a problem of infrastructure.
+\section{The Xzibit Key System}
+\end{document}
