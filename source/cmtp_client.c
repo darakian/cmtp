@@ -56,8 +56,9 @@ int main(int argc, char *argv[])
   struct sockaddr_in post_desktop;
 
   int32_t server_length =  resolve_server("edo.im", (struct sockaddr_storage *)&post_desktop);
-  //printf("%x\n", post_desktop.sin_addr.s_addr);
-
+  #ifdef DEBUG
+  printf("Using %s as cmtp server\n", inet_ntoa(post_desktop.sin_addr));
+  #endif /*DEBUG*/
 
   printf("Password Please:\n");
   if (fgets(user_password, sizeof(user_password), stdin)==NULL)
