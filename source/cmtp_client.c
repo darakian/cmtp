@@ -56,6 +56,13 @@ int main(int argc, char *argv[])
   struct sockaddr_in post_desktop;
 
   int32_t server_length =  resolve_server("edo.im", (struct sockaddr_storage *)&post_desktop);
+  post_desktop.sin_port = htons(9001);
+  if (connect(client_socket, (struct sockaddr *)&post_desktop, sizeof(post_desktop))<0)
+  {
+    perror("connect");
+    print_to_log("cannot connect to cmpt server", LOG_EMERG);
+    exit(1);
+  }
   #ifdef DEBUG
   printf("Using %s as cmtp server\n", inet_ntoa(post_desktop.sin_addr));
   #endif /*DEBUG*/

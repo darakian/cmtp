@@ -252,6 +252,7 @@ int encrypt_all_attachmets(int * sizes, unsigned char * * attachments, int num_a
 
 int32_t request_key(uint32_t socket, char * user, char * server, unsigned char * key_buffer)
 {
+	printf("Here 1\n");
 	uint32_t version = 0;
 	uint32_t request_buffer_length = strlen(user) + strlen(server)+sizeof(cmtp_command_KEYREQUEST)+3;
 	unsigned char reception_buffer[4+crypto_sign_ed25519_SECRETKEYBYTES+crypto_sign_BYTES] = {0};
@@ -262,19 +263,21 @@ int32_t request_key(uint32_t socket, char * user, char * server, unsigned char *
 		print_to_log("Cannot construct key request buffer.", LOG_ERR);
 		return -1;
 	}
-	//printf("%d\n", request_buffer_length);
-	//printf("%s\n", request_buffer);
+	printf("%d\n", request_buffer_length);
+	printf("%s\n", request_buffer);
 	if (write(socket, request_buffer, request_buffer_length)<0)
 	{
 		perror("write");
 		print_to_log("Cannot send key request.", LOG_ERR);
 		return -1;
 	}
+	printf("Here 2\n");
 	if (read(socket, reception_buffer, sizeof(reception_buffer))<0)
 	{
 		perror("read");
 		print_to_log("Cannot read reply from key request.", LOG_ERR);
 	}
+	printf("Here 3\n");
 	//Verify and copy result to key_buffer
 	version = ntohl(*(uint32_t *)reception_buffer);
 	//Only version 1 is supported here.
@@ -304,6 +307,7 @@ int32_t decipher_private_key(char * password, unsigned char * cipher_key_buffer,
 
 uint32_t menu_prompt()
 {
+	fseek(stdin,0,SEEK_END);
 	char option[20] = {0};
 	printf("Welcome to Shorebird version <1\n");
 	printf("**********MENU**********\n");
