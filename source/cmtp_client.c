@@ -96,7 +96,9 @@ int main(int argc, char *argv[])
   uint32_t option = 0;
   while((option=(menu_prompt()-48)))
   {
-    //printf("option = %d\n", option);
+    #ifdef DEBUG
+    printf("option = %d\n", option);
+    #endif /*DEBUG*/
     //Do the thing
     switch(option)
     {
@@ -106,6 +108,7 @@ int main(int argc, char *argv[])
       prompt_input_string("recipient domain", recipient_domain);
       recipient_length = create_recipient_string(recipient_user, recipient_domain, recipient_full);
       request_key(client_socket, recipient_user, recipient_domain, recipient_key_buffer);
+      printf("Ending recipient setting\n");
       break;
       case 2 :
       print_to_log("User composing message", LOG_INFO);

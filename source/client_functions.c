@@ -317,7 +317,10 @@ uint32_t menu_prompt()
   {
     perror("fgets");
   }
-	//printf("read %x\n", option[0]);
+	fseek(stdin,0,SEEK_END);
+	#ifdef DEBUG
+	printf("Menu prompt thinks option = %d\n", option[0]);
+	#endif /*DEBUG*/
 	return (uint32_t)option[0];
 }
 
@@ -337,6 +340,7 @@ uint32_t prompt_input_string(char * descriptor, char * storage)
   {
     perror("fgets");
   }
+	fseek(stdin,0,SEEK_END);
 	memcpy(storage, input, strlen(input)-1);
 	return sizeof(storage);
 }
