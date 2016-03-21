@@ -36,7 +36,6 @@ int main(int argc, char *argv[])
   char user_key_path[400] = {0};
   char base64_username[341] = {0};
   char user_password[255] = {0};
-  printf("Here\n");
 
 
   if ((client_socket = client_init())<0)
@@ -54,7 +53,12 @@ int main(int argc, char *argv[])
     print_to_log("Cannot set local parameters", LOG_ERR);
     exit(1);
   }
-  
+  struct sockaddr_in post_desktop;
+
+  int32_t server_length =  resolve_server("edo.im", (struct sockaddr_storage *)&post_desktop);
+  //printf("%x\n", post_desktop.sin_addr.s_addr);
+
+
   printf("Password Please:\n");
   if (fgets(user_password, sizeof(user_password), stdin)==NULL)
   {

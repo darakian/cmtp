@@ -95,6 +95,9 @@ int resolve_server(char * hostname, struct sockaddr_storage * result)
         error = getaddrinfo(last_str_split(display_buffer, " "), NULL, NULL, &addr_res);
         if (error != 0)
         {
+          printf("error = %d\n", error);
+          printf("display_buffer = %s\n", display_buffer);
+          printf("last_str_split = %s\n", last_str_split(display_buffer, " "));
           perror("getaddrinfo");
         }
         if (addr_res->ai_family==AF_INET)
