@@ -61,4 +61,6 @@ int32_t noop_responder(uint32_t socket);
 
 int32_t mail_responder(uint32_t socket);
 
+int32_t login_responder(uint32_t socket);
+
 #endif /* _serverfunctions_h */
