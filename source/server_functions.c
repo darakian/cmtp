@@ -264,7 +264,6 @@ void * connection_manager(void * connection_manager_argument)
     if (memcmp(cmtp_command_OHAI, thread_command_buffer, sizeof(cmtp_command_OHAI))==0)
     {
       ohai_responder(thread_connection);
-      //Clean thread_command_buffer
       memset(thread_command_buffer, 0, sizeof(thread_command_buffer));
     }
 
@@ -279,8 +278,7 @@ void * connection_manager(void * connection_manager_argument)
     //NOOP
     if (memcmp(cmtp_command_NOOP, thread_command_buffer, sizeof(cmtp_command_NOOP))==0)
     {
-      write(thread_connection, cmtp_noop, sizeof(cmtp_noop));
-      //Clean thread_command_buffer
+      int32_t noop_responder(uint32_t socket);
       memset(thread_command_buffer, 0, sizeof(thread_command_buffer));
     }
 
@@ -739,4 +737,15 @@ int32_t keyrequest_responder(uint32_t socket)
   //Clean buffers
   memset(user_keyrequest_buffer, 0, sizeof(user_keyrequest_buffer));
   memset(base64_username, 0, sizeof(base64_username));
+}
+
+int32_t noop_responder(uint32_t socket)
+{
+  if (write(socket, cmtp_noop, sizeof(cmtp_noop))<0)
+  {
+    perror("noop write");
+    print_to_log("Error writing to socket in noop_responder", LOG_ERR);
+    return -1;
+  }
+  return 0;
 }
