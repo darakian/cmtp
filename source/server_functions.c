@@ -256,9 +256,6 @@ void * connection_manager(void * connection_manager_argument)
       read(thread_connection, thread_command_buffer+i, 1);
       i++;
     } while((i<sizeof(thread_command_buffer))&&(thread_command_buffer[i-1]!=termination_char));
-    //Test for end of buffer
-    //Send error to other end
-    //Reset buffer and read again until newline
 
     //OHAI
     if (memcmp(cmtp_command_OHAI, thread_command_buffer, sizeof(cmtp_command_OHAI))==0)
@@ -302,27 +299,14 @@ void * connection_manager(void * connection_manager_argument)
     //HELP
     if (memcmp(cmtp_command_HELP, thread_command_buffer, sizeof(cmtp_command_HELP))==0)
     {
-      write(thread_connection, cmtp_help, sizeof(cmtp_help));
-
-      //Clean thread_command_buffer
+      help_responder(thread_connection);
       memset(thread_command_buffer, 0, sizeof(thread_command_buffer));
     }
 
     //OBAI
     if (memcmp(cmtp_command_OBAI, thread_command_buffer, 4)==0)
     {
-      write(thread_connection, cmtp_obai, sizeof(cmtp_obai));
-      #ifdef DEBUG
-      printf("OBAI command recived. Killing connection %x with threadID %ld\n", thread_connection, pthread_self());
-      #endif /*DEBUG*/
-      //Close out thread_connection and end
-      if (close(thread_connection)!=0)
-      {
-        //Close failure
-        print_to_log("Error closing connection", LOG_ERR);
-        perror("Close FD error");
-      }
-      //Clean thread_command_buffer
+      obai_responder(thread_connection);
       memset(thread_command_buffer, 0, sizeof(thread_command_buffer));
       return NULL;
     }
@@ -458,7 +442,7 @@ int32_t ohai_responder(uint32_t socket)
 int32_t keyrequest_responder(uint32_t socket)
 {
   //Read until null
-  int32_t i = 0;
+  uint32_t i = 0;
   char base64_username[341] = {0};
   char pub_key_path[358] = {0};
   char user_keyrequest_buffer[ROUTING_FIELD_SIZE] = {0};
@@ -533,6 +517,7 @@ int32_t keyrequest_responder(uint32_t socket)
   //Clean buffers
   memset(user_keyrequest_buffer, 0, sizeof(user_keyrequest_buffer));
   memset(base64_username, 0, sizeof(base64_username));
+  return 0;
 }
 
 int32_t noop_responder(uint32_t socket)
@@ -552,7 +537,7 @@ int32_t login_responder(uint32_t socket)
   char login_command_buffer[THREAD_COMMAND_BUFFER_SIZE] = {0};
   char base64_username[341] = {0};
   char priv_key_path[359] = {0};
-  int32_t i = 0;
+  uint32_t i = 0;
 
   write(socket, cmtp_login, sizeof(cmtp_login));
   //This do loop should not need a command buffer. Wtf was I thinking?
@@ -760,4 +745,37 @@ int32_t mail_responder(uint32_t socket)
    printf("Mail section complete. Clearing buffer and return NULLing.\n");
    #endif /*DEBUG*/
    return 0;
+}
+
+int32_t help_responder(uint32_t socket)
+{
+  if (write(socket, cmtp_help, sizeof(cmtp_help))<0)
+  {
+    perror("help write");
+    print_to_log("Error writing to socket in help_responder", LOG_ERR);
+    return -1;
+  }
+  return 0;
+}
+
+int32_t obai_responder(uint32_t socket)
+{
+  if (write(socket, cmtp_obai, sizeof(cmtp_obai))<0)
+  {
+    perror("obai write");
+    print_to_log("Error writing to socket in obai_responder", LOG_ERR);
+    return -1;
+  }
+  #ifdef DEBUG
+  printf("OBAI command recived. Killing connection %x with threadID %ld\n", socket, pthread_self());
+  #endif /*DEBUG*/
+  //Close out socket and end
+  if (close(socket)!=0)
+  {
+    //Close failure
+    print_to_log("Error closing connection", LOG_ERR);
+    perror("Close FD error");
+    return -1;
+  }
+  return 0;
 }

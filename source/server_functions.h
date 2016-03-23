@@ -63,4 +63,8 @@ int32_t mail_responder(uint32_t socket);
 
 int32_t login_responder(uint32_t socket);
 
+int32_t help_responder(uint32_t socket);
+
+int32_t obai_responder(uint32_t socket);
+
 #endif /* _serverfunctions_h */
