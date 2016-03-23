@@ -263,7 +263,6 @@ void * connection_manager(void * connection_manager_argument)
     //OHAI
     if (memcmp(cmtp_command_OHAI, thread_command_buffer, sizeof(cmtp_command_OHAI))==0)
     {
-      //write(thread_connection, cmtp_ohai_response, sizeof(cmtp_ohai_response));
       ohai_responder(thread_connection);
       //Clean thread_command_buffer
       memset(thread_command_buffer, 0, sizeof(thread_command_buffer));
@@ -273,83 +272,8 @@ void * connection_manager(void * connection_manager_argument)
     //Should send the crypto_type (All 4 bytes!) followed by the public key of the null terminated user followed by the server signature of the users public key.
     if (i==11&&memcmp(cmtp_command_KEYREQUEST, thread_command_buffer, sizeof(cmtp_command_KEYREQUEST))==0)
     {
-      //Read until null
-      i = 0;
-      char base64_username[341] = {0};
-      char pub_key_path[358] = {0};
-      char user_keyrequest_buffer[ROUTING_FIELD_SIZE] = {0};
-      char domain_keyrequest_buffer[ROUTING_FIELD_SIZE] = {0};
-      unsigned char user_public_key[crypto_sign_ed25519_PUBLICKEYBYTES] = {0};
-      unsigned char signature_of_public_key[crypto_sign_BYTES] = {0};
-      //Read in username
-      do {
-        read(thread_connection, user_keyrequest_buffer+i, 1);
-        //printf("user_keyrequest_buffer[%d] = %c/%x\n",i,user_keyrequest_buffer[i], user_keyrequest_buffer[i]);
-        i++;
-      } while((i<sizeof(user_keyrequest_buffer))&&(user_keyrequest_buffer[i-1]!='\0'));
-      if (memcmp(user_keyrequest_buffer, &termination_char, 1)==0)
-      //try this
-      //if(user_keyrequest_buffer[0]==0)
-      {
-        crypto_sign_detached(signature_of_public_key, NULL, server_public_key, sizeof(server_public_key), server_private_key);
-        //Wants server key. Reply and return.
-        write(thread_connection, crypto_version, sizeof(crypto_version));
-        write(thread_connection, server_public_key, sizeof(server_public_key));
-        write(thread_connection, &termination_char, sizeof(termination_char));
-        write(thread_connection, signature_of_public_key, sizeof(signature_of_public_key));
-        //Need to end here. Might need to functionize this code.
-      }
-      else
-      {
-        uint32_t base64_username_length = base64_encode((char *)user_keyrequest_buffer, strlen(user_keyrequest_buffer), base64_username, strlen(base64_username), (char *)filesystem_safe_base64_string, 64);
-        do {
-          read(thread_connection, domain_keyrequest_buffer+i, 1);
-          //printf("domain_keyrequest_buffer[%d] = %c/%x\n",i,domain_keyrequest_buffer[i], domain_keyrequest_buffer[i]);
-          i++;
-        } while((i<sizeof(domain_keyrequest_buffer))&&(domain_keyrequest_buffer[i-1]!='\0'));
-
-        if (memcmp(&domain_keyrequest_buffer, &home_domain, ROUTING_FIELD_SIZE)!=0)
-        {
-          //Keyrequest is for a different domain. Send error message and return.
-        }
-
-        if (snprintf(pub_key_path, sizeof(pub_key_path), "%s%s%s", "/mail/", base64_username, "/public.key")<0)
-        {
-          perror("snprintf");
-          print_to_log("snprintf error. Cannot check for user public key", LOG_ERR);
-        }
-        //Check for user's key in /mail/base64_username/public.key
-        if (access(pub_key_path, R_OK)<0)
-        {
-          perror("user access");
-          print_to_log("Cannot access user public key. User may not exist.", LOG_ERR);
-        }
-        else         //Read public key and reply to request with it.
-        {
-          int32_t user_key_descriptor = open(pub_key_path, O_RDONLY);
-          if (user_key_descriptor<0)
-          {
-            perror("open");
-            print_to_log("Cannot open user public key", LOG_ERR);
-          }
-          if (read(user_key_descriptor, user_public_key, sizeof(user_public_key))<0)
-          {
-            perror("read");
-            print_to_log("Error reading user public key", LOG_ERR);
-          }
-          //Sign key and store signature in signature_of_public_key
-          crypto_sign_detached(signature_of_public_key, NULL, user_public_key, sizeof(user_public_key), server_private_key);
-          //Send it all
-          write(thread_connection, crypto_version, sizeof(crypto_version));
-          write(thread_connection, user_public_key, sizeof(user_public_key));
-          write(thread_connection, &termination_char, sizeof(termination_char));
-          write(thread_connection, signature_of_public_key, sizeof(signature_of_public_key));
-        }
-      }
-      //Clean buffers
+      keyrequest_responder(thread_connection);
       memset(thread_command_buffer, 0, sizeof(thread_command_buffer));
-      memset(base64_username, 0, sizeof(base64_username));
-      memset(user_keyrequest_buffer, 0, sizeof(user_keyrequest_buffer));
     }
 
     //NOOP
@@ -735,4 +659,84 @@ int32_t ohai_responder(uint32_t socket)
     return -1;
   }
   return 0;
+}
+
+int32_t keyrequest_responder(uint32_t socket)
+{
+  //Read until null
+  int32_t i = 0;
+  char base64_username[341] = {0};
+  char pub_key_path[358] = {0};
+  char user_keyrequest_buffer[ROUTING_FIELD_SIZE] = {0};
+  char domain_keyrequest_buffer[ROUTING_FIELD_SIZE] = {0};
+  unsigned char user_public_key[crypto_sign_ed25519_PUBLICKEYBYTES] = {0};
+  unsigned char signature_of_public_key[crypto_sign_BYTES] = {0};
+  //Read in username
+  do {
+    read(socket, user_keyrequest_buffer+i, 1);
+    //printf("user_keyrequest_buffer[%d] = %c/%x\n",i,user_keyrequest_buffer[i], user_keyrequest_buffer[i]);
+    i++;
+  } while((i<sizeof(user_keyrequest_buffer))&&(user_keyrequest_buffer[i-1]!='\0'));
+  if (memcmp(user_keyrequest_buffer, &termination_char, 1)==0)
+  //try this
+  //if(user_keyrequest_buffer[0]==0)
+  {
+    crypto_sign_detached(signature_of_public_key, NULL, server_public_key, sizeof(server_public_key), server_private_key);
+    //Wants server key. Reply and return.
+    write(socket, crypto_version, sizeof(crypto_version));
+    write(socket, server_public_key, sizeof(server_public_key));
+    write(socket, &termination_char, sizeof(termination_char));
+    write(socket, signature_of_public_key, sizeof(signature_of_public_key));
+    //Need to end here. Might need to functionize this code.
+  }
+  else
+  {
+    uint32_t base64_username_length = base64_encode((char *)user_keyrequest_buffer, strlen(user_keyrequest_buffer), base64_username, strlen(base64_username), (char *)filesystem_safe_base64_string, 64);
+    do {
+      read(socket, domain_keyrequest_buffer+i, 1);
+      //printf("domain_keyrequest_buffer[%d] = %c/%x\n",i,domain_keyrequest_buffer[i], domain_keyrequest_buffer[i]);
+      i++;
+    } while((i<sizeof(domain_keyrequest_buffer))&&(domain_keyrequest_buffer[i-1]!='\0'));
+
+    if (memcmp(&domain_keyrequest_buffer, &home_domain, ROUTING_FIELD_SIZE)!=0)
+    {
+      //Keyrequest is for a different domain. Send error message and return.
+    }
+
+    if (snprintf(pub_key_path, sizeof(pub_key_path), "%s%s%s", "/mail/", base64_username, "/public.key")<0)
+    {
+      perror("snprintf");
+      print_to_log("snprintf error. Cannot check for user public key", LOG_ERR);
+    }
+    //Check for user's key in /mail/base64_username/public.key
+    if (access(pub_key_path, R_OK)<0)
+    {
+      perror("user access");
+      print_to_log("Cannot access user public key. User may not exist.", LOG_ERR);
+    }
+    else         //Read public key and reply to request with it.
+    {
+      int32_t user_key_descriptor = open(pub_key_path, O_RDONLY);
+      if (user_key_descriptor<0)
+      {
+        perror("open");
+        print_to_log("Cannot open user public key", LOG_ERR);
+      }
+      if (read(user_key_descriptor, user_public_key, sizeof(user_public_key))<0)
+      {
+        perror("read");
+        print_to_log("Error reading user public key", LOG_ERR);
+      }
+      //Sign key and store signature in signature_of_public_key
+      crypto_sign_detached(signature_of_public_key, NULL, user_public_key, sizeof(user_public_key), server_private_key);
+      //Send it all
+      write(socket, crypto_version, sizeof(crypto_version));
+      write(socket, user_public_key, sizeof(user_public_key));
+      write(socket, &termination_char, sizeof(termination_char));
+      write(socket, signature_of_public_key, sizeof(signature_of_public_key));
+    }
+  }
+  //Clean buffers
+  memset(user_keyrequest_buffer, 0, sizeof(user_keyrequest_buffer));
+  memset(base64_username, 0, sizeof(base64_username));
 }
