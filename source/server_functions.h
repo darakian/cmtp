@@ -53,5 +53,6 @@ int select_available_socket(int * connections, int number_of_connections);
 
 int parse_config(char * config_file, struct config_struct * running_config);
 
+int32_t ohai_responder(uint32_t socket);
 
 #endif /* _serverfunctions_h */

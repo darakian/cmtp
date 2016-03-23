@@ -724,3 +724,14 @@ int parse_config(char * config_file, struct config_struct * running_config)
    }
    return 0;
 }
+
+int32_t ohai_responder(uint32_t socket)
+{
+  if (write(socket, cmtp_ohai_response, sizeof(cmtp_ohai_response))<0)
+  {
+    perror("ohai write");
+    print_to_log("Error writing in ohai_responder", LOG_ERR);
+    return -1;
+  }
+  return 0;
+}
