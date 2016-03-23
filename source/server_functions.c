@@ -555,6 +555,7 @@ int32_t login_responder(uint32_t socket)
   int32_t i = 0;
 
   write(socket, cmtp_login, sizeof(cmtp_login));
+  //This do loop should not need a command buffer. Wtf was I thinking?
   do {
     read(socket, login_username_buffer+i, 1);
     i++;
