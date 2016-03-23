@@ -319,186 +319,7 @@ void * connection_manager(void * connection_manager_argument)
     //MAIL
     if (memcmp(cmtp_command_MAIL, thread_command_buffer, sizeof(cmtp_command_MAIL))==0)
     {
-      #ifdef DEBUG
-      printf("Entering MAIL subroutine\n");
-      #endif /*DEBUG*/
-      //Allocate general variables
-
-      //Allocate primary buffers and counters
-      char source_account_buffer[ROUTING_FIELD_SIZE];
-      uint32_t source_account_counter = 0;
-      char source_server_buffer[ROUTING_FIELD_SIZE];
-      uint32_t source_server_counter = 0;
-      char dest_account_buffer[ROUTING_FIELD_SIZE];
-      uint32_t dest_account_counter = 0;
-      char dest_server_buffer[ROUTING_FIELD_SIZE];
-      uint32_t dest_server_counter = 0;
-      char crypto_type[sizeof(uint32_t)] = {0};
-      char attachment_count[sizeof(uint32_t)] = {0};
-      char message_length[sizeof(uint64_t)] = {0};
-
-      //Read primary routing and processing information
-      do
-      {
-        if (read(thread_connection, source_account_buffer+source_account_counter, 1) < 1)
-        {
-          perror("read source_accout_buffer");
-          return NULL;
-        }
-        source_account_counter++;
-      } while((source_account_counter<ROUTING_FIELD_SIZE)&&(source_account_buffer[source_account_counter-1]!='\0'));
-
-      do {
-        if (read(thread_connection, &source_server_buffer[source_server_counter], 1) < 1)
-        {
-          perror("read source_server_buffer");
-          return NULL;
-        }
-        source_server_counter++;
-      } while((source_server_counter<ROUTING_FIELD_SIZE)&&(source_server_buffer[source_server_counter-1]!='\0'));
-
-      do {
-        if (read(thread_connection, dest_account_buffer+dest_account_counter, 1) < 1)
-        {
-          perror("read dest_account_buffer");
-          return NULL;
-        }
-        dest_account_counter++;
-      } while((dest_account_counter<ROUTING_FIELD_SIZE)&&(dest_account_buffer[dest_account_counter-1]!='\0'));
-
-      do {
-        if (read(thread_connection, dest_server_buffer+dest_server_counter, 1) < 1)
-        {
-          perror("read dest_server_buffer");
-          return NULL;
-        }
-        dest_server_counter++;
-      } while((dest_server_counter<ROUTING_FIELD_SIZE)&&(dest_server_buffer[dest_server_counter-1]!='\0'));
-
-      //Generate unique file from current time and current FD
-      //Get time with nanosecond resolution (or so they say)
-      struct timespec time_for_file;
-      clock_gettime(CLOCK_REALTIME, &time_for_file);
-      //Mix time with FD and hash
-      //We are hashing two ints and a long, so
-      char meat_and_potatoes[24] = {0};
-      //memset(meat_and_potatoes, 0, sizeof(meat_and_potatoes));
-      memcpy(meat_and_potatoes, &time_for_file.tv_sec, sizeof(time_for_file.tv_sec));
-      memcpy(meat_and_potatoes+sizeof(time_for_file.tv_sec), &thread_connection, sizeof(thread_connection));
-      memcpy(meat_and_potatoes+sizeof(time_for_file.tv_sec)+sizeof(thread_connection), &time_for_file.tv_nsec, sizeof(time_for_file.tv_nsec));
-      unsigned char hash[64]; //64 bytes because hash has a fixed size output
-      crypto_generichash(hash, sizeof(hash), (const unsigned char *)meat_and_potatoes, sizeof(meat_and_potatoes),NULL, 0);
-
-      //Get file ready to write
-      //TODO needs to be /mail/user/unique_file_name
-      char unique_file_name[129] = {0};
-
-      char base64_username[341] = {0};
-      char unique_file_location[522] = {0};
-      //TODO Need to check if user is part of this domain. If not the file location should be some temporary storage.
-
-      //unique_file_name_length is not currently used. Should be fine.
-      uint32_t unique_file_name_length = base64_encode((char *)hash, sizeof(hash), unique_file_name, sizeof(unique_file_name), (char *)filesystem_safe_base64_string, 64);
-      uint32_t base64_username_length = base64_encode((char *)dest_account_buffer, strlen(dest_account_buffer), base64_username, strlen(base64_username), (char *)filesystem_safe_base64_string, 64);
-
-      if (snprintf(unique_file_location, sizeof(unique_file_location), "%s%s%s", "/mail/", base64_username, unique_file_name)<0)
-
-      write_to_file(source_account_buffer, source_account_counter, unique_file_location);
-      write_to_file(source_server_buffer, source_server_counter, unique_file_location);
-      write_to_file(dest_account_buffer, dest_account_counter, unique_file_location);
-      write_to_file(dest_server_buffer, dest_server_counter, unique_file_location);
-
-      //crypto_type, attachment_count, and message_length are fixed size buffers
-      if (read(thread_connection, crypto_type, 4) < 4)
-      {
-        print_to_log("Read error while reading crypto type", LOG_ERR);
-        perror("read crypto_type");
-        return NULL;
-      }
-      write_to_file(crypto_type, 4, unique_file_location);
-      if (read(thread_connection, attachment_count, 4) < 4)
-      {
-        print_to_log("Read error while reading attachment count", LOG_ERR);
-        perror("read attachment_count");
-        return NULL;
-      }
-      write_to_file(attachment_count, 4, unique_file_location);
-      if (read(thread_connection, message_length, 8) < 8)
-      {
-        print_to_log("Read error while reading message length", LOG_ERR);
-        perror("read message_length");
-        return NULL;
-      }
-      write_to_file(message_length, 8, unique_file_location);
-      //This completes the header of the message
-      //Next we handle the body of the message
-      uint64_t numeric_message_length = be64toh(*(uint64_t*)(&(message_length[0])));
-
-      char temp_byte[1] = {0};
-      #ifdef DEBUG
-      //Might need funny stuff here
-      //       printf("Message body length = %" PRId64 "\n", numeric_message_length);
-      printf("Message body length = %jd\n", (intmax_t)numeric_message_length);
-      #endif /*DEBUG*/
-      for (uint64_t i = 0; i<numeric_message_length; i++)
-      {
-        if (read(thread_connection, temp_byte, 1)<1)
-        {
-          print_to_log("read error while reading message body", LOG_ERR);
-          perror("read");
-          return NULL;
-        }
-        write_to_file(temp_byte, 1, unique_file_location);
-      }
-
-      #ifdef DEBUG
-      printf("Message body finished. Moving to attachment handling.\n");
-      #endif /*DEBUG*/
-      //Read for attachment
-      uint32_t numeric_attachment_count = be32toh(*(uint32_t*)(&(attachment_count[0])));
-      temp_byte[0] = 0;
-      for (uint64_t i = 0; i<numeric_attachment_count; i++)
-      {
-        if (read(thread_connection, temp_byte, 1)<1)
-        {
-          print_to_log("read error while reading message body", LOG_ERR);
-          perror("read");
-          return NULL;
-        }
-        write_to_file(temp_byte, 1, unique_file_location);
-      }
-
-      //Destination cases
-       if ((memcmp(dest_server_buffer, home_domain, dest_server_counter)==0)&&(memcmp(dest_account_buffer,"",1))==0)
-       {
-         #ifdef DEBUG
-         printf("Devlivered mail is for server. Begin processing.\n");
-         #endif /*DEBUG*/
-         print_to_log("Mail has arrived for the server. Processing.",LOG_INFO);
-         //Destination is this domain and for the server
-       }
-       else if ((memcmp(dest_server_buffer, home_domain, dest_server_counter)==0))
-       {
-         #ifdef DEBUG
-         printf("Devlivered mail is for a user on this domain. Store.\n");
-         #endif /*DEBUG*/
-         print_to_log("Mail has arrived for a user on this domain. Storing.",LOG_INFO);
-         //Destination is for a user at this domain
-       }
-       else
-       {
-         #ifdef DEBUG
-         printf("Devlivered mail is not destined for this domain. Forward to %s\n", dest_server_buffer);
-         #endif /*DEBUG*/
-         print_to_log("Mail has arrived for another domain. Forwarding.",LOG_INFO);
-         forwardMessage(unique_file_location, dest_server_buffer);
-         //Destination is on the web. Forward message.
-       }
-
-      //Clean thread_command_buffer
-      #ifdef DEBUG
-      printf("Mail section complete. Clearing buffer and return NULLing.\n");
-      #endif /*DEBUG*/
+      mail_responder(thread_connection);
       memset(thread_command_buffer, 0, sizeof(thread_command_buffer));
     }
     //End MAIL section
@@ -748,4 +569,187 @@ int32_t noop_responder(uint32_t socket)
     return -1;
   }
   return 0;
+}
+
+int32_t mail_responder(uint32_t socket)
+{
+  #ifdef DEBUG
+  printf("Entering MAIL subroutine\n");
+  #endif /*DEBUG*/
+  //Allocate general variables
+
+  //Allocate primary buffers and counters
+  char source_account_buffer[ROUTING_FIELD_SIZE];
+  uint32_t source_account_counter = 0;
+  char source_server_buffer[ROUTING_FIELD_SIZE];
+  uint32_t source_server_counter = 0;
+  char dest_account_buffer[ROUTING_FIELD_SIZE];
+  uint32_t dest_account_counter = 0;
+  char dest_server_buffer[ROUTING_FIELD_SIZE];
+  uint32_t dest_server_counter = 0;
+  char crypto_type[sizeof(uint32_t)] = {0};
+  char attachment_count[sizeof(uint32_t)] = {0};
+  char message_length[sizeof(uint64_t)] = {0};
+
+  //Read primary routing and processing information
+  do
+  {
+    if (read(socket, source_account_buffer+source_account_counter, 1) < 1)
+    {
+      perror("read source_accout_buffer");
+      return -1;
+    }
+    source_account_counter++;
+  } while((source_account_counter<ROUTING_FIELD_SIZE)&&(source_account_buffer[source_account_counter-1]!='\0'));
+
+  do {
+    if (read(socket, &source_server_buffer[source_server_counter], 1) < 1)
+    {
+      perror("read source_server_buffer");
+      return -1;
+    }
+    source_server_counter++;
+  } while((source_server_counter<ROUTING_FIELD_SIZE)&&(source_server_buffer[source_server_counter-1]!='\0'));
+
+  do {
+    if (read(socket, dest_account_buffer+dest_account_counter, 1) < 1)
+    {
+      perror("read dest_account_buffer");
+      return -1;
+    }
+    dest_account_counter++;
+  } while((dest_account_counter<ROUTING_FIELD_SIZE)&&(dest_account_buffer[dest_account_counter-1]!='\0'));
+
+  do {
+    if (read(socket, dest_server_buffer+dest_server_counter, 1) < 1)
+    {
+      perror("read dest_server_buffer");
+      return -1;
+    }
+    dest_server_counter++;
+  } while((dest_server_counter<ROUTING_FIELD_SIZE)&&(dest_server_buffer[dest_server_counter-1]!='\0'));
+
+  //Generate unique file from current time and current FD
+  //Get time with nanosecond resolution (or so they say)
+  struct timespec time_for_file;
+  clock_gettime(CLOCK_REALTIME, &time_for_file);
+  //Mix time with FD and hash
+  //We are hashing two ints and a long, so
+  char meat_and_potatoes[24] = {0};
+  //memset(meat_and_potatoes, 0, sizeof(meat_and_potatoes));
+  memcpy(meat_and_potatoes, &time_for_file.tv_sec, sizeof(time_for_file.tv_sec));
+  memcpy(meat_and_potatoes+sizeof(time_for_file.tv_sec), &socket, sizeof(socket));
+  memcpy(meat_and_potatoes+sizeof(time_for_file.tv_sec)+sizeof(socket), &time_for_file.tv_nsec, sizeof(time_for_file.tv_nsec));
+  unsigned char hash[64]; //64 bytes because hash has a fixed size output
+  crypto_generichash(hash, sizeof(hash), (const unsigned char *)meat_and_potatoes, sizeof(meat_and_potatoes),NULL, 0);
+
+  //Get file ready to write
+  //TODO needs to be /mail/user/unique_file_name
+  char unique_file_name[129] = {0};
+
+  char base64_username[341] = {0};
+  char unique_file_location[522] = {0};
+  //TODO Need to check if user is part of this domain. If not the file location should be some temporary storage.
+
+  //unique_file_name_length is not currently used. Should be fine.
+  uint32_t unique_file_name_length = base64_encode((char *)hash, sizeof(hash), unique_file_name, sizeof(unique_file_name), (char *)filesystem_safe_base64_string, 64);
+  uint32_t base64_username_length = base64_encode((char *)dest_account_buffer, strlen(dest_account_buffer), base64_username, strlen(base64_username), (char *)filesystem_safe_base64_string, 64);
+
+  if (snprintf(unique_file_location, sizeof(unique_file_location), "%s%s%s", "/mail/", base64_username, unique_file_name)<0)
+
+  write_to_file(source_account_buffer, source_account_counter, unique_file_location);
+  write_to_file(source_server_buffer, source_server_counter, unique_file_location);
+  write_to_file(dest_account_buffer, dest_account_counter, unique_file_location);
+  write_to_file(dest_server_buffer, dest_server_counter, unique_file_location);
+
+  //crypto_type, attachment_count, and message_length are fixed size buffers
+  if (read(socket, crypto_type, 4) < 4)
+  {
+    print_to_log("Read error while reading crypto type", LOG_ERR);
+    perror("read crypto_type");
+    return -1;
+  }
+  write_to_file(crypto_type, 4, unique_file_location);
+  if (read(socket, attachment_count, 4) < 4)
+  {
+    print_to_log("Read error while reading attachment count", LOG_ERR);
+    perror("read attachment_count");
+    return -1;
+  }
+  write_to_file(attachment_count, 4, unique_file_location);
+  if (read(socket, message_length, 8) < 8)
+  {
+    print_to_log("Read error while reading message length", LOG_ERR);
+    perror("read message_length");
+    return -1;
+  }
+  write_to_file(message_length, 8, unique_file_location);
+  //This completes the header of the message
+  //Next we handle the body of the message
+  uint64_t numeric_message_length = be64toh(*(uint64_t*)(&(message_length[0])));
+
+  char temp_byte[1] = {0};
+  #ifdef DEBUG
+  //Might need funny stuff here
+  //       printf("Message body length = %" PRId64 "\n", numeric_message_length);
+  printf("Message body length = %jd\n", (intmax_t)numeric_message_length);
+  #endif /*DEBUG*/
+  for (uint64_t i = 0; i<numeric_message_length; i++)
+  {
+    if (read(socket, temp_byte, 1)<1)
+    {
+      print_to_log("read error while reading message body", LOG_ERR);
+      perror("read");
+      return -1;
+    }
+    write_to_file(temp_byte, 1, unique_file_location);
+  }
+
+  #ifdef DEBUG
+  printf("Message body finished. Moving to attachment handling.\n");
+  #endif /*DEBUG*/
+  //Read for attachment
+  uint32_t numeric_attachment_count = be32toh(*(uint32_t*)(&(attachment_count[0])));
+  temp_byte[0] = 0;
+  for (uint64_t i = 0; i<numeric_attachment_count; i++)
+  {
+    if (read(socket, temp_byte, 1)<1)
+    {
+      print_to_log("read error while reading message body", LOG_ERR);
+      perror("read");
+      return -1;
+    }
+    write_to_file(temp_byte, 1, unique_file_location);
+  }
+
+  //Destination cases
+   if ((memcmp(dest_server_buffer, home_domain, dest_server_counter)==0)&&(memcmp(dest_account_buffer,"",1))==0)
+   {
+     #ifdef DEBUG
+     printf("Devlivered mail is for server. Begin processing.\n");
+     #endif /*DEBUG*/
+     print_to_log("Mail has arrived for the server. Processing.",LOG_INFO);
+     //Destination is this domain and for the server
+   }
+   else if ((memcmp(dest_server_buffer, home_domain, dest_server_counter)==0))
+   {
+     #ifdef DEBUG
+     printf("Devlivered mail is for a user on this domain. Store.\n");
+     #endif /*DEBUG*/
+     print_to_log("Mail has arrived for a user on this domain. Storing.",LOG_INFO);
+     //Destination is for a user at this domain
+   }
+   else
+   {
+     #ifdef DEBUG
+     printf("Devlivered mail is not destined for this domain. Forward to %s\n", dest_server_buffer);
+     #endif /*DEBUG*/
+     print_to_log("Mail has arrived for another domain. Forwarding.",LOG_INFO);
+     forwardMessage(unique_file_location, dest_server_buffer);
+     //Destination is on the web. Forward message.
+   }
+   #ifdef DEBUG
+   printf("Mail section complete. Clearing buffer and return NULLing.\n");
+   #endif /*DEBUG*/
+   return 0;
 }
