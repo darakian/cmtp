@@ -580,48 +580,10 @@ int32_t mail_responder(uint32_t socket)
   uint32_t dest_account_counter = 0;
   char dest_server_buffer[ROUTING_FIELD_SIZE];
   uint32_t dest_server_counter = 0;
-  char crypto_type[sizeof(uint32_t)] = {0};
+  char version[sizeof(uint32_t)] = {0};
   char attachment_count[sizeof(uint32_t)] = {0};
   char message_length[sizeof(uint64_t)] = {0};
-
-  //Read primary routing and processing information
-  do
-  {
-    if (read(socket, source_account_buffer+source_account_counter, 1) < 1)
-    {
-      perror("read source_accout_buffer");
-      return -1;
-    }
-    source_account_counter++;
-  } while((source_account_counter<ROUTING_FIELD_SIZE)&&(source_account_buffer[source_account_counter-1]!='\0'));
-
-  do {
-    if (read(socket, &source_server_buffer[source_server_counter], 1) < 1)
-    {
-      perror("read source_server_buffer");
-      return -1;
-    }
-    source_server_counter++;
-  } while((source_server_counter<ROUTING_FIELD_SIZE)&&(source_server_buffer[source_server_counter-1]!='\0'));
-
-  do {
-    if (read(socket, dest_account_buffer+dest_account_counter, 1) < 1)
-    {
-      perror("read dest_account_buffer");
-      return -1;
-    }
-    dest_account_counter++;
-  } while((dest_account_counter<ROUTING_FIELD_SIZE)&&(dest_account_buffer[dest_account_counter-1]!='\0'));
-
-  do {
-    if (read(socket, dest_server_buffer+dest_server_counter, 1) < 1)
-    {
-      perror("read dest_server_buffer");
-      return -1;
-    }
-    dest_server_counter++;
-  } while((dest_server_counter<ROUTING_FIELD_SIZE)&&(dest_server_buffer[dest_server_counter-1]!='\0'));
-
+  char log_length[sizeof(uint64_t)] = {0};
   //Generate unique file from current time and current FD
   //Get time with nanosecond resolution (or so they say)
   struct timespec time_for_file;
@@ -649,20 +611,21 @@ int32_t mail_responder(uint32_t socket)
   uint32_t base64_username_length = base64_encode((char *)dest_account_buffer, strlen(dest_account_buffer), base64_username, strlen(base64_username), (char *)filesystem_safe_base64_string, 64);
 
   if (snprintf(unique_file_location, sizeof(unique_file_location), "%s%s%s", "/mail/", base64_username, unique_file_name)<0)
-
-  write_to_file(source_account_buffer, source_account_counter, unique_file_location);
-  write_to_file(source_server_buffer, source_server_counter, unique_file_location);
-  write_to_file(dest_account_buffer, dest_account_counter, unique_file_location);
-  write_to_file(dest_server_buffer, dest_server_counter, unique_file_location);
-
-  //crypto_type, attachment_count, and message_length are fixed size buffers
-  if (read(socket, crypto_type, 4) < 4)
   {
-    print_to_log("Read error while reading crypto type", LOG_ERR);
-    perror("read crypto_type");
+    perror("snprintf");
+    print_to_log("snprintf failed to create a new file string. Cannot write message out",LOG_ERR);
     return -1;
   }
-  write_to_file(crypto_type, 4, unique_file_location);
+
+  //Read primary routing and processing information
+  //First read in fixed length fields
+  if (read(socket, version, 4) < 4)
+  {
+    print_to_log("Read error while reading crypto type", LOG_ERR);
+    perror("read version");
+    return -1;
+  }
+  write_to_file(version, 4, unique_file_location);
   if (read(socket, attachment_count, 4) < 4)
   {
     print_to_log("Read error while reading attachment count", LOG_ERR);
@@ -677,16 +640,73 @@ int32_t mail_responder(uint32_t socket)
     return -1;
   }
   write_to_file(message_length, 8, unique_file_location);
+  if (read(socket, log_length, 8) < 8)
+  {
+    print_to_log("Read error while reading message length", LOG_ERR);
+    perror("read log_length");
+    return -1;
+  }
+  write_to_file(log_length, 8, unique_file_location);
+
+  do
+  {
+    if (read(socket, source_account_buffer+source_account_counter, 1) < 1)
+    {
+      perror("read source_accout_buffer");
+      return -1;
+    }
+    source_account_counter++;
+  } while((source_account_counter<ROUTING_FIELD_SIZE)&&(source_account_buffer[source_account_counter-1]!='\0'));
+  //Destination fields
+  do {
+    if (read(socket, dest_account_buffer+dest_account_counter, 1) < 1)
+    {
+      perror("read dest_account_buffer");
+      return -1;
+    }
+    dest_account_counter++;
+  } while((dest_account_counter<ROUTING_FIELD_SIZE)&&(dest_account_buffer[dest_account_counter-1]!='\0'));
+  //Source fields
+  do {
+    if (read(socket, dest_server_buffer+dest_server_counter, 1) < 1)
+    {
+      perror("read dest_server_buffer");
+      return -1;
+    }
+    dest_server_counter++;
+  } while((dest_server_counter<ROUTING_FIELD_SIZE)&&(dest_server_buffer[dest_server_counter-1]!='\0'));
+  do {
+    if (read(socket, &source_server_buffer[source_server_counter], 1) < 1)
+    {
+      perror("read source_server_buffer");
+      return -1;
+    }
+    source_server_counter++;
+  } while((source_server_counter<ROUTING_FIELD_SIZE)&&(source_server_buffer[source_server_counter-1]!='\0'));
+  write_to_file(dest_account_buffer, dest_account_counter, unique_file_location);
+  write_to_file(dest_server_buffer, dest_server_counter, unique_file_location);
+  write_to_file(source_account_buffer, source_account_counter, unique_file_location);
+  write_to_file(source_server_buffer, source_server_counter, unique_file_location);
+
+
   //This completes the header of the message
   //Next we handle the body of the message
   uint64_t numeric_message_length = be64toh(*(uint64_t*)(&(message_length[0])));
+  uint64_t numeric_log_length = be64toh(*(uint64_t*)(&(log_length[0])));
 
   char temp_byte[1] = {0};
-  #ifdef DEBUG
-  //Might need funny stuff here
-  //       printf("Message body length = %" PRId64 "\n", numeric_message_length);
-  printf("Message body length = %jd\n", (intmax_t)numeric_message_length);
-  #endif /*DEBUG*/
+  //Read log
+  for (uint64_t i = 0; i<numeric_log_length; i++)
+  {
+    if (read(socket, temp_byte, 1)<1)
+    {
+      print_to_log("read error while reading message body", LOG_ERR);
+      perror("read");
+      return -1;
+    }
+    write_to_file(temp_byte, 1, unique_file_location);
+  }
+  //Read message body
   for (uint64_t i = 0; i<numeric_message_length; i++)
   {
     if (read(socket, temp_byte, 1)<1)
