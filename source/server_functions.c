@@ -263,7 +263,8 @@ void * connection_manager(void * connection_manager_argument)
     //OHAI
     if (memcmp(cmtp_command_OHAI, thread_command_buffer, sizeof(cmtp_command_OHAI))==0)
     {
-      write(thread_connection, cmtp_ohai_response, sizeof(cmtp_ohai_response));
+      //write(thread_connection, cmtp_ohai_response, sizeof(cmtp_ohai_response));
+      ohai_responder(thread_connection);
       //Clean thread_command_buffer
       memset(thread_command_buffer, 0, sizeof(thread_command_buffer));
     }
