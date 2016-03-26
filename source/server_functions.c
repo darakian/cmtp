@@ -46,6 +46,7 @@ const char cmtp_command_OBAI[] = {"OBAI"};
 const char cmtp_command_KEYREQUEST[] = {"KEYREQUEST"};
 const char termination_char = '\0';
 const uint32_t crypto_version = 1;
+uint32_t network_crypto_version = 0;
 char home_domain[64] = {0};
 uint32_t MAX_CONNECTIONS = 10;
 
@@ -74,6 +75,7 @@ int server_init(struct init_params * passback_params)
     char * working_user = "nobody";
     char * config_file = "/etc/cmtpd/cmtpd.conf";
     struct config_struct working_config;
+    network_crypto_version = htonl(crypto_version);
 
     if (getdomainname(home_domain, sizeof(home_domain))<0)
     {
@@ -461,7 +463,7 @@ int32_t keyrequest_responder(uint32_t socket)
   {
     crypto_sign_detached(signature_of_public_key, NULL, server_public_key, sizeof(server_public_key), server_private_key);
     //Wants server key. Reply and return.
-    write(socket, htonl(crypto_version), sizeof(crypto_version));
+    write(socket, &network_crypto_version, sizeof(crypto_version));
     write(socket, server_public_key, sizeof(server_public_key));
     write(socket, &termination_char, sizeof(termination_char));
     write(socket, signature_of_public_key, sizeof(signature_of_public_key));
@@ -510,7 +512,7 @@ int32_t keyrequest_responder(uint32_t socket)
       //Sign key and store signature in signature_of_public_key
       crypto_sign_detached(signature_of_public_key, NULL, user_public_key, sizeof(user_public_key), server_private_key);
       //Send it all
-      write(socket, htonl(crypto_version), sizeof(crypto_version));
+      write(socket, &network_crypto_version, sizeof(crypto_version));
       write(socket, user_public_key, sizeof(user_public_key));
       write(socket, &termination_char, sizeof(termination_char));
       write(socket, signature_of_public_key, sizeof(signature_of_public_key));
