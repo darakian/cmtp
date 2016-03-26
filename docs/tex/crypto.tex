@@ -1,0 +1,32 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{url}
+
+\title{The Cipher Mail Transport Protocol Cryptography}
+\author{Jonathan Moroney}
+
+\begin{document}
+
+\maketitle
+%\tableofcontents
+
+%\begin{abstract}
+%\end{abstract}
+
+\section{Overview}
+The Cipher Mail Transport Protocol (CMTP) has been designed to easily adapt to new crypto-systems as the need arises. Each communication from a server has a version field which denotes the crypto-system in use. There are two currently defined crypto-systems:
+\begin{enumerate}
+  \item 0 - Plaintext. That is, no encryption.
+  \item 1 - X25519 / Salsa20. Further details below.
+\end{enumerate}
+As the state of cryptography evolves additional crypto systems can be added.
+
+\section{Crypto system 1}
+The choice for crypto-system 1 to use X25519 / Salsa20 and the signing and securing algorithms was a fundamentally pragmatic one. In particular messages are enciphered with the LibSodium crypto\_box\_seal() \cite{crypto-box-seal} function. This function does the job of encrypting and signing the message as well as throwing errors should something not match up. The signing function is the crypto\_sign() function \cite{crypto-sign}. Many large players on the internet are using this library and these algorithms which helped make this decision easier to make. However, this does end up meaning that the ``correct" implementation of encryption is whatever LibSodium does and I don't feel good in punting like that.
+
+
+\bibliographystyle{acm}
+\bibliography{docs-references}
+\end{document}
