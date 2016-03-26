@@ -203,40 +203,19 @@ int32_t build_header(char * recipient, uint32_t recipient_length, uint32_t versi
 	return target;
 }
 
-int build_message(unsigned char * body, long body_length, unsigned char * recipient_key, char * attachments, long attachments_length,  unsigned char * cipher_buffer)
+int32_t build_message(unsigned char * body, long body_length, unsigned char * recipient_key, char * attachments, long attachments_length,  unsigned char * cipher_buffer)
 {
 	//Step 1: Encipher body and attachments
-	char * crypto_buffer = calloc(1, 8 + body_length + attachments_length);
+	char * crypto_buffer = calloc(1, body_length + attachments_length);
 	unsigned char cipherd_body[body_length];
-	char * body_buffer = calloc(1, 8+body_length);
+	char * body_buffer = calloc(1, body_length);
 	crypto_box_seal(cipherd_body, body, body_length, recipient_key);
-	#ifdef DEBUG
-	printf("Cere\n");
-	#endif /*DEBUG*/
-	//Step 2: build one memory block
-	memcpy(body_buffer, &body_length, 8);
-	#ifdef DEBUG
-	printf("Here\n");
-	#endif /*DEBUG*/
-	memcpy(body_buffer + 8, cipherd_body, body_length);
-	#ifdef DEBUG
-	printf("Here\n");
-	#endif /*DEBUG*/
-	memcpy(crypto_buffer, body_buffer, 8+body_length);
-	#ifdef DEBUG
-	printf("Here\n");
-	#endif /*DEBUG*/
-	free (body_buffer);
-	#ifdef DEBUG
-	printf("Here\n");
-	#endif /*DEBUG*/
-	memset(body_buffer, 0, 8+body_length);
-	memcpy(crypto_buffer, attachments, attachments_length);
-	#ifdef DEBUG
-	printf("Here\n");
-	#endif /*DEBUG*/
+	//Step 2: copy encrypted contents to the buffer working
+	memcpy(crypto_buffer, cipherd_body, body_length);
+	memset(body_buffer, 0, body_length);
+	memcpy(crypto_buffer+(body_length+crypto_box_SEALBYTES), attachments, attachments_length);
 	//Step 3: Return everything as cipher_buffer
-	memcpy(cipher_buffer, crypto_buffer, sizeof(crypto_buffer));
+	memcpy(cipher_buffer, crypto_buffer, sizeof(&crypto_buffer));
 	#ifdef DEBUG
 	printf("Here\n");
 	#endif /*DEBUG*/
