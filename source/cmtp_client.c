@@ -157,6 +157,9 @@ int main(int argc, char *argv[])
       unsigned char * encrypted_file_buffer = calloc(1, temp_file_size);
       int32_t temp_file_descriptor = 0;
       temp_file_descriptor = open(temp_file, O_RDONLY);
+      #ifdef DEBUG
+      printf("Before read temp_file_descriptor\n");
+      #endif /*DEBUG*/
       for (uint32_t i = 0; i<=temp_file_size; i++)
       {
         if (read(temp_file_descriptor, temp_file_buffer, 1)<0)
@@ -165,6 +168,14 @@ int main(int argc, char *argv[])
           print_to_log("Error reading in users message", LOG_ERR);
         }
       }
+      if (close(temp_file_descriptor)<0)
+      {
+        perror("close");
+        print_to_log("Error closing temp_file_descriptor", LOG_ERR);
+      }
+      #ifdef DEBUG
+      printf("Before build message\n");
+      #endif /*DEBUG*/
       //Encrypt message
       if (build_message(temp_file_buffer, temp_file_size, recipient_key_buffer, NULL, 0,  encrypted_file_buffer)<0)
       {

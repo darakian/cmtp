@@ -45,7 +45,7 @@ const char cmtp_command_LOGIN[] = {"LOGIN"};
 const char cmtp_command_OBAI[] = {"OBAI"};
 const char cmtp_command_KEYREQUEST[] = {"KEYREQUEST"};
 const char termination_char = '\0';
-const char crypto_version[4] = {0};
+const uint32_t crypto_version = 1;
 char home_domain[64] = {0};
 uint32_t MAX_CONNECTIONS = 10;
 
@@ -461,7 +461,7 @@ int32_t keyrequest_responder(uint32_t socket)
   {
     crypto_sign_detached(signature_of_public_key, NULL, server_public_key, sizeof(server_public_key), server_private_key);
     //Wants server key. Reply and return.
-    write(socket, crypto_version, sizeof(crypto_version));
+    write(socket, htonl(crypto_version), sizeof(crypto_version));
     write(socket, server_public_key, sizeof(server_public_key));
     write(socket, &termination_char, sizeof(termination_char));
     write(socket, signature_of_public_key, sizeof(signature_of_public_key));
@@ -489,8 +489,10 @@ int32_t keyrequest_responder(uint32_t socket)
     //Check for user's key in /mail/base64_username/public.key
     if (access(pub_key_path, R_OK)<0)
     {
+      //User does not exist. Send error.
       perror("user access");
       print_to_log("Cannot access user public key. User may not exist.", LOG_ERR);
+
     }
     else         //Read public key and reply to request with it.
     {
@@ -508,7 +510,7 @@ int32_t keyrequest_responder(uint32_t socket)
       //Sign key and store signature in signature_of_public_key
       crypto_sign_detached(signature_of_public_key, NULL, user_public_key, sizeof(user_public_key), server_private_key);
       //Send it all
-      write(socket, crypto_version, sizeof(crypto_version));
+      write(socket, htonl(crypto_version), sizeof(crypto_version));
       write(socket, user_public_key, sizeof(user_public_key));
       write(socket, &termination_char, sizeof(termination_char));
       write(socket, signature_of_public_key, sizeof(signature_of_public_key));
