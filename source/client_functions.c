@@ -282,30 +282,41 @@ int32_t request_key(uint32_t socket, char * user, char * domain, unsigned char *
 		print_to_log("Cannot send key request.", LOG_ERR);
 		return -1;
 	}
-	printf("Here 2\n");
 	if (read(socket, reception_buffer, sizeof(reception_buffer))<0)
 	{
 		perror("read");
 		print_to_log("Cannot read reply from key request.", LOG_ERR);
 	}
-	printf("Here 3\n");
 	//Verify and copy result to key_buffer
 	version = ntohl(*(uint32_t *)reception_buffer);
-	//Only version 1 is supported here.
-	if (version!=1)
+	if (version==0)
 	{
+		//error message case. Verify signature and take action.
+		if (crypto_sign_verify_detached(reception_buffer+4+crypto_sign_ed25519_SECRETKEYBYTES, reception_buffer+4, crypto_sign_ed25519_SECRETKEYBYTES, server_public_key)!=0)
+		{
+			perror("Invalid signature for error message.")
+			print_to_log("Error message recived in response to keyrequest. Cannot verify message. Bad joo joo time is here", LOG_ERR);
+			return -1;
+		}
+	}
+	if (version==1)
+	{
+		memcpy(key_buffer, reception_buffer+4, crypto_sign_ed25519_SECRETKEYBYTES);
+		//check signature
+		if (crypto_sign_verify_detached(reception_buffer+4+crypto_sign_ed25519_SECRETKEYBYTES, reception_buffer+4, crypto_sign_ed25519_SECRETKEYBYTES, server_public_key) != 0)
+		{
+	    perror("crypto_sign_verify_detached");
+			print_to_log("Signature is not valid for delieverd key", LOG_ERR);
+			memset(key_buffer, 0, crypto_sign_ed25519_SECRETKEYBYTES);
+			return -1;
+		}
+	}
+	else if (version>1)
+	{
+		//Valid key case
 		perror("Key version unsupported");
 		printf("Key version = %d\n", version);
 		print_to_log("Unsupported key type recived", LOG_ERR);
-		return -1;
-	}
-	memcpy(key_buffer, reception_buffer+4, crypto_sign_ed25519_SECRETKEYBYTES);
-	//check signature
-	if (crypto_sign_verify_detached(reception_buffer+4+crypto_sign_ed25519_SECRETKEYBYTES, reception_buffer+4, crypto_sign_ed25519_SECRETKEYBYTES, server_public_key) != 0)
-	{
-    perror("crypto_sign_verify_detached");
-		print_to_log("Signature is not valid for delieverd key", LOG_ERR);
-		memset(key_buffer, 0, crypto_sign_ed25519_SECRETKEYBYTES);
 		return -1;
 	}
 	return 0;
