@@ -467,6 +467,7 @@ int32_t keyrequest_responder(uint32_t socket)
     write(socket, server_public_key, sizeof(server_public_key));
     write(socket, &termination_char, sizeof(termination_char));
     write(socket, signature_of_public_key, sizeof(signature_of_public_key));
+    write(socket, &termination_char, sizeof(termination_char));
     return 0;
     //Need to end here. Might need to functionize this code.
   }
@@ -504,6 +505,7 @@ int32_t keyrequest_responder(uint32_t socket)
       write(socket, &network_crypto_version, sizeof(network_crypto_version));
       write(socket, cmtp_reply_KEYNOTAVAILABLE, sizeof(cmtp_reply_KEYNOTAVAILABLE));
       write(socket, signature_of_KEYNOTAVAILABLE, sizeof(signature_of_KEYNOTAVAILABLE));
+      write(socket, &termination_char, sizeof(termination_char));
 
     }
     else         //Read public key and reply to request with it.
@@ -526,6 +528,7 @@ int32_t keyrequest_responder(uint32_t socket)
       write(socket, user_public_key, sizeof(user_public_key));
       write(socket, &termination_char, sizeof(termination_char));
       write(socket, signature_of_public_key, sizeof(signature_of_public_key));
+      write(socket, &termination_char, sizeof(termination_char));
     }
   }
   //Clean buffers
