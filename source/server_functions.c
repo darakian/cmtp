@@ -472,10 +472,9 @@ int32_t keyrequest_responder(uint32_t socket)
   }
   else
   {
-    uint32_t base64_username_length = base64_encode((char *)user_keyrequest_buffer, strlen(user_keyrequest_buffer), base64_username, strlen(base64_username), (char *)filesystem_safe_base64_string, 64);
+    //uint32_t base64_username_length = base64_encode((char *)user_keyrequest_buffer, strlen(user_keyrequest_buffer), base64_username, strlen(base64_username), (char *)filesystem_safe_base64_string, 64);
     #ifdef DEBUG
     printf("Requested user = %s\n", user_keyrequest_buffer);
-    printf("Requested user in base64 = %s\n", base64_username);
     #endif /*DEBUG*/
     do {
       read(socket, domain_keyrequest_buffer+i, 1);
@@ -487,7 +486,7 @@ int32_t keyrequest_responder(uint32_t socket)
       //Keyrequest is for a different domain. Query that domain and relay key.
     }
 
-    if (snprintf(pub_key_path, sizeof(pub_key_path), "%s%s%s", "/mail/", base64_username, "/public.key")<0)
+    if (snprintf(pub_key_path, sizeof(pub_key_path), "%s%s%s", "/mail/", user_keyrequest_buffer, "/public.key")<0)
     {
       perror("snprintf");
       print_to_log("snprintf error. Cannot check for user public key", LOG_ERR);
