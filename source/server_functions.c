@@ -470,11 +470,11 @@ int32_t keyrequest_responder(uint32_t socket)
     return 0;
     //Need to end here. Might need to functionize this code.
   }
-  #ifdef DEBUG
-  printf("Requested user = %s\n", user_keyrequest_buffer);
-  #endif /*DEBUG*/
   else
   {
+    #ifdef DEBUG
+    printf("Requested user = %s\n", user_keyrequest_buffer);
+    #endif /*DEBUG*/
     uint32_t base64_username_length = base64_encode((char *)user_keyrequest_buffer, strlen(user_keyrequest_buffer), base64_username, strlen(base64_username), (char *)filesystem_safe_base64_string, 64);
     do {
       read(socket, domain_keyrequest_buffer+i, 1);
