@@ -477,13 +477,12 @@ int32_t keyrequest_responder(uint32_t socket)
     uint32_t base64_username_length = base64_encode((char *)user_keyrequest_buffer, strlen(user_keyrequest_buffer), base64_username, strlen(base64_username), (char *)filesystem_safe_base64_string, 64);
     do {
       read(socket, domain_keyrequest_buffer+i, 1);
-      //printf("domain_keyrequest_buffer[%d] = %c/%x\n",i,domain_keyrequest_buffer[i], domain_keyrequest_buffer[i]);
       i++;
     } while((i<sizeof(domain_keyrequest_buffer))&&(domain_keyrequest_buffer[i-1]!='\0'));
 
     if (memcmp(&domain_keyrequest_buffer, &home_domain, ROUTING_FIELD_SIZE)!=0)
     {
-      //Keyrequest is for a different domain. Send error message and return.
+      //Keyrequest is for a different domain. Query that domain and relay key.
     }
 
     if (snprintf(pub_key_path, sizeof(pub_key_path), "%s%s%s", "/mail/", base64_username, "/public.key")<0)
@@ -496,7 +495,7 @@ int32_t keyrequest_responder(uint32_t socket)
     {
       //User does not exist. Send error.
       perror("user access");
-      print_to_log("Cannot access user public key. User may not exist.", LOG_ERR);
+      print_to_log("Cannot access user public key. User does not exist.", LOG_ERR);
       crypto_sign_detached(signature_of_KEYNOTAVAILABLE, NULL, cmtp_reply_KEYNOTAVAILABLE, sizeof(cmtp_reply_KEYNOTAVAILABLE), server_private_key);
       write(socket, network_crypto_version, sizeof(network_crypto_version));
       write(socket, cmtp_reply_KEYNOTAVAILABLE, sizeof(cmtp_reply_KEYNOTAVAILABLE));
