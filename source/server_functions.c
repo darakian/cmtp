@@ -495,6 +495,9 @@ int32_t keyrequest_responder(uint32_t socket)
     {
       //User does not exist. Send error.
       perror("user access");
+      #ifdef DEBUG
+      printf("Key not found at %s\n", pub_key_path);
+      #endif /*DEBUG*/
       print_to_log("Cannot access user public key. User does not exist.", LOG_ERR);
       crypto_sign_detached(signature_of_KEYNOTAVAILABLE, NULL, (const unsigned char *)cmtp_reply_KEYNOTAVAILABLE, sizeof(cmtp_reply_KEYNOTAVAILABLE), server_private_key);
       write(socket, &network_crypto_version, sizeof(network_crypto_version));
