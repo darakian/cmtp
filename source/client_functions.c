@@ -294,7 +294,7 @@ int32_t request_key(uint32_t socket, char * user, char * domain, unsigned char *
 		//error message case. Verify signature and take action.
 		if (crypto_sign_verify_detached(reception_buffer+4+crypto_sign_ed25519_SECRETKEYBYTES, reception_buffer+4, crypto_sign_ed25519_SECRETKEYBYTES, server_public_key)!=0)
 		{
-			perror("Invalid signature for error message.")
+			perror("Invalid signature for error message.");
 			print_to_log("Error message recived in response to keyrequest. Cannot verify message. Bad joo joo time is here", LOG_ERR);
 			return -1;
 		}
