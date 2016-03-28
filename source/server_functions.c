@@ -469,6 +469,7 @@ int32_t keyrequest_responder(uint32_t socket)
     write(socket, server_public_key, sizeof(server_public_key));
     write(socket, &termination_char, sizeof(termination_char));
     write(socket, signature_of_public_key, sizeof(signature_of_public_key));
+    return 0;
     //Need to end here. Might need to functionize this code.
   }
   else
