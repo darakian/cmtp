@@ -281,6 +281,7 @@ int32_t request_key(uint32_t socket, char * user, char * server, unsigned char *
 	if (version!=1)
 	{
 		perror("Key version unsupported");
+		printf("Key version = %d\n", version);
 		print_to_log("Unsupported key type recived", LOG_ERR);
 		return -1;
 	}

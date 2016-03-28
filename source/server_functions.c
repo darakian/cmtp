@@ -44,6 +44,7 @@ const char cmtp_command_NOOP[] = {"NOOP"};
 const char cmtp_command_LOGIN[] = {"LOGIN"};
 const char cmtp_command_OBAI[] = {"OBAI"};
 const char cmtp_command_KEYREQUEST[] = {"KEYREQUEST"};
+const char cmtp_reply_KEYNOTAVAILABLE[] = {"KEYNOTAVAILABLE"};
 const char termination_char = '\0';
 const uint32_t crypto_version = 1;
 uint32_t network_crypto_version = 0;
@@ -451,6 +452,7 @@ int32_t keyrequest_responder(uint32_t socket)
   char domain_keyrequest_buffer[ROUTING_FIELD_SIZE] = {0};
   unsigned char user_public_key[crypto_sign_ed25519_PUBLICKEYBYTES] = {0};
   unsigned char signature_of_public_key[crypto_sign_BYTES] = {0};
+  unsigned char signature_of_KEYNOTAVAILABLE[crypto_sign_BYTES] = {0};
   //Read in username
   do {
     read(socket, user_keyrequest_buffer+i, 1);
@@ -494,6 +496,10 @@ int32_t keyrequest_responder(uint32_t socket)
       //User does not exist. Send error.
       perror("user access");
       print_to_log("Cannot access user public key. User may not exist.", LOG_ERR);
+      crypto_sign_detached(signature_of_KEYNOTAVAILABLE, NULL, cmtp_reply_KEYNOTAVAILABLE, sizeof(cmtp_reply_KEYNOTAVAILABLE), server_private_key);
+      write(socket, network_crypto_version, sizeof(network_crypto_version));
+      write(socket, cmtp_reply_KEYNOTAVAILABLE, sizeof(cmtp_reply_KEYNOTAVAILABLE));
+      write(socket, signature_of_KEYNOTAVAILABLE, sizeof(signature_of_KEYNOTAVAILABLE));
 
     }
     else         //Read public key and reply to request with it.
