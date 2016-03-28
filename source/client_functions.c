@@ -253,21 +253,29 @@ int encrypt_all_attachmets(int * sizes, unsigned char * * attachments, int num_a
 	return 1;
 }
 
-int32_t request_key(uint32_t socket, char * user, char * server, unsigned char * key_buffer)
+int32_t request_key(uint32_t socket, char * user, char * domain, unsigned char * key_buffer)
 {
-	printf("Here 1\n");
+	#ifdef DEBUG
+	printf("Begining keyrequest for user=%s, domain=%s\n", user, domain);
+	#endif /*DEBUG*/
 	uint32_t version = 0;
-	uint32_t request_buffer_length = strlen(user) + strlen(server)+sizeof(cmtp_command_KEYREQUEST)+3;
+	uint32_t request_buffer_length = strlen(user) + strlen(domain)+sizeof(cmtp_command_KEYREQUEST)+3;
 	unsigned char reception_buffer[4+crypto_sign_ed25519_SECRETKEYBYTES+crypto_sign_BYTES] = {0};
 	char request_buffer[(2*255)+sizeof(cmtp_command_KEYREQUEST)+1] = {0};
-	if (snprintf(request_buffer, sizeof(request_buffer), "%s%c%s%c%s%c", cmtp_command_KEYREQUEST, '\0', user, '\0',server, '\0')<0)
+	if (snprintf(request_buffer, sizeof(request_buffer), "%s%c%s%c%s%c", cmtp_command_KEYREQUEST, '\0', user, '\0',domain, '\0')<0)
 	{
 		perror("snprintf");
 		print_to_log("Cannot construct key request buffer.", LOG_ERR);
 		return -1;
 	}
-	printf("%d\n", request_buffer_length);
-	printf("%s\n", request_buffer);
+	#ifdef DEBUG
+	printf("keyrequest buffer length = %d bytes\n", request_buffer_length);
+	//printf("keyrequest buffer contents = %s\n", request_buffer);
+	for (int32_t i=0;i<request_buffer_length;i++)
+	{
+		printf("keyrequest buffer at byte %d = %c\n", i, request_buffer[i]);
+	}
+	#endif /*DEBUG*/
 	if (write(socket, request_buffer, request_buffer_length)<0)
 	{
 		perror("write");
