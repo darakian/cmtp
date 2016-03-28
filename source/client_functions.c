@@ -211,7 +211,7 @@ int32_t build_message(unsigned char * body, long body_length, unsigned char * re
 	char * body_buffer = calloc(1, body_length);
 	crypto_box_seal(cipherd_body, body, body_length, recipient_key);
 	//Step 2: copy encrypted contents to the buffer working
-	printf("1: cipherd_body = %x\n", cipherd_body);
+	printf("1: cipherd_body = %s\n", cipherd_body);
 	memcpy(crypto_buffer, cipherd_body, body_length);
 	printf("2\n");
 	memset(body_buffer, 0, body_length);
@@ -301,7 +301,7 @@ int32_t request_user_key(uint32_t socket, char * user, char * domain, unsigned c
 	#ifdef DEBUG
 	printf("keyrequest buffer length = %d bytes\n", request_buffer_length);
 	//printf("keyrequest buffer contents = %s\n", request_buffer);
-	for (int32_t i=0;i<request_buffer_length;i++)
+	for (uint32_t i=0;i<request_buffer_length;i++)
 	{
 		printf("keyrequest buffer at byte %d = %c\n", i, request_buffer[i]);
 	}
