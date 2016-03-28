@@ -114,7 +114,7 @@ int main(int argc, char *argv[])
       prompt_input_string("recipient user", recipient_user);
       prompt_input_string("recipient domain", recipient_domain);
       recipient_length = create_recipient_string(recipient_user, recipient_domain, recipient_full);
-      request_key(client_socket, recipient_user, recipient_domain, recipient_key_buffer);
+      request_user_key(client_socket, recipient_user, recipient_domain, recipient_key_buffer);
       printf("Ending recipient setting\n");
       break;
       case 2 :

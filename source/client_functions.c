@@ -253,7 +253,12 @@ int encrypt_all_attachmets(int * sizes, unsigned char * * attachments, int num_a
 	return 1;
 }
 
-int32_t request_key(uint32_t socket, char * user, char * domain, unsigned char * key_buffer)
+int32_t request_server_key(uint32_t socket, unsigned char * key_buffer)
+{
+	return request_user_key(socket, '\0', '\0', key_buffer);
+}
+
+int32_t request_user_key(uint32_t socket, char * user, char * domain, unsigned char * key_buffer)
 {
 	#ifdef DEBUG
 	printf("Begining keyrequest for user=%s, domain=%s\n", user, domain);
@@ -262,6 +267,31 @@ int32_t request_key(uint32_t socket, char * user, char * domain, unsigned char *
 	uint32_t request_buffer_length = strlen(user) + strlen(domain)+sizeof(cmtp_command_KEYREQUEST)+3;
 	unsigned char reception_buffer[4+crypto_sign_ed25519_SECRETKEYBYTES+crypto_sign_BYTES] = {0};
 	char request_buffer[(2*255)+sizeof(cmtp_command_KEYREQUEST)+1] = {0};
+	if ((strlen(user)==0)&&(strlen(domain)==0))
+	{
+		//Server keyrequest case
+		if (snprintf(request_buffer, sizeof(request_buffer), "%s%c%c", cmtp_command_KEYREQUEST, '\0', '\0')<0)
+		{
+			perror("snprintf");
+			print_to_log("Cannot construct key request buffer.", LOG_ERR);
+			return -1;
+		}
+		request_buffer_length = sizeof(cmtp_command_KEYREQUEST)+1;
+		if (write(socket, request_buffer, request_buffer_length)<0)
+		{
+			perror("write");
+			print_to_log("Cannot send key request for server key.", LOG_ERR);
+			return -1;
+		}
+		if (read(socket, reception_buffer, sizeof(reception_buffer))<0)
+		{
+			perror("read");
+			print_to_log("Cannot read reply from key request.", LOG_ERR);
+		}
+		return 0;
+	}
+
+	//User key case
 	if (snprintf(request_buffer, sizeof(request_buffer), "%s%c%s%c%s%c", cmtp_command_KEYREQUEST, '\0', user, '\0',domain, '\0')<0)
 	{
 		perror("snprintf");
@@ -313,7 +343,7 @@ int32_t request_key(uint32_t socket, char * user, char * domain, unsigned char *
 	}
 	else if (version>1)
 	{
-		//Valid key case
+		//Invalid key case
 		perror("Key version unsupported");
 		printf("Key version = %d\n", version);
 		print_to_log("Unsupported key type recived", LOG_ERR);

@@ -33,7 +33,9 @@ int32_t build_message(unsigned char * body, long body_length, unsigned char * re
 
 int encrypt_all_attachmets(int * sizes, unsigned char * * attachments, int num_attachments);
 
-int32_t request_key(uint32_t socket, char * user, char * server, unsigned char * key_buffer);
+int32_t request_server_key(uint32_t socket, unsigned char * key_buffer);
+
+int32_t request_user_key(uint32_t socket, char * user, char * server, unsigned char * key_buffer);
 
 int32_t decipher_private_key(char * password, unsigned char * cipher_key_buffer, unsigned char * clear_key_buffer);
 
