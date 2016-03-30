@@ -207,11 +207,10 @@ int32_t build_message(unsigned char * body, long body_length, unsigned char * re
 {
 	//Step 1: Encipher body and attachments
 	char * crypto_buffer = calloc(1, body_length + attachments_length);
-	unsigned char cipherd_body[body_length];
+	unsigned char cipherd_body[crypto_box_SEALBYTES + body_length];
 	char * body_buffer = calloc(1, body_length);
 	crypto_box_seal(cipherd_body, body, body_length, recipient_key);
 	//Step 2: copy encrypted contents to the buffer working
-	printf("1: cipherd_body = %s\n", cipherd_body);
 	memcpy(crypto_buffer, cipherd_body, body_length);
 	printf("2\n");
 	memset(body_buffer, 0, body_length);

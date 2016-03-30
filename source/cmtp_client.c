@@ -31,8 +31,8 @@ int main(int argc, char *argv[])
     exit(1);
   }
   int client_socket = 0;
-  unsigned char user_key_buffer[sizeof(crypto_sign_ed25519_SECRETKEYBYTES)] = {0};
-  unsigned char recipient_key_buffer[sizeof(crypto_sign_ed25519_SECRETKEYBYTES)] = {0};
+  unsigned char user_key_buffer[crypto_sign_ed25519_SECRETKEYBYTES] = {0};
+  unsigned char recipient_key_buffer[crypto_sign_ed25519_SECRETKEYBYTES] = {0};
   char user_key_path[400] = {0};
   char base64_username[341] = {0};
   char user_password[255] = {0};
@@ -56,6 +56,8 @@ int main(int argc, char *argv[])
   struct sockaddr_in post_desktop;
 
   int32_t server_length =  resolve_server("edo.im", (struct sockaddr_storage *)&post_desktop);
+  //post_desktop.sin_addr.s_addr = inet_addr("128.171.10.79");
+  //post_desktop.sin_family = AF_INET;
   post_desktop.sin_port = htons(9001);
   if (connect(client_socket, (struct sockaddr *)&post_desktop, sizeof(post_desktop))<0)
   {
