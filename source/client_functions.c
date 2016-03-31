@@ -212,16 +212,11 @@ int32_t build_message(unsigned char * body, long body_length, unsigned char * re
 	crypto_box_seal(cipherd_body, body, body_length, recipient_key);
 	//Step 2: copy encrypted contents to the buffer working
 	memcpy(crypto_buffer, cipherd_body, body_length);
-	printf("2\n");
 	memset(body_buffer, 0, body_length);
-	printf("3\n");
 	memcpy(crypto_buffer+(body_length+crypto_box_SEALBYTES), attachments, attachments_length);
-	printf("4\n");
 	//Step 3: Return everything as cipher_buffer
 	memcpy(cipher_buffer, crypto_buffer, sizeof(&crypto_buffer));
-	printf("5\n");
 	free(crypto_buffer);
-	printf("6\n");
 	return 1;
 }
 
