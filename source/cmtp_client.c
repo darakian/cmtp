@@ -159,8 +159,6 @@ int main(int argc, char *argv[])
       unsigned char * temp_file_buffer = calloc(1, temp_file_size);
       unsigned char * encrypted_file_buffer = calloc(1, temp_file_size);
       int32_t temp_file_descriptor = 0;
-      char server_response[255] = {0};
-      char temp_read_byte = 0;
       temp_file_descriptor = open(temp_file, O_RDONLY);
       #ifdef DEBUG
       printf("Before read temp_file_descriptor\n");
@@ -197,7 +195,7 @@ int main(int argc, char *argv[])
         perror("Write");
         print_to_log("Failed to write header_buffer", LOG_ERR);
       }
-      
+      //Need to interperate server response here
 
       print_to_log("User has sent a message", LOG_INFO);
       break;

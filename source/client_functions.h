@@ -39,6 +39,8 @@ int32_t request_user_key(uint32_t socket, char * user, char * server, unsigned c
 
 int32_t decipher_private_key(char * password, unsigned char * cipher_key_buffer, unsigned char * clear_key_buffer);
 
+int32_t interperate_server_response(uint32_t socket);
+
 uint32_t menu_prompt();
 
 

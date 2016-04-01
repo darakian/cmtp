@@ -395,3 +395,14 @@ uint32_t prompt_input_string(char * descriptor, char * storage)
 	memcpy(storage, input, strlen(input)-1);
 	return sizeof(storage);
 }
+
+int32_t interperate_server_response(uint32_t socket)
+{
+	char server_response[255] = {0};
+	char temp_read_byte = 0;
+	int32_t i = 0;
+	do {
+		read(client_socket, server_response+i, 1);
+		i++;
+	} while((i<sizeof(server_response))&&(server_response[i-1]!=termination_char));
+}
