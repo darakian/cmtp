@@ -524,11 +524,12 @@ int32_t keyrequest_responder(uint32_t socket)
       //Sign key and store signature in signature_of_public_key
       crypto_sign_detached(signature_of_public_key, NULL, user_public_key, sizeof(user_public_key), server_private_key);
       //Send it all
-      write(socket, &network_crypto_version, sizeof(crypto_version));
+      write(socket, &network_crypto_version, sizeof(network_crypto_version));
       write(socket, user_public_key, sizeof(user_public_key));
       write(socket, &termination_char, sizeof(termination_char));
       write(socket, signature_of_public_key, sizeof(signature_of_public_key));
       write(socket, &termination_char, sizeof(termination_char));
+      printf("Sent %d bytes\n", sizeof(network_crypto_version)+sizeof(user_public_key)+sizeof(termination_char)+sizeof(signature_of_public_key)+sizeof(termination_char));
     }
   }
   //Clean buffers
