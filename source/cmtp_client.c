@@ -33,6 +33,7 @@ int main(int argc, char *argv[])
   int client_socket = 0;
   unsigned char user_key_buffer[crypto_sign_ed25519_SECRETKEYBYTES] = {0};
   unsigned char recipient_key_buffer[crypto_sign_ed25519_SECRETKEYBYTES] = {0};
+  unsigned char server_public_key[crypto_sign_ed25519_SECRETKEYBYTES] = {0};
   char user_key_path[400] = {0};
   char base64_username[341] = {0};
   char user_password[255] = {0};
@@ -69,6 +70,7 @@ int main(int argc, char *argv[])
   #ifdef DEBUG
   printf("Using %s as cmtp server\n", inet_ntoa(post_desktop.sin_addr));
   #endif /*DEBUG*/
+  request_server_key(client_socket, server_public_key);
 
   printf("Password Please:\n");
   if (fgets(user_password, sizeof(user_password), stdin)==NULL)
