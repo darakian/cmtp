@@ -259,6 +259,7 @@ int32_t request_user_key(uint32_t socket, char * user, char * domain, unsigned c
 	printf("Begining keyrequest for user=%s, domain=%s\n", user, domain);
 	#endif /*DEBUG*/
 	uint32_t version = 0;
+	uint32_t read_length = 0;
 	uint32_t request_buffer_length = strlen(user) + strlen(domain)+sizeof(cmtp_command_KEYREQUEST)+3;
 	unsigned char reception_buffer[4+crypto_sign_ed25519_SECRETKEYBYTES+crypto_sign_BYTES] = {0};
 	char request_buffer[(2*255)+sizeof(cmtp_command_KEYREQUEST)+1] = {0};
@@ -278,7 +279,7 @@ int32_t request_user_key(uint32_t socket, char * user, char * domain, unsigned c
 			print_to_log("Cannot send key request for server key.", LOG_ERR);
 			return -1;
 		}
-		if (read(socket, reception_buffer, sizeof(reception_buffer))<0)
+		if ((read_length=read(socket, reception_buffer, sizeof(reception_buffer)))<0)
 		{
 			perror("read");
 			print_to_log("Cannot read reply from key request.", LOG_ERR);
@@ -307,11 +308,14 @@ int32_t request_user_key(uint32_t socket, char * user, char * domain, unsigned c
 		print_to_log("Cannot send key request.", LOG_ERR);
 		return -1;
 	}
-	if (read(socket, reception_buffer, sizeof(reception_buffer))<0)
+	if ((read_length=read(socket, reception_buffer, sizeof(reception_buffer)))<0)
 	{
 		perror("read");
 		print_to_log("Cannot read reply from key request.", LOG_ERR);
 	}
+	#ifdef DEBUG
+	printf("Read in %d bytes\n", read_length);
+	#endif /*DEBUG*/
 	//Verify and copy result to key_buffer
 	version = ntohl(*(uint32_t *)reception_buffer);
 	if (version==0)
@@ -426,5 +430,17 @@ int32_t interperate_server_response(uint32_t socket)
 		}
 		i++;
 	} while((i<sizeof(server_response))&&(server_response[i-1]!=termination_char));
+}
 
+int32_t clear_socket(uint32_t socket)
+{
+	char temp_byte_buffer[255] = {0};
+	if(read(socket, temp_byte_buffer, sizeof(temp_byte_buffer))<0)
+	{
+		perror("read in clear_socket");
+	}
+	#ifdef DEBUG
+	printf("Clearing socket\n");
+	#endif /*DEBUG*/
+	return;
 }

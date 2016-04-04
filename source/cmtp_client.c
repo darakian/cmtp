@@ -65,6 +65,7 @@ int main(int argc, char *argv[])
     print_to_log("cannot connect to cmpt server", LOG_EMERG);
     exit(1);
   }
+  clear_socket(client_socket);
   #ifdef DEBUG
   printf("Using %s as cmtp server\n", inet_ntoa(post_desktop.sin_addr));
   #endif /*DEBUG*/

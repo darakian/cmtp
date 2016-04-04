@@ -43,5 +43,7 @@ int32_t interperate_server_response(uint32_t socket);
 
 uint32_t menu_prompt();
 
+int32_t clear_socket(uint32_t socket);
+
 
 #endif
