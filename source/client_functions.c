@@ -33,6 +33,7 @@ static char local_account[255] = {0};
 static uint32_t local_account_length = 0;
 static char local_domain[255] = {0};
 static uint32_t local_domain_length = 0;
+const char termination_char = '\0';
 
 struct sockaddr_in client_address;
 
@@ -400,9 +401,30 @@ int32_t interperate_server_response(uint32_t socket)
 {
 	char server_response[255] = {0};
 	char temp_read_byte = 0;
-	int32_t i = 0;
+	int32_t i = 4;
+	//Read version
+	if (read(socket, server_response, 4)<0)
+	{
+		perror("read in interperate_server_response");
+		print_to_log("Failed to read from socket during interperate_server_response function", LOG_ERR);
+	}
+	//Read until first terminator
 	do {
-		read(client_socket, server_response+i, 1);
+		if (read(socket, server_response+i, 1)<0)
+		{
+			perror("read in interperate_server_response");
+			print_to_log("Failed to read from socket during interperate_server_response function", LOG_ERR);
+		}
 		i++;
 	} while((i<sizeof(server_response))&&(server_response[i-1]!=termination_char));
+	//Read until second terminator
+	do {
+		if (read(socket, server_response+i, 1)<0)
+		{
+			perror("read in interperate_server_response");
+			print_to_log("Failed to read from socket during interperate_server_response function", LOG_ERR);
+		}
+		i++;
+	} while((i<sizeof(server_response))&&(server_response[i-1]!=termination_char));
+
 }
