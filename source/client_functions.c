@@ -292,8 +292,41 @@ int32_t request_user_key(uint32_t socket, char * user, char * domain, unsigned c
 		return 0;
 	}
 
+	//Invalid request case
+	if ((user==NULL)&&(domain!=NULL))
+	{
+		print_to_log("Invalid keyrequest with null user and non-null domain", LOG_INFO);
+		return -1;
+	}
+
+	//Request user from home domain
+	if ((user!=NULL)&&(domain==NULL))
+	{
+		request_buffer_length = strlen(user)+sizeof(termination_char)+sizeof(cmtp_command_KEYREQUEST)+3;
+		if (snprintf(request_buffer, sizeof(request_buffer), "%s%c%s%c%c", cmtp_command_KEYREQUEST, '\0', user, '\0', '\0')<0)
+		{
+			perror("snprintf");
+			print_to_log("Cannot construct key request buffer.", LOG_ERR);
+			return -1;
+		}
+		if (write(socket, request_buffer, request_buffer_length)<0)
+		{
+			perror("write");
+			print_to_log("Cannot send key request.", LOG_ERR);
+			return -1;
+		}
+		//Sleep is here to prevent reading only 4 bytes in the following read
+		sleep(1);
+		if ((read_length=read(socket, reception_buffer, sizeof(reception_buffer)))<0)
+		{
+			perror("read");
+			print_to_log("Cannot read reply from key request.", LOG_ERR);
+		}
+
+	}
+
+	//Default keyrequest. Still sends to home server.
 	request_buffer_length = strlen(user) + strlen(domain)+sizeof(cmtp_command_KEYREQUEST)+3;
-	//User key case
 	if (snprintf(request_buffer, sizeof(request_buffer), "%s%c%s%c%s%c", cmtp_command_KEYREQUEST, '\0', user, '\0',domain, '\0')<0)
 	{
 		perror("snprintf");
