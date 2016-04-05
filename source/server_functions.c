@@ -453,6 +453,7 @@ int32_t keyrequest_responder(uint32_t socket)
   unsigned char user_public_key[crypto_sign_ed25519_PUBLICKEYBYTES] = {0};
   unsigned char signature_of_public_key[crypto_sign_BYTES] = {0};
   unsigned char signature_of_KEYNOTAVAILABLE[crypto_sign_BYTES] = {0};
+  unsigned char write_buffer[sizeof(network_crypto_version)+sizeof(server_public_key)+sizeof(signature_of_public_key)+2];
   //Read in username
   do {
     read(socket, user_keyrequest_buffer+i, 1);
@@ -463,11 +464,18 @@ int32_t keyrequest_responder(uint32_t socket)
   {
     crypto_sign_detached(signature_of_public_key, NULL, server_public_key, sizeof(server_public_key), server_private_key);
     //Wants server key. Reply and return.
-    write(socket, &network_crypto_version, sizeof(crypto_version));
-    write(socket, server_public_key, sizeof(server_public_key));
-    write(socket, &termination_char, sizeof(termination_char));
-    write(socket, signature_of_public_key, sizeof(signature_of_public_key));
-    write(socket, &termination_char, sizeof(termination_char));
+    //Create single buffer
+    memcpy(write_buffer, &network_crypto_version, sizeof(network_crypto_version));
+    memcpy(write_buffer, server_public_key, sizeof(server_public_key));
+    memcpy(write_buffer, &termination_char, sizeof(termination_char));
+    memcpy(write_buffer, signature_of_public_key, sizeof(signature_of_public_key));
+    memcpy(write_buffer, &termination_char, sizeof(termination_char));
+
+    write(socket, write_buffer, sizeof(write_buffer));
+    // write(socket, server_public_key, sizeof(server_public_key));
+    // write(socket, &termination_char, sizeof(termination_char));
+    // write(socket, signature_of_public_key, sizeof(signature_of_public_key));
+    // write(socket, &termination_char, sizeof(termination_char));
     return 0;
     //Need to end here. Might need to functionize this code.
   }
@@ -524,11 +532,18 @@ int32_t keyrequest_responder(uint32_t socket)
       //Sign key and store signature in signature_of_public_key
       crypto_sign_detached(signature_of_public_key, NULL, user_public_key, sizeof(user_public_key), server_private_key);
       //Send it all
-      write(socket, &network_crypto_version, sizeof(network_crypto_version));
-      write(socket, user_public_key, sizeof(user_public_key));
-      write(socket, &termination_char, sizeof(termination_char));
-      write(socket, signature_of_public_key, sizeof(signature_of_public_key));
-      write(socket, &termination_char, sizeof(termination_char));
+      memcpy(write_buffer, &network_crypto_version, sizeof(network_crypto_version));
+      memcpy(write_buffer, user_public_key, sizeof(user_public_key));
+      memcpy(write_buffer, &termination_char, sizeof(termination_char));
+      memcpy(write_buffer, signature_of_public_key, sizeof(signature_of_public_key));
+      memcpy(write_buffer, &termination_char, sizeof(termination_char));
+      write(socket, write_buffer, sizeof(write_buffer));
+
+      // write(socket, &network_crypto_version, sizeof(network_crypto_version));
+      // write(socket, user_public_key, sizeof(user_public_key));
+      // write(socket, &termination_char, sizeof(termination_char));
+      // write(socket, signature_of_public_key, sizeof(signature_of_public_key));
+      // write(socket, &termination_char, sizeof(termination_char));
       printf("Sent %d bytes\n", sizeof(network_crypto_version)+sizeof(user_public_key)+sizeof(termination_char)+sizeof(signature_of_public_key)+sizeof(termination_char));
     }
   }
