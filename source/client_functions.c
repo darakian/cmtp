@@ -279,11 +279,15 @@ int32_t request_user_key(uint32_t socket, char * user, char * domain, unsigned c
 			print_to_log("Cannot send key request for server key.", LOG_ERR);
 			return -1;
 		}
+		sleep(1);
 		if ((read_length=read(socket, reception_buffer, sizeof(reception_buffer)))<0)
 		{
 			perror("read");
 			print_to_log("Cannot read reply from key request.", LOG_ERR);
 		}
+		#ifdef DEBUG
+		printf("Read %d bytes as response to server keyrequest\n", read_length);
+		#endif /*DEBUG*/
 		memcpy(server_public_key, reception_buffer+4, sizeof(server_public_key));
 		return 0;
 	}
