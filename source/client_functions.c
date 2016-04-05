@@ -333,14 +333,6 @@ int32_t request_user_key(uint32_t socket, char * user, char * domain, unsigned c
 		print_to_log("Cannot construct key request buffer.", LOG_ERR);
 		return -1;
 	}
-	#ifdef DEBUG
-	printf("keyrequest buffer length = %d bytes\n", request_buffer_length);
-	//printf("keyrequest buffer contents = %s\n", request_buffer);
-	for (uint32_t i=0;i<request_buffer_length;i++)
-	{
-		printf("keyrequest buffer at byte %d = %c\n", i, request_buffer[i]);
-	}
-	#endif /*DEBUG*/
 	if (write(socket, request_buffer, request_buffer_length)<0)
 	{
 		perror("write");
@@ -357,11 +349,19 @@ int32_t request_user_key(uint32_t socket, char * user, char * domain, unsigned c
 	#ifdef DEBUG
 	printf("Read in %d bytes\n", read_length);
 	#endif /*DEBUG*/
+
+
 	//Verify and copy result to key_buffer
 	version = ntohl(*(uint32_t *)reception_buffer);
-	if (version==0)
+	#ifdef DEBUG
+	printf("Key version = %d\n", version);
+	#endif /*DEBUG*/
+	if (version==1)
 	{
 		//error message case. Verify signature and take action.
+		#ifdef DEBUG
+		printf("Working with key %x\n", reception_buffer+4);
+		#endif /*DEBUG*/
 		if (crypto_sign_verify_detached(reception_buffer+4+crypto_sign_ed25519_SECRETKEYBYTES, reception_buffer+4, crypto_sign_ed25519_SECRETKEYBYTES, server_public_key)!=0)
 		{
 			perror("Invalid signature for error message.");
@@ -383,7 +383,7 @@ int32_t request_user_key(uint32_t socket, char * user, char * domain, unsigned c
 	}
 	else if (version>1)
 	{
-		//Invalid key case
+		//Invalid key case. Seriously I haven't even gotten version 1 working yet!!!
 		perror("Key version unsupported");
 		printf("Key version = %d\n", version);
 		print_to_log("Unsupported key type recived", LOG_ERR);
@@ -479,9 +479,10 @@ int32_t clear_socket(uint32_t socket)
 	if(read(socket, temp_byte_buffer, sizeof(temp_byte_buffer))<0)
 	{
 		perror("read in clear_socket");
+		return -1;
 	}
 	#ifdef DEBUG
 	printf("Clearing socket\n");
 	#endif /*DEBUG*/
-	return;
+	return 0;
 }
