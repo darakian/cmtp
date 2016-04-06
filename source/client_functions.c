@@ -356,7 +356,7 @@ int32_t request_user_key(uint32_t socket, char * user, char * domain, unsigned c
 	#ifdef DEBUG
 	printf("Key version = %d\n", version);
 	#endif /*DEBUG*/
-	if (version==1)
+	if (version==0)
 	{
 		//error message case. Verify signature and take action.
 		#ifdef DEBUG
