@@ -509,11 +509,20 @@ int32_t keyrequest_responder(uint32_t socket)
       printf("Key not found at %s\n", pub_key_path);
       #endif /*DEBUG*/
       print_to_log("Cannot access user public key. User does not exist.", LOG_ERR);
+      //cmtp_reply_KEYNOTAVAILABLE includes the trailing null!
       crypto_sign_detached(signature_of_KEYNOTAVAILABLE, NULL, (const unsigned char *)cmtp_reply_KEYNOTAVAILABLE, sizeof(cmtp_reply_KEYNOTAVAILABLE), server_private_key);
-      write(socket, &network_crypto_version, sizeof(network_crypto_version));
-      write(socket, cmtp_reply_KEYNOTAVAILABLE, sizeof(cmtp_reply_KEYNOTAVAILABLE));
-      write(socket, signature_of_KEYNOTAVAILABLE, sizeof(signature_of_KEYNOTAVAILABLE));
-      write(socket, &termination_char, sizeof(termination_char));
+
+      memcpy(write_buffer, &network_crypto_version, sizeof(network_crypto_version));
+      memcpy(write_buffer+sizeof(cmtp_reply_KEYNOTAVAILABLE), cmtp_reply_KEYNOTAVAILABLE, sizeof(cmtp_reply_KEYNOTAVAILABLE));
+      memcpy(write_buffer+sizeof(network_crypto_version)+sizeof(cmtp_reply_KEYNOTAVAILABLE), &signature_of_KEYNOTAVAILABLE, sizeof(signature_of_KEYNOTAVAILABLE));
+      memcpy(write_buffer+sizeof(network_crypto_version)+sizeof(cmtp_reply_KEYNOTAVAILABLE)+sizeof(signature_of_KEYNOTAVAILABLE), signature_of_public_key, sizeof(signature_of_public_key));
+      memcpy(write_buffer+sizeof(network_crypto_version)+sizeof(cmtp_reply_KEYNOTAVAILABLE)+sizeof(signature_of_KEYNOTAVAILABLE)+sizeof(signature_of_public_key), &termination_char, sizeof(termination_char));
+      write(socket, write_buffer, sizeof(write_buffer));
+
+      // write(socket, &network_crypto_version, sizeof(network_crypto_version));
+      // write(socket, cmtp_reply_KEYNOTAVAILABLE, sizeof(cmtp_reply_KEYNOTAVAILABLE));
+      // write(socket, signature_of_KEYNOTAVAILABLE, sizeof(signature_of_KEYNOTAVAILABLE));
+      // write(socket, &termination_char, sizeof(termination_char));
 
     }
     else         //Read public key and reply to request with it.
