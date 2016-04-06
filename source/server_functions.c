@@ -466,10 +466,10 @@ int32_t keyrequest_responder(uint32_t socket)
     //Wants server key. Reply and return.
     //Create single buffer
     memcpy(write_buffer, &network_crypto_version, sizeof(network_crypto_version));
-    memcpy(write_buffer, server_public_key, sizeof(server_public_key));
-    memcpy(write_buffer, &termination_char, sizeof(termination_char));
-    memcpy(write_buffer, signature_of_public_key, sizeof(signature_of_public_key));
-    memcpy(write_buffer, &termination_char, sizeof(termination_char));
+    memcpy(write_buffer+sizeof(network_crypto_version), server_public_key, sizeof(server_public_key));
+    memcpy(write_buffer+sizeof(network_crypto_version)+sizeof(server_public_key), &termination_char, sizeof(termination_char));
+    memcpy(write_buffer+sizeof(network_crypto_version)+sizeof(server_public_key)+sizeof(termination_char), signature_of_public_key, sizeof(signature_of_public_key));
+    memcpy(write_buffer+sizeof(network_crypto_version)+sizeof(server_public_key)+sizeof(termination_char)+sizeof(signature_of_public_key), &termination_char, sizeof(termination_char));
 
     write(socket, write_buffer, sizeof(write_buffer));
     // write(socket, server_public_key, sizeof(server_public_key));
@@ -533,10 +533,10 @@ int32_t keyrequest_responder(uint32_t socket)
       crypto_sign_detached(signature_of_public_key, NULL, user_public_key, sizeof(user_public_key), server_private_key);
       //Send it all
       memcpy(write_buffer, &network_crypto_version, sizeof(network_crypto_version));
-      memcpy(write_buffer, user_public_key, sizeof(user_public_key));
-      memcpy(write_buffer, &termination_char, sizeof(termination_char));
-      memcpy(write_buffer, signature_of_public_key, sizeof(signature_of_public_key));
-      memcpy(write_buffer, &termination_char, sizeof(termination_char));
+      memcpy(write_buffer+sizeof(network_crypto_version), user_public_key, sizeof(user_public_key));
+      memcpy(write_buffer+sizeof(network_crypto_version)+sizeof(user_public_key), &termination_char, sizeof(termination_char));
+      memcpy(write_buffer+sizeof(network_crypto_version)+sizeof(user_public_key)+sizeof(termination_char), signature_of_public_key, sizeof(signature_of_public_key));
+      memcpy(write_buffer+sizeof(network_crypto_version)+sizeof(user_public_key)+sizeof(termination_char)+sizeof(signature_of_public_key), &termination_char, sizeof(termination_char));
       write(socket, write_buffer, sizeof(write_buffer));
 
       // write(socket, &network_crypto_version, sizeof(network_crypto_version));
