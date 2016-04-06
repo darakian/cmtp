@@ -367,7 +367,7 @@ int32_t request_user_key(uint32_t socket, char * user, char * domain, unsigned c
 			#ifdef DEBUG
 			for (uint32_t i = 0; i<32; i++)
 			{
-				printf("%c", *reception_buffer+4+i);
+				printf("%x", *reception_buffer+4+i);
 			}
 			printf("\n");
 			#endif /*DEBUG*/
@@ -381,7 +381,7 @@ int32_t request_user_key(uint32_t socket, char * user, char * domain, unsigned c
 		#ifdef DEBUG
 		for (uint32_t i = 0; i<32; i++)
 		{
-			printf("%c", *reception_buffer+4+i);
+			printf("%x", *reception_buffer+4+i);
 		}
 		printf("\n");
 		#endif /*DEBUG*/
@@ -397,6 +397,13 @@ int32_t request_user_key(uint32_t socket, char * user, char * domain, unsigned c
 	}
 	else if (version>1)
 	{
+		#ifdef DEBUG
+		for (uint32_t i = 0; i<32; i++)
+		{
+			printf("%x", *reception_buffer+4+i);
+		}
+		printf("\n");
+		#endif /*DEBUG*/
 		//Invalid key case. Seriously I haven't even gotten version 1 working yet!!!
 		perror("Key version unsupported");
 		printf("Key version = %d\n", version);
