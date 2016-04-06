@@ -544,7 +544,7 @@ int32_t keyrequest_responder(uint32_t socket)
       // write(socket, &termination_char, sizeof(termination_char));
       // write(socket, signature_of_public_key, sizeof(signature_of_public_key));
       // write(socket, &termination_char, sizeof(termination_char));
-      printf("Sent %d bytes\n", sizeof(network_crypto_version)+sizeof(user_public_key)+sizeof(termination_char)+sizeof(signature_of_public_key)+sizeof(termination_char));
+      printf("Sent %ld bytes\n", sizeof(network_crypto_version)+sizeof(user_public_key)+sizeof(termination_char)+sizeof(signature_of_public_key)+sizeof(termination_char));
     }
   }
   //Clean buffers
