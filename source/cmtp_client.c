@@ -158,7 +158,7 @@ int main(int argc, char *argv[])
       struct stat temp_file_stats;
       stat(temp_file, &temp_file_stats);
       uint32_t temp_file_size = temp_file_stats.st_size;
-      uint32_t encrypted_file_buffer_length = 0;
+      int32_t encrypted_file_buffer_length = 0;
       unsigned char * temp_file_buffer = calloc(1, temp_file_size);
       unsigned char * encrypted_file_buffer = calloc(1, temp_file_size);
       int32_t temp_file_descriptor = 0;
@@ -183,7 +183,7 @@ int main(int argc, char *argv[])
       printf("Before build message\n");
       #endif /*DEBUG*/
       //Encrypt message
-      if (encrypted_file_buffer_length = build_message(temp_file_buffer, temp_file_size, recipient_key_buffer, NULL, 0,  encrypted_file_buffer)<0)
+      if ((encrypted_file_buffer_length = build_message(temp_file_buffer, temp_file_size, recipient_key_buffer, NULL, 0,  encrypted_file_buffer))<0)
       {
         perror("build_message");
         print_to_log("Error building encrypred message", LOG_ERR);

@@ -259,7 +259,7 @@ int32_t request_user_key(uint32_t socket, char * user, char * domain, unsigned c
 	printf("Begining keyrequest for user=%s, domain=%s\n", user, domain);
 	#endif /*DEBUG*/
 	uint32_t version = 0;
-	uint32_t read_length = 0;
+	int32_t read_length = 0;
 	uint32_t request_buffer_length = 0;
 	unsigned char reception_buffer[4+crypto_sign_ed25519_SECRETKEYBYTES+crypto_sign_BYTES] = {0};
 	char request_buffer[(2*255)+sizeof(cmtp_command_KEYREQUEST)+1] = {0};
@@ -367,7 +367,7 @@ int32_t request_user_key(uint32_t socket, char * user, char * domain, unsigned c
 			#ifdef DEBUG
 			for (uint32_t i = 0; i<32; i++)
 			{
-				printf("%c", reception_buffer+4+i);
+				printf("%c", *reception_buffer+4+i);
 			}
 			printf("\n");
 			#endif /*DEBUG*/
@@ -453,7 +453,7 @@ int32_t interperate_server_response(uint32_t socket)
 {
 	char server_response[255] = {0};
 	char temp_read_byte = 0;
-	int32_t i = 4;
+	uint32_t i = 4;
 	//Read version
 	if (read(socket, server_response, 4)<0)
 	{
@@ -478,6 +478,7 @@ int32_t interperate_server_response(uint32_t socket)
 		}
 		i++;
 	} while((i<sizeof(server_response))&&(server_response[i-1]!=termination_char));
+	return 0;
 }
 
 int32_t clear_socket(uint32_t socket)
