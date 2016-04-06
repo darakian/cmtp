@@ -378,6 +378,13 @@ int32_t request_user_key(uint32_t socket, char * user, char * domain, unsigned c
 	}
 	if (version==1)
 	{
+		#ifdef DEBUG
+		for (uint32_t i = 0; i<32; i++)
+		{
+			printf("%c", *reception_buffer+4+i);
+		}
+		printf("\n");
+		#endif /*DEBUG*/
 		memcpy(key_buffer, reception_buffer+4, crypto_sign_ed25519_SECRETKEYBYTES);
 		//check signature
 		if (crypto_sign_verify_detached(reception_buffer+4+crypto_sign_ed25519_SECRETKEYBYTES, reception_buffer+4, crypto_sign_ed25519_SECRETKEYBYTES, server_public_key) != 0)
