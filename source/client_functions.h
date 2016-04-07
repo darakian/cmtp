@@ -43,6 +43,8 @@ int32_t interperate_server_response(uint32_t socket);
 
 uint32_t menu_prompt();
 
+void print_buffer (const char * buffer, int count, char * desc, int max, int print_eol);
+
 int32_t clear_socket(uint32_t socket);
 
 
