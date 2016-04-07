@@ -250,7 +250,7 @@ int encrypt_all_attachmets(int * sizes, unsigned char * * attachments, int num_a
 
 int32_t request_server_key(uint32_t socket, unsigned char * key_buffer)
 {
-	return request_user_key(socket, '\0', '\0', key_buffer);
+	return request_user_key(socket, "", "", key_buffer);
 }
 
 int32_t request_user_key(uint32_t socket, char * user, char * domain, unsigned char * key_buffer)
@@ -260,6 +260,7 @@ int32_t request_user_key(uint32_t socket, char * user, char * domain, unsigned c
 	#endif /*DEBUG*/
 	uint32_t version = 0;
 	int32_t read_length = 0;
+	printf("strlen = %d\n", strlen(user));
 	uint32_t request_buffer_length = 0;
 	unsigned char reception_buffer[4+crypto_sign_ed25519_SECRETKEYBYTES+crypto_sign_BYTES] = {0};
 	char request_buffer[(2*255)+sizeof(cmtp_command_KEYREQUEST)+1] = {0};
@@ -316,7 +317,6 @@ int32_t request_user_key(uint32_t socket, char * user, char * domain, unsigned c
 			return -1;
 		}
 		//Sleep is here to prevent reading only 4 bytes in the following read
-		sleep(1);
 		if ((read_length=read(socket, reception_buffer, sizeof(reception_buffer)))<0)
 		{
 			perror("read");
@@ -340,7 +340,6 @@ int32_t request_user_key(uint32_t socket, char * user, char * domain, unsigned c
 		return -1;
 	}
 	//Sleep is here to prevent reading only 4 bytes in the following read
-	sleep(1);
 	if ((read_length=read(socket, reception_buffer, sizeof(reception_buffer)))<0)
 	{
 		perror("read");
@@ -381,7 +380,7 @@ int32_t request_user_key(uint32_t socket, char * user, char * domain, unsigned c
 		#ifdef DEBUG
 		for (uint32_t i = 0; i<32; i++)
 		{
-			printf("%x", *reception_buffer+4+i);
+			printf("%x", reception_buffer+4+i);
 		}
 		printf("\n");
 		#endif /*DEBUG*/
@@ -496,6 +495,7 @@ int32_t interperate_server_response(uint32_t socket)
 
 int32_t clear_socket(uint32_t socket)
 {
+	//Use recv with MSG_DONTWAIT flag in a loop
 	char temp_byte_buffer[255] = {0};
 	if(read(socket, temp_byte_buffer, sizeof(temp_byte_buffer))<0)
 	{
@@ -507,3 +507,17 @@ int32_t clear_socket(uint32_t socket)
 	#endif /*DEBUG*/
 	return 0;
 }
+
+// int32_t read_n(uint32_t socket, char * reception_buffer, uint32_t n)
+// {
+// 	int32_t received = 0
+//
+// 	do {
+// 		int32_t count = read(socket, reception_buffer+received, n-received);
+// 		received+=count;
+// 		if (received==n)
+// 		{
+// 			return something;
+// 		}
+// 	}
+// }
