@@ -107,6 +107,7 @@ int server_init(struct init_params * passback_params)
       printf("Attempting to create keys\n");
       //Key error has occured. At least one of the two keys does not exist. NUKE EVERYTHING!!! (ie. recreate keys).
       crypto_sign_ed25519_keypair(server_public_key, server_private_key);
+      print_buffer (server_public_key, 32, "server public key: ", 32, 1);
       if ((public_key_descriptor=open("/etc/cmtp/public.key", O_WRONLY|O_CREAT, S_IRUSR|S_IWUSR))<0)
       {
         perror("open");
