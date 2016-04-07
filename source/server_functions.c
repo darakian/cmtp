@@ -471,7 +471,10 @@ int32_t keyrequest_responder(uint32_t socket)
     memcpy(write_buffer+sizeof(network_crypto_version)+sizeof(server_public_key), &termination_char, sizeof(termination_char));
     memcpy(write_buffer+sizeof(network_crypto_version)+sizeof(server_public_key)+sizeof(termination_char), signature_of_public_key, sizeof(signature_of_public_key));
     memcpy(write_buffer+sizeof(network_crypto_version)+sizeof(server_public_key)+sizeof(termination_char)+sizeof(signature_of_public_key), &termination_char, sizeof(termination_char));
-
+    #ifdef DEBUG
+    print_buffer (server_public_key, 32, "server public key: ", 32, 1);
+    print_buffer (signature_of_public_key, 64, "server public key signature: ", 64, 1);
+    #endif /*DEBUG*/
     write(socket, write_buffer, sizeof(write_buffer));
     // write(socket, server_public_key, sizeof(server_public_key));
     // write(socket, &termination_char, sizeof(termination_char));
@@ -518,6 +521,10 @@ int32_t keyrequest_responder(uint32_t socket)
       memcpy(write_buffer+sizeof(network_crypto_version)+sizeof(cmtp_reply_KEYNOTAVAILABLE), &signature_of_KEYNOTAVAILABLE, sizeof(signature_of_KEYNOTAVAILABLE));
       memcpy(write_buffer+sizeof(network_crypto_version)+sizeof(cmtp_reply_KEYNOTAVAILABLE)+sizeof(signature_of_KEYNOTAVAILABLE), signature_of_public_key, sizeof(signature_of_public_key));
       memcpy(write_buffer+sizeof(network_crypto_version)+sizeof(cmtp_reply_KEYNOTAVAILABLE)+sizeof(signature_of_KEYNOTAVAILABLE)+sizeof(signature_of_public_key), &termination_char, sizeof(termination_char));
+      #ifdef DEBUG
+      print_buffer (cmtp_reply_KEYNOTAVAILABLE, 32, "Key not available message: ", 32, 1);
+      print_buffer (signature_of_public_key, 64, "Key not available signature: ", 64, 1);
+      #endif /*DEBUG*/
       write(socket, write_buffer, sizeof(write_buffer));
 
       // write(socket, &network_crypto_version, sizeof(network_crypto_version));
@@ -547,7 +554,10 @@ int32_t keyrequest_responder(uint32_t socket)
       memcpy(write_buffer+sizeof(network_crypto_version)+sizeof(user_public_key), &termination_char, sizeof(termination_char));
       memcpy(write_buffer+sizeof(network_crypto_version)+sizeof(user_public_key)+sizeof(termination_char), signature_of_public_key, sizeof(signature_of_public_key));
       memcpy(write_buffer+sizeof(network_crypto_version)+sizeof(user_public_key)+sizeof(termination_char)+sizeof(signature_of_public_key), &termination_char, sizeof(termination_char));
-      print_buffer (user_public_key, 32, "user public key: ", 32, 1);
+      #ifdef DEBUG
+      print_buffer (user_public_key, 32, "User public key: ", 32, 1);
+      print_buffer (signature_of_public_key, 64, "User public key signature: ", 64, 1);
+      #endif /*DEBUG*/
       write(socket, write_buffer, sizeof(write_buffer));
 
       // write(socket, &network_crypto_version, sizeof(network_crypto_version));
