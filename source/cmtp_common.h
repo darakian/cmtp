@@ -26,4 +26,6 @@ int enter_jail(char * jail_directory, char * new_user);
 
 void print_buffer (const char * buffer, int count, char * desc, int max, int print_eol);
 
+int32_t read_n_bytes(uint32_t socket, char * reception_buffer, uint32_t n);
+
 #endif /* _cmtp_common_h */

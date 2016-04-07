@@ -260,12 +260,12 @@ int32_t request_user_key(uint32_t socket, char * user, char * domain, unsigned c
 	#endif /*DEBUG*/
 	uint32_t version = 0;
 	int32_t read_length = 0;
-	printf("strlen = %d\n", strlen(user));
+	printf("strlen = %ld\n", strlen(user));
 	uint32_t request_buffer_length = 0;
 	unsigned char reception_buffer[4+crypto_sign_ed25519_SECRETKEYBYTES+crypto_sign_BYTES] = {0};
 	char request_buffer[(2*255)+sizeof(cmtp_command_KEYREQUEST)+1] = {0};
 	request_buffer_length = strlen(user) + strlen(domain)+sizeof(cmtp_command_KEYREQUEST)+3;
-	if ((user=="")&&(domain==""))
+	if ((strlen(user)==0)&&(strlen(domain)==0))
 	{
 		//Server keyrequest case
 		if (snprintf(request_buffer, sizeof(request_buffer), "%s%c%c", cmtp_command_KEYREQUEST, '\0', '\0')<0)
@@ -281,7 +281,6 @@ int32_t request_user_key(uint32_t socket, char * user, char * domain, unsigned c
 			print_to_log("Cannot send key request for server key.", LOG_ERR);
 			return -1;
 		}
-		sleep(1);
 		if ((read_length=read(socket, reception_buffer, sizeof(reception_buffer)))<0)
 		{
 			perror("read");
@@ -292,6 +291,7 @@ int32_t request_user_key(uint32_t socket, char * user, char * domain, unsigned c
 		#endif /*DEBUG*/
 		//Verify server key
 		print_buffer(reception_buffer+4, 32, "Server public key: ", 32, 1);
+		print_buffer(reception_buffer+4+crypto_sign_ed25519_PUBLICKEYBYTES+sizeof(termination_char), 64, "Server public key signature: ", 64, 1);
 		if (crypto_sign_verify_detached(reception_buffer+4+crypto_sign_ed25519_PUBLICKEYBYTES+sizeof(termination_char), reception_buffer+4, crypto_sign_ed25519_PUBLICKEYBYTES, reception_buffer+4)!=0)
 		{
 			perror("Invalid signature for server public key.");
@@ -303,14 +303,14 @@ int32_t request_user_key(uint32_t socket, char * user, char * domain, unsigned c
 	}
 
 	//Invalid request case
-	if ((user=="")&&(domain!=""))
+	if ((strlen(user)==0)&&(strlen(domain)!=0))
 	{
 		print_to_log("Invalid keyrequest with null user and non-null domain", LOG_INFO);
 		return -1;
 	}
 
 	//Request user from home domain
-	if ((user!="")&&(domain==""))
+	if ((strlen(user)!=0)&&(strlen(domain)==0))
 	{
 		if (snprintf(request_buffer, sizeof(request_buffer), "%s%c%s%c%c", cmtp_command_KEYREQUEST, '\0', user, '\0', '\0')<0)
 		{
@@ -324,7 +324,6 @@ int32_t request_user_key(uint32_t socket, char * user, char * domain, unsigned c
 			print_to_log("Cannot send key request.", LOG_ERR);
 			return -1;
 		}
-		//Sleep is here to prevent reading only 4 bytes in the following read
 		if ((read_length=read(socket, reception_buffer, sizeof(reception_buffer)))<0)
 		{
 			perror("read");
@@ -505,17 +504,3 @@ int32_t clear_socket(uint32_t socket)
 	#endif /*DEBUG*/
 	return 0;
 }
-
-// int32_t read_n(uint32_t socket, char * reception_buffer, uint32_t n)
-// {
-// 	int32_t received = 0
-//
-// 	do {
-// 		int32_t count = read(socket, reception_buffer+received, n-received);
-// 		received+=count;
-// 		if (received==n)
-// 		{
-// 			return something;
-// 		}
-// 	}
-// }

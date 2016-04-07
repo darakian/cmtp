@@ -401,3 +401,17 @@ void print_buffer (const char * buffer, int count, char * desc,
   if (print_eol)
     printf ("\n");
 }
+
+int32_t read_n_bytes(uint32_t socket, char * reception_buffer, uint32_t n)
+{
+	int32_t received = 0;
+  int32_t count = 0;
+	do{
+		count = read(socket, reception_buffer+received, n-received);
+		received+=count;
+		if (received==n)
+		  {
+        return n;
+		  }
+    } while(received<=n);
+}
