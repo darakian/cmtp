@@ -290,6 +290,9 @@ int32_t request_user_key(uint32_t socket, char * user, char * domain, unsigned c
 		printf("Read %d bytes as response to server keyrequest\n", read_length);
 		#endif /*DEBUG*/
 		memcpy(server_public_key, reception_buffer+4, sizeof(server_public_key));
+		#ifdef DEBUG
+		print_buffer (reception_buffer+4, 32, "Server public key: ", 32, 1);
+		#endif /*DEBUG*/
 		return 0;
 	}
 
@@ -359,17 +362,10 @@ int32_t request_user_key(uint32_t socket, char * user, char * domain, unsigned c
 	{
 		//error message case. Verify signature and take action.
 		#ifdef DEBUG
-		//printf("Working with key %\n", reception_buffer+4);
+		print_buffer (reception_buffer+4, 32, "User public key: ", 32, 1);
 		#endif /*DEBUG*/
 		if (crypto_sign_verify_detached(reception_buffer+4+crypto_sign_ed25519_PUBLICKEYBYTES+sizeof(termination_char), reception_buffer+4, crypto_sign_ed25519_PUBLICKEYBYTES, server_public_key)!=0)
 		{
-			#ifdef DEBUG
-			for (uint32_t i = 0; i<32; i++)
-			{
-				printf("%x", *reception_buffer+4+i);
-			}
-			printf("\n");
-			#endif /*DEBUG*/
 			perror("Invalid signature for error message.");
 			print_to_log("Error message recived in response to keyrequest. Cannot verify message. Bad joo joo time is here", LOG_ERR);
 			return -1;
