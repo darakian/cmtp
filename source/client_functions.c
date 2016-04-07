@@ -264,7 +264,8 @@ int32_t request_user_key(uint32_t socket, char * user, char * domain, unsigned c
 	uint32_t request_buffer_length = 0;
 	unsigned char reception_buffer[4+crypto_sign_ed25519_SECRETKEYBYTES+crypto_sign_BYTES] = {0};
 	char request_buffer[(2*255)+sizeof(cmtp_command_KEYREQUEST)+1] = {0};
-	if ((user==NULL)&&(domain==NULL))
+	request_buffer_length = strlen(user)+sizeof(termination_char)+sizeof(cmtp_command_KEYREQUEST)+3;
+	if ((user=="")&&(domain==""))
 	{
 		//Server keyrequest case
 		if (snprintf(request_buffer, sizeof(request_buffer), "%s%c%c", cmtp_command_KEYREQUEST, '\0', '\0')<0)
@@ -299,16 +300,15 @@ int32_t request_user_key(uint32_t socket, char * user, char * domain, unsigned c
 	}
 
 	//Invalid request case
-	if ((user==NULL)&&(domain!=NULL))
+	if ((user=="")&&(domain!=""))
 	{
 		print_to_log("Invalid keyrequest with null user and non-null domain", LOG_INFO);
 		return -1;
 	}
 
 	//Request user from home domain
-	if ((user!=NULL)&&(domain==NULL))
+	if ((user!="")&&(domain==""))
 	{
-		request_buffer_length = strlen(user)+sizeof(termination_char)+sizeof(cmtp_command_KEYREQUEST)+3;
 		if (snprintf(request_buffer, sizeof(request_buffer), "%s%c%s%c%c", cmtp_command_KEYREQUEST, '\0', user, '\0', '\0')<0)
 		{
 			perror("snprintf");
