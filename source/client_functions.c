@@ -264,7 +264,7 @@ int32_t request_user_key(uint32_t socket, char * user, char * domain, unsigned c
 	uint32_t request_buffer_length = 0;
 	unsigned char reception_buffer[4+crypto_sign_ed25519_SECRETKEYBYTES+crypto_sign_BYTES] = {0};
 	char request_buffer[(2*255)+sizeof(cmtp_command_KEYREQUEST)+1] = {0};
-	request_buffer_length = strlen(user)+sizeof(termination_char)+sizeof(cmtp_command_KEYREQUEST)+3;
+	request_buffer_length = strlen(user) + strlen(domain)+sizeof(cmtp_command_KEYREQUEST)+3;
 	if ((user=="")&&(domain==""))
 	{
 		//Server keyrequest case
@@ -291,7 +291,7 @@ int32_t request_user_key(uint32_t socket, char * user, char * domain, unsigned c
 		printf("Read %d bytes as response to server keyrequest\n", read_length);
 		#endif /*DEBUG*/
 		//Verify server key
-		print_buffer (reception_buffer+4, 32, "Server public key: ", 32, 1);
+		print_buffer(reception_buffer+4, 32, "Server public key: ", 32, 1);
 		if (crypto_sign_verify_detached(reception_buffer+4+crypto_sign_ed25519_PUBLICKEYBYTES+sizeof(termination_char), reception_buffer+4, crypto_sign_ed25519_PUBLICKEYBYTES, reception_buffer+4)!=0)
 		{
 			perror("Invalid signature for server public key.");
@@ -334,7 +334,6 @@ int32_t request_user_key(uint32_t socket, char * user, char * domain, unsigned c
 	}
 
 	//Default keyrequest. Still sends to home server.
-	request_buffer_length = strlen(user) + strlen(domain)+sizeof(cmtp_command_KEYREQUEST)+3;
 	if (snprintf(request_buffer, sizeof(request_buffer), "%s%c%s%c%s%c", cmtp_command_KEYREQUEST, '\0', user, '\0',domain, '\0')<0)
 	{
 		perror("snprintf");
