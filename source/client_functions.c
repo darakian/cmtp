@@ -290,12 +290,15 @@ int32_t request_user_key(uint32_t socket, char * user, char * domain, unsigned c
 		#ifdef DEBUG
 		printf("Read %d bytes as response to server keyrequest\n", read_length);
 		#endif /*DEBUG*/
-		memcpy(server_public_key, reception_buffer+4, sizeof(server_public_key));
-		#ifdef DEBUG
 		//Verify server key
 		print_buffer (reception_buffer+4, 32, "Server public key: ", 32, 1);
-		print_buffer (server_public_key, 32, "Server public key (in another buffer): ", 32, 1);
-		#endif /*DEBUG*/
+		if (crypto_sign_verify_detached(reception_buffer+4+crypto_sign_ed25519_PUBLICKEYBYTES+sizeof(termination_char), reception_buffer+4, crypto_sign_ed25519_PUBLICKEYBYTES, reception_buffer+4)!=0)
+		{
+			perror("Invalid signature for server public key.");
+			print_to_log("Invalid signature for server public key.", LOG_ERR);
+			return -1;
+		}
+		memcpy(server_public_key, reception_buffer+4, sizeof(server_public_key));
 		return 0;
 	}
 
