@@ -29,6 +29,7 @@ static char log_identity[255];
 static int loginit = 0;
 static pthread_mutex_t dns_lock;
 
+
 /*
 Helper function to the DNS reslover function. This function just gets the last token in a string.
 @param Pointer to the string.
@@ -374,6 +375,13 @@ int enter_jail(char * jail_dir, char * new_user)
   return 0;
 }
 
+
+/*
+* print_buffer
+* Function taken from Edoardo Biagioni's Allnet project. Code was unlicensed at time of inclusion and verbal permission of use was obtained.
+* Full project can be found here
+* http://alnt.org/
+*/
 void print_buffer (const char * buffer, int count, char * desc,
                    int max, int print_eol)
 {

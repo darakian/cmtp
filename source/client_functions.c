@@ -291,7 +291,9 @@ int32_t request_user_key(uint32_t socket, char * user, char * domain, unsigned c
 		#endif /*DEBUG*/
 		memcpy(server_public_key, reception_buffer+4, sizeof(server_public_key));
 		#ifdef DEBUG
+		//Verify server key
 		print_buffer (reception_buffer+4, 32, "Server public key: ", 32, 1);
+		print_buffer (server_public_key, 32, "Server public key (in another buffer): ", 32, 1);
 		#endif /*DEBUG*/
 		return 0;
 	}
@@ -362,6 +364,7 @@ int32_t request_user_key(uint32_t socket, char * user, char * domain, unsigned c
 	{
 		//error message case. Verify signature and take action.
 		#ifdef DEBUG
+		print_buffer (server_public_key, 32, "Server public key: ", 32, 1);
 		print_buffer (reception_buffer+4, 32, "User public key: ", 32, 1);
 		#endif /*DEBUG*/
 		if (crypto_sign_verify_detached(reception_buffer+4+crypto_sign_ed25519_PUBLICKEYBYTES+sizeof(termination_char), reception_buffer+4, crypto_sign_ed25519_PUBLICKEYBYTES, server_public_key)!=0)
@@ -374,6 +377,7 @@ int32_t request_user_key(uint32_t socket, char * user, char * domain, unsigned c
 	if (version==1)
 	{
 		#ifdef DEBUG
+		print_buffer (server_public_key, 32, "Server public key: ", 32, 1);
 		print_buffer (reception_buffer+4, 32, "User public key: ", 32, 1);
 		#endif /*DEBUG*/
 		//check signature
