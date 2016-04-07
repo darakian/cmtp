@@ -292,8 +292,10 @@ int32_t request_user_key(uint32_t socket, char * user, char * domain, unsigned c
 		//Verify server key
 		print_buffer(reception_buffer+4, 32, "Server public key: ", 32, 1);
 		print_buffer(reception_buffer+4+crypto_sign_ed25519_PUBLICKEYBYTES+sizeof(termination_char), 64, "Server public key signature: ", 64, 1);
-		if (crypto_sign_verify_detached(reception_buffer+4+crypto_sign_ed25519_PUBLICKEYBYTES+sizeof(termination_char), reception_buffer+4, crypto_sign_ed25519_PUBLICKEYBYTES, reception_buffer+4)!=0)
+		int32_t temp_int = 0;
+		if ((temp_int = crypto_sign_verify_detached(reception_buffer+4+crypto_sign_ed25519_PUBLICKEYBYTES+sizeof(termination_char), reception_buffer+4, crypto_sign_ed25519_PUBLICKEYBYTES, reception_buffer+4))!=0)
 		{
+			printf("Sign return value = %d\n", temp_int);
 			perror("Invalid signature for server public key.");
 			print_to_log("Invalid signature for server public key.", LOG_ERR);
 			return -1;
