@@ -362,7 +362,7 @@ int32_t request_user_key(uint32_t socket, char * user, char * domain, unsigned c
 		#ifdef DEBUG
 		//printf("Working with key %\n", reception_buffer+4);
 		#endif /*DEBUG*/
-		if (crypto_sign_verify_detached(reception_buffer+4+sizeof(termination_char)+crypto_sign_ed25519_SECRETKEYBYTES, reception_buffer+4, crypto_sign_ed25519_SECRETKEYBYTES, server_public_key)!=0)
+		if (crypto_sign_verify_detached(reception_buffer+4+crypto_sign_ed25519_PUBLICKEYBYTES+sizeof(termination_char), reception_buffer+4, crypto_sign_ed25519_PUBLICKEYBYTES, server_public_key)!=0)
 		{
 			#ifdef DEBUG
 			for (uint32_t i = 0; i<32; i++)
@@ -385,15 +385,14 @@ int32_t request_user_key(uint32_t socket, char * user, char * domain, unsigned c
 		}
 		printf("\n");
 		#endif /*DEBUG*/
-		memcpy(key_buffer, reception_buffer+4, crypto_sign_ed25519_SECRETKEYBYTES);
 		//check signature
-		if (crypto_sign_verify_detached(reception_buffer+4+crypto_sign_ed25519_SECRETKEYBYTES, reception_buffer+4, crypto_sign_ed25519_SECRETKEYBYTES, server_public_key) != 0)
+		if (crypto_sign_verify_detached(reception_buffer+4+crypto_sign_ed25519_PUBLICKEYBYTES+sizeof(termination_char), reception_buffer+4, crypto_sign_ed25519_PUBLICKEYBYTES, server_public_key) != 0)
 		{
 	    perror("crypto_sign_verify_detached");
 			print_to_log("Signature is not valid for delieverd key", LOG_ERR);
-			memset(key_buffer, 0, crypto_sign_ed25519_SECRETKEYBYTES);
 			return -1;
 		}
+		memcpy(key_buffer, reception_buffer+4, crypto_sign_ed25519_PUBLICKEYBYTES);
 	}
 	else if (version>1)
 	{
