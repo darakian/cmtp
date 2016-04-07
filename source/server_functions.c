@@ -546,6 +546,7 @@ int32_t keyrequest_responder(uint32_t socket)
       memcpy(write_buffer+sizeof(network_crypto_version)+sizeof(user_public_key), &termination_char, sizeof(termination_char));
       memcpy(write_buffer+sizeof(network_crypto_version)+sizeof(user_public_key)+sizeof(termination_char), signature_of_public_key, sizeof(signature_of_public_key));
       memcpy(write_buffer+sizeof(network_crypto_version)+sizeof(user_public_key)+sizeof(termination_char)+sizeof(signature_of_public_key), &termination_char, sizeof(termination_char));
+      print_buffer (user_public_key, 32, "user public key: ", 32, 1);
       write(socket, write_buffer, sizeof(write_buffer));
 
       // write(socket, &network_crypto_version, sizeof(network_crypto_version));

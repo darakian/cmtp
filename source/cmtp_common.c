@@ -373,3 +373,23 @@ int enter_jail(char * jail_dir, char * new_user)
   print_to_log("cmtp has entered its' jail.", LOG_INFO);
   return 0;
 }
+
+void print_buffer (const char * buffer, int count, char * desc,
+                   int max, int print_eol)
+{
+  int i;
+  if (desc != NULL)
+    printf ("%s (%d bytes):", desc, count);
+  else
+    printf ("%d bytes:", count);
+  if (buffer == NULL)
+    printf ("(null)");
+  else {
+    for (i = 0; i < count && i < max; i++)
+      printf (" %02x", buffer [i] & 0xff);
+    if (i < count)
+      printf (" ...");
+  }
+  if (print_eol)
+    printf ("\n");
+}

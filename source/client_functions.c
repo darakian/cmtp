@@ -374,11 +374,7 @@ int32_t request_user_key(uint32_t socket, char * user, char * domain, unsigned c
 	if (version==1)
 	{
 		#ifdef DEBUG
-		for (uint32_t i = 0; i<32; i++)
-		{
-			printf("%x", reception_buffer+4+i);
-		}
-		printf("\n");
+		print_buffer (reception_buffer+4, 32, "User public key: ", 32, 1);
 		#endif /*DEBUG*/
 		//check signature
 		if (crypto_sign_verify_detached(reception_buffer+4+crypto_sign_ed25519_PUBLICKEYBYTES+sizeof(termination_char), reception_buffer+4, crypto_sign_ed25519_PUBLICKEYBYTES, server_public_key) != 0)
@@ -517,23 +513,3 @@ int32_t clear_socket(uint32_t socket)
 // 		}
 // 	}
 // }
-
-void print_buffer (const char * buffer, int count, char * desc,
-                   int max, int print_eol)
-{
-  int i;
-  if (desc != NULL)
-    printf ("%s (%d bytes):", desc, count);
-  else
-    printf ("%d bytes:", count);
-  if (buffer == NULL)
-    printf ("(null)");
-  else {
-    for (i = 0; i < count && i < max; i++)
-      printf (" %02x", buffer [i] & 0xff);
-    if (i < count)
-      printf (" ...");
-  }
-  if (print_eol)
-    printf ("\n");
-}
