@@ -465,6 +465,8 @@ int32_t keyrequest_responder(uint32_t socket)
   {
     crypto_sign_detached(signature_of_public_key, NULL, server_public_key, sizeof(server_public_key), server_private_key);
     #ifdef DEBUG
+    print_buffer (server_public_key, 32, "server public key: ", 32, 1);
+    print_buffer (signature_of_public_key, 64, "server public key signature: ", 64, 1);
     int32_t temp_int = crypto_sign_verify_detached(signature_of_public_key, server_public_key, crypto_sign_ed25519_PUBLICKEYBYTES, server_public_key);
     printf("Server sign verification = %d\n", temp_int);
     #endif /*DEBUG*/
@@ -476,10 +478,6 @@ int32_t keyrequest_responder(uint32_t socket)
     memcpy(write_buffer+sizeof(network_crypto_version)+sizeof(server_public_key), &termination_char, sizeof(termination_char));
     memcpy(write_buffer+sizeof(network_crypto_version)+sizeof(server_public_key)+sizeof(termination_char), signature_of_public_key, sizeof(signature_of_public_key));
     memcpy(write_buffer+sizeof(network_crypto_version)+sizeof(server_public_key)+sizeof(termination_char)+sizeof(signature_of_public_key), &termination_char, sizeof(termination_char));
-    #ifdef DEBUG
-    print_buffer (server_public_key, 32, "server public key: ", 32, 1);
-    print_buffer (signature_of_public_key, 64, "server public key signature: ", 64, 1);
-    #endif /*DEBUG*/
     write(socket, write_buffer, sizeof(write_buffer));
     // write(socket, server_public_key, sizeof(server_public_key));
     // write(socket, &termination_char, sizeof(termination_char));
