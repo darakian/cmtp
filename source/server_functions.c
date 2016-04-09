@@ -464,6 +464,11 @@ int32_t keyrequest_responder(uint32_t socket)
   if (memcmp(user_keyrequest_buffer, &termination_char, 1)==0)
   {
     crypto_sign_detached(signature_of_public_key, NULL, server_public_key, sizeof(server_public_key), server_private_key);
+    #ifdef DEBUG
+    int32_t temp_int = crypto_sign_verify_detached(signature_of_public_key, server_public_key, crypto_sign_ed25519_PUBLICKEYBYTES, server_public_key);
+    printf("Server sign verification = %d\n", temp_int);
+    #endif /*DEBUG*/
+
     //Wants server key. Reply and return.
     //Create single buffer
     memcpy(write_buffer, &network_crypto_version, sizeof(network_crypto_version));
