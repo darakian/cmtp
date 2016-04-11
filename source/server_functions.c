@@ -160,7 +160,7 @@ int server_init(struct init_params * passback_params)
         perror("close");
         print_to_log("Cannot close public key", LOG_ERR);
       }
-      if ((private_key_descriptor = open("/etc/cmtp/public.key", O_RDONLY))<0)
+      if ((private_key_descriptor = open("/etc/cmtp/private.key", O_RDONLY))<0)
       {
         perror("open");
         print_to_log("Cannot open private key. Error, Error!", LOG_ERR);
