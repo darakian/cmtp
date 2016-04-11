@@ -463,12 +463,15 @@ int32_t keyrequest_responder(uint32_t socket)
   } while((i<sizeof(user_keyrequest_buffer))&&(user_keyrequest_buffer[i-1]!='\0'));
   if (memcmp(user_keyrequest_buffer, &termination_char, 1)==0)
   {
-    crypto_sign_detached(signature_of_public_key, NULL, server_public_key, sizeof(server_public_key), server_private_key);
+    int32_t temp_int = crypto_sign_detached(signature_of_public_key, NULL, server_public_key, sizeof(server_public_key), server_private_key);
     #ifdef DEBUG
+    printf("Server sign return value = %d\n", temp_int);
+    print_buffer (server_private_key, 32, "server private key: ", 32, 1);
     print_buffer (server_public_key, 32, "server public key: ", 32, 1);
     print_buffer (signature_of_public_key, 64, "server public key signature: ", 64, 1);
-    int32_t temp_int = crypto_sign_verify_detached(signature_of_public_key, server_public_key, crypto_sign_ed25519_PUBLICKEYBYTES, server_public_key);
+    temp_int = crypto_sign_verify_detached(signature_of_public_key, server_public_key, crypto_sign_ed25519_PUBLICKEYBYTES, server_public_key);
     printf("Server sign verification = %d\n", temp_int);
+    temp_int = 0;
     #endif /*DEBUG*/
 
     //Wants server key. Reply and return.
