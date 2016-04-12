@@ -188,15 +188,18 @@ int main(int argc, char *argv[])
         perror("build_message");
         print_to_log("Error building encrypred message", LOG_ERR);
       }
+      //Send mail
       if (write(client_socket, header_buffer, header_buffer_length)<0)
       {
         perror("Write");
         print_to_log("Failed to write header_buffer", LOG_ERR);
+        break;
       }
       if (write(client_socket, encrypted_file_buffer, encrypted_file_buffer_length)<0)
       {
         perror("Write");
         print_to_log("Failed to write header_buffer", LOG_ERR);
+        break;
       }
       //Need to interperate server response here
 

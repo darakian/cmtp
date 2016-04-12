@@ -139,19 +139,28 @@ int login(uint32_t socket, char * username, char * key_buffer)
 	return 0;
 }
 
-int send_message(uint32_t socket, char * header_buffer, int header_buffer_length, char * message_buffer, int message_buffer_length)
+int32_t send_message(uint32_t socket, char * header_buffer, uint32_t header_buffer_length, char * message_buffer, uint32_t message_buffer_length, char * attachment_buffer, uint32_t attachment_buffer_length)
 {
-	if (init != 1)
+	//Send MAIL\0 command
+	if (write(socket, cmtp_command_MAIL, sizeof(cmtp_command_MAIL))<0)
 	{
-		perror("client init has not run. Cannot send mail.");
-		print_to_log("client init has not run. Cannot send mail.", LOG_ERR);
+		perror("Write");
+		print_to_log("Sending mail command failed.", LOG_ERR);
 		return -1;
 	}
-	//Should do SMTP like 'HELO'/'ELOH' here when implemented
-	char send_buffer[header_buffer_length + message_buffer_length];
-	memcpy(send_buffer, header_buffer, header_buffer_length);
-	memcpy(send_buffer+header_buffer_length, message_buffer, message_buffer_length);
-	if (write(socket, send_buffer, sizeof(send_buffer))<0)
+	if (write(socket, header_buffer, sizeof(header_buffer_length))<0)
+	{
+		perror("Write");
+		print_to_log("Sending message failed.", LOG_ERR);
+		return -1;
+	}
+	if (write(socket, message_buffer, sizeof(message_buffer_length))<0)
+	{
+		perror("Write");
+		print_to_log("Sending message failed.", LOG_ERR);
+		return -1;
+	}
+	if (write(socket, attachment_buffer, sizeof(attachment_buffer_length))<0)
 	{
 		perror("Write");
 		print_to_log("Sending message failed.", LOG_ERR);
