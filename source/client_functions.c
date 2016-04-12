@@ -139,7 +139,7 @@ int login(uint32_t socket, char * username, char * key_buffer)
 	return 0;
 }
 
-int32_t send_message(uint32_t socket, char * header_buffer, uint32_t header_buffer_length, char * message_buffer, uint32_t message_buffer_length, char * attachment_buffer, uint32_t attachment_buffer_length)
+int32_t send_message(uint32_t socket, char * header_buffer, uint32_t header_buffer_length, char * message_buffer, uint32_t message_buffer_length)
 {
 	//Send MAIL\0 command
 	if (write(socket, cmtp_command_MAIL, sizeof(cmtp_command_MAIL))<0)
@@ -155,12 +155,6 @@ int32_t send_message(uint32_t socket, char * header_buffer, uint32_t header_buff
 		return -1;
 	}
 	if (write(socket, message_buffer, sizeof(message_buffer_length))<0)
-	{
-		perror("Write");
-		print_to_log("Sending message failed.", LOG_ERR);
-		return -1;
-	}
-	if (write(socket, attachment_buffer, sizeof(attachment_buffer_length))<0)
 	{
 		perror("Write");
 		print_to_log("Sending message failed.", LOG_ERR);
