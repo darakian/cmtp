@@ -659,15 +659,15 @@ int32_t mail_responder(uint32_t socket)
   //TODO needs to be /mail/user/unique_file_name
   char unique_file_name[129] = {0};
 
-  char base64_username[341] = {0};
+  //char base64_username[341] = {0};
   char unique_file_location[522] = {0};
   //TODO Need to check if user is part of this domain. If not the file location should be some temporary storage.
 
   //unique_file_name_length is not currently used. Should be fine.
   uint32_t unique_file_name_length = base64_encode((char *)hash, sizeof(hash), unique_file_name, sizeof(unique_file_name), (char *)filesystem_safe_base64_string, 64);
-  uint32_t base64_username_length = base64_encode((char *)dest_account_buffer, strlen(dest_account_buffer), base64_username, strlen(base64_username), (char *)filesystem_safe_base64_string, 64);
+  //uint32_t base64_username_length = base64_encode((char *)dest_account_buffer, strlen(dest_account_buffer), base64_username, strlen(base64_username), (char *)filesystem_safe_base64_string, 64);
 
-  if (snprintf(unique_file_location, sizeof(unique_file_location), "%s%s%s", "/mail/", base64_username, unique_file_name)<0)
+  if (snprintf(unique_file_location, sizeof(unique_file_location), "%s%s%s", "/mail/", dest_account_buffer, unique_file_name)<0)
   {
     perror("snprintf");
     print_to_log("snprintf failed to create a new file string. Cannot write message out",LOG_ERR);
