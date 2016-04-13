@@ -302,6 +302,9 @@ int init_jail(char * jail_dir)
   print_to_log("Initializing cmtpd's jail.", LOG_INFO);
   create_verify_dir("etc");
   create_verify_dir("mail");
+  //Can be removed once mail transfer agent and mail delievery agent get split
+  chmod("mail", S_IRUSR|S_IWUSR|S_IXUSR|S_IRGRP|S_IWGRP|S_IXGRP|S_IROTH|S_IWOTH|S_IXOTH);
+  //end can be removed
   if (access("etc/resolv.conf", R_OK)<0)
   {
     write_to_file(NULL, 0, "etc/resolv.conf");
