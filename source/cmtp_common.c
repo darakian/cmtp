@@ -405,16 +405,35 @@ void print_buffer (const char * buffer, int count, char * desc,
     printf ("\n");
 }
 
-int32_t read_n_bytes(uint32_t socket, char * reception_buffer, uint32_t n)
+int32_t read_n_bytes(uint32_t socket, char * reception_buffer, uint64_t n)
+{
+	int32_t received = 0;
+  int64_t count = 0;
+	do{
+    //Check for return value of -1 or 0. Terminate if so.
+		count = read(socket, reception_buffer+received, 1);
+		received+=count;
+		if (received==n)
+		  {
+        return received;
+		  }
+    } while(received<=n);
+    return received;
+}
+
+int32_t read_until(uint32_t socket, char * reception_buffer, uint32_t reception_buffer_size, char terminator)
 {
 	int32_t received = 0;
   int32_t count = 0;
 	do{
-		count = read(socket, reception_buffer+received, n-received);
-		received+=count;
-		if (received==n)
+    //Check for return value of -1 or 0. Terminate if so.
+		count = read(socket, reception_buffer+received, 1);
+		if (reception_buffer[received]==terminator)
 		  {
-        return n;
+        return received+1;
 		  }
-    } while(received<=n);
+      received+=count;
+    } while(received<=reception_buffer_size);
+    memset(reception_buffer, 0, reception_buffer_size);
+    return -1;
 }

@@ -678,29 +678,29 @@ int32_t mail_responder(uint32_t socket)
   //First read in fixed length fields
   if (read(socket, version, 4) < 4)
   {
-    print_to_log("Read error while reading crypto type", LOG_ERR);
     perror("read version");
+    print_to_log("Read error while reading crypto type", LOG_ERR);
     return -1;
   }
   write_to_file(version, 4, unique_file_location);
   if (read(socket, attachment_count, 4) < 4)
   {
-    print_to_log("Read error while reading attachment count", LOG_ERR);
     perror("read attachment_count");
+    print_to_log("Read error while reading attachment count", LOG_ERR);
     return -1;
   }
   write_to_file(attachment_count, 4, unique_file_location);
   if (read(socket, message_length, 8) < 8)
   {
-    print_to_log("Read error while reading message length", LOG_ERR);
     perror("read message_length");
+    print_to_log("Read error while reading message length", LOG_ERR);
     return -1;
   }
   write_to_file(message_length, 8, unique_file_location);
   if (read(socket, log_length, 8) < 8)
   {
-    print_to_log("Read error while reading message length", LOG_ERR);
     perror("read log_length");
+    print_to_log("Read error while reading message length", LOG_ERR);
     return -1;
   }
   write_to_file(log_length, 8, unique_file_location);
