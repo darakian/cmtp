@@ -302,9 +302,6 @@ int init_jail(char * jail_dir)
   print_to_log("Initializing cmtpd's jail.", LOG_INFO);
   create_verify_dir("etc");
   create_verify_dir("mail");
-  //Can be removed once mail transfer agent and mail delievery agent get split
-  chmod("mail", S_IRUSR|S_IWUSR|S_IXUSR|S_IRGRP|S_IWGRP|S_IXGRP|S_IROTH|S_IWOTH|S_IXOTH);
-  //end can be removed
   if (access("etc/resolv.conf", R_OK)<0)
   {
     write_to_file(NULL, 0, "etc/resolv.conf");
@@ -345,10 +342,24 @@ Moves process into the jail directory
 */
 int enter_jail(char * jail_dir, char * new_user)
 {
+  //Set ownership of mail directory
+  char mail_dir[255] = {0};
+  if (snprintf(mail_dir, sizeof(mail_dir), "%s%s", jail_dir, "/mail")<0)
+  {
+    perror("enter_jail snprintf");
+    print_to_log("Cannot create mail_dir string", LOG_ERR);
+    return -1;
+  }
   struct passwd * working_user_passwd;
   working_user_passwd = getpwnam(new_user);
   print_to_log("Attempting to drop privilage", LOG_INFO);
   printf("working uid = %x, gid = %x, name =%s\n", working_user_passwd->pw_uid, working_user_passwd->pw_gid, working_user_passwd->pw_name);
+  if(chown(mail_dir, working_user_passwd->pw_uid, working_user_passwd->pw_gid)<0)
+  {
+    perror("chown");
+    print_to_log("chown failed. Cannot gain write in jail.", LOG_EMERG);
+    return -1;
+  }
   if (chdir(jail_dir)<0)
   {
     perror("chdir");
