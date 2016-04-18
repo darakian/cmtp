@@ -107,7 +107,7 @@ int server_init(struct init_params * passback_params)
       printf("Attempting to create keys\n");
       //Key error has occured. At least one of the two keys does not exist. NUKE EVERYTHING!!! (ie. recreate keys).
       crypto_sign_ed25519_keypair(server_public_key, server_private_key);
-      print_buffer (server_public_key, 32, "server public key: ", 32, 1);
+      //print_buffer (server_public_key, 32, "server public key: ", 32, 1);
       if ((public_key_descriptor=open("/etc/cmtp/public.key", O_WRONLY|O_CREAT, S_IRUSR|S_IWUSR))<0)
       {
         perror("open");
@@ -465,9 +465,9 @@ int32_t keyrequest_responder(uint32_t socket)
   {
     crypto_sign_detached(signature_of_public_key, NULL, server_public_key, sizeof(server_public_key), server_private_key);
     #ifdef DEBUG
-    print_buffer (server_private_key, 64, "server private key: ", 64, 1);
-    print_buffer (server_public_key, 32, "server public key: ", 32, 1);
-    print_buffer (signature_of_public_key, 64, "server public key signature: ", 64, 1);
+    //print_buffer (server_private_key, 64, "server private key: ", 64, 1);
+    //print_buffer (server_public_key, 32, "server public key: ", 32, 1);
+    //print_buffer (signature_of_public_key, 64, "server public key signature: ", 64, 1);
     crypto_sign_verify_detached(signature_of_public_key, server_public_key, crypto_sign_ed25519_PUBLICKEYBYTES, server_public_key);
     #endif /*DEBUG*/
 
@@ -525,8 +525,8 @@ int32_t keyrequest_responder(uint32_t socket)
       memcpy(write_buffer+sizeof(network_crypto_version)+sizeof(cmtp_reply_KEYNOTAVAILABLE)+sizeof(signature_of_KEYNOTAVAILABLE), signature_of_public_key, sizeof(signature_of_public_key));
       memcpy(write_buffer+sizeof(network_crypto_version)+sizeof(cmtp_reply_KEYNOTAVAILABLE)+sizeof(signature_of_KEYNOTAVAILABLE)+sizeof(signature_of_public_key), &termination_char, sizeof(termination_char));
       #ifdef DEBUG
-      print_buffer (cmtp_reply_KEYNOTAVAILABLE, 32, "Key not available message: ", 32, 1);
-      print_buffer (signature_of_public_key, 64, "Key not available signature: ", 64, 1);
+      //print_buffer (cmtp_reply_KEYNOTAVAILABLE, 32, "Key not available message: ", 32, 1);
+      //print_buffer (signature_of_public_key, 64, "Key not available signature: ", 64, 1);
       #endif /*DEBUG*/
       write(socket, write_buffer, sizeof(write_buffer));
 
@@ -558,8 +558,8 @@ int32_t keyrequest_responder(uint32_t socket)
       memcpy(write_buffer+sizeof(network_crypto_version)+sizeof(user_public_key)+sizeof(termination_char), signature_of_public_key, sizeof(signature_of_public_key));
       memcpy(write_buffer+sizeof(network_crypto_version)+sizeof(user_public_key)+sizeof(termination_char)+sizeof(signature_of_public_key), &termination_char, sizeof(termination_char));
       #ifdef DEBUG
-      print_buffer (user_public_key, 32, "User public key: ", 32, 1);
-      print_buffer (signature_of_public_key, 64, "User public key signature: ", 64, 1);
+      //print_buffer (user_public_key, 32, "User public key: ", 32, 1);
+      //print_buffer (signature_of_public_key, 64, "User public key signature: ", 64, 1);
       #endif /*DEBUG*/
       write(socket, write_buffer, sizeof(write_buffer));
 
@@ -631,13 +631,13 @@ int32_t mail_responder(uint32_t socket)
   //Allocate primary buffers and counters
   char source_account_buffer[ROUTING_FIELD_SIZE];
   uint32_t source_account_counter = 0;
-  char source_server_buffer[ROUTING_FIELD_SIZE];
+  char source_domain_buffer[ROUTING_FIELD_SIZE];
   uint32_t source_server_counter = 0;
   char dest_account_buffer[ROUTING_FIELD_SIZE];
   uint32_t dest_account_counter = 0;
-  char dest_server_buffer[ROUTING_FIELD_SIZE];
+  char dest_domain_buffer[ROUTING_FIELD_SIZE];
   uint32_t dest_server_counter = 0;
-  char version[sizeof(uint32_t)] = {0};
+  uint32_t version = 0;
   char attachment_count[sizeof(uint32_t)] = {0};
   char message_length[sizeof(uint64_t)] = {0};
   char log_length[sizeof(uint64_t)] = {0};
@@ -676,74 +676,64 @@ int32_t mail_responder(uint32_t socket)
 
   //Read primary routing and processing information
   //First read in fixed length fields
-  if (read(socket, version, 4) < 4)
+  if (read_n_bytes(socket, (char *)version, 4)!=4)
   {
-    perror("read version");
+    perror("read_n_bytes version");
     print_to_log("Read error while reading crypto type", LOG_ERR);
     return -1;
   }
+  version = ntohl(version);
   write_to_file(version, 4, unique_file_location);
-  if (read(socket, attachment_count, 4) < 4)
+  if (read_n_bytes(socket, attachment_count, 4)!=4)
   {
-    perror("read attachment_count");
+    perror("read_n_bytes attachment_count");
     print_to_log("Read error while reading attachment count", LOG_ERR);
     return -1;
   }
   write_to_file(attachment_count, 4, unique_file_location);
-  if (read(socket, message_length, 8) < 8)
+  if (read_n_bytes(socket, log_length, 8)!=8)
   {
-    perror("read message_length");
-    print_to_log("Read error while reading message length", LOG_ERR);
-    return -1;
-  }
-  write_to_file(message_length, 8, unique_file_location);
-  if (read(socket, log_length, 8) < 8)
-  {
-    perror("read log_length");
+    perror("read_n_bytes log_length");
     print_to_log("Read error while reading message length", LOG_ERR);
     return -1;
   }
   write_to_file(log_length, 8, unique_file_location);
-
-  do
+  if (read_n_bytes(socket, message_length, 8)!=8)
   {
-    if (read(socket, source_account_buffer+source_account_counter, 1) < 1)
-    {
-      perror("read source_accout_buffer");
-      return -1;
-    }
-    source_account_counter++;
-  } while((source_account_counter<ROUTING_FIELD_SIZE)&&(source_account_buffer[source_account_counter-1]!='\0'));
-  //Destination fields
-  do {
-    if (read(socket, dest_account_buffer+dest_account_counter, 1) < 1)
-    {
-      perror("read dest_account_buffer");
-      return -1;
-    }
-    dest_account_counter++;
-  } while((dest_account_counter<ROUTING_FIELD_SIZE)&&(dest_account_buffer[dest_account_counter-1]!='\0'));
-  //Source fields
-  do {
-    if (read(socket, dest_server_buffer+dest_server_counter, 1) < 1)
-    {
-      perror("read dest_server_buffer");
-      return -1;
-    }
-    dest_server_counter++;
-  } while((dest_server_counter<ROUTING_FIELD_SIZE)&&(dest_server_buffer[dest_server_counter-1]!='\0'));
-  do {
-    if (read(socket, &source_server_buffer[source_server_counter], 1) < 1)
-    {
-      perror("read source_server_buffer");
-      return -1;
-    }
-    source_server_counter++;
-  } while((source_server_counter<ROUTING_FIELD_SIZE)&&(source_server_buffer[source_server_counter-1]!='\0'));
+    perror("read_n_bytes message_length");
+    print_to_log("Read error while reading message length", LOG_ERR);
+    return -1;
+  }
+  write_to_file(message_length, 8, unique_file_location);
+  //Read in account and domain info
+  if (read_until(socket, dest_account_buffer, sizeof(dest_account_buffer), '\0')<0)
+  {
+    perror("read_until");
+    print_to_log("Read error while reading dest_account_buffer", LOG_ERR);
+    return -1;
+  }
+  if (read_until(socket, dest_domain_buffer, sizeof(dest_domain_buffer), '\0')<0)
+  {
+    perror("read_until");
+    print_to_log("Read error while reading dest_domain_buffer", LOG_ERR);
+    return -1;
+  }
+  if (read_until(socket, source_account_buffer, sizeof(source_account_buffer), '\0')<0)
+  {
+    perror("read_until");
+    print_to_log("Read error while reading source_account_buffer", LOG_ERR);
+    return -1;
+  }
+  if (read_until(socket, source_domain_buffer, sizeof(source_domain_buffer), '\0')<0)
+  {
+    perror("read_until");
+    print_to_log("Read error while reading source_domain_buffer", LOG_ERR);
+    return -1;
+  }
   write_to_file(dest_account_buffer, dest_account_counter, unique_file_location);
-  write_to_file(dest_server_buffer, dest_server_counter, unique_file_location);
+  write_to_file(dest_domain_buffer, dest_server_counter, unique_file_location);
   write_to_file(source_account_buffer, source_account_counter, unique_file_location);
-  write_to_file(source_server_buffer, source_server_counter, unique_file_location);
+  write_to_file(source_domain_buffer, source_server_counter, unique_file_location);
 
 
   //This completes the header of the message
@@ -793,7 +783,7 @@ int32_t mail_responder(uint32_t socket)
   }
 
   //Destination cases
-   if ((memcmp(dest_server_buffer, home_domain, dest_server_counter)==0)&&(memcmp(dest_account_buffer,"",1))==0)
+   if ((memcmp(dest_domain_buffer, home_domain, dest_server_counter)==0)&&(memcmp(dest_account_buffer,"",1))==0)
    {
      #ifdef DEBUG
      printf("Devlivered mail is for server. Begin processing.\n");
@@ -801,7 +791,7 @@ int32_t mail_responder(uint32_t socket)
      print_to_log("Mail has arrived for the server. Processing.",LOG_INFO);
      //Destination is this domain and for the server
    }
-   else if ((memcmp(dest_server_buffer, home_domain, dest_server_counter)==0))
+   else if ((memcmp(dest_domain_buffer, home_domain, dest_server_counter)==0))
    {
      #ifdef DEBUG
      printf("Devlivered mail is for a user on this domain. Store.\n");
@@ -812,10 +802,10 @@ int32_t mail_responder(uint32_t socket)
    else
    {
      #ifdef DEBUG
-     printf("Devlivered mail is not destined for this domain. Forward to %s\n", dest_server_buffer);
+     printf("Devlivered mail is not destined for this domain. Forward to %s\n", dest_domain_buffer);
      #endif /*DEBUG*/
      print_to_log("Mail has arrived for another domain. Forwarding.",LOG_INFO);
-     forwardMessage(unique_file_location, dest_server_buffer);
+     forwardMessage(unique_file_location, dest_domain_buffer);
      //Destination is on the web. Forward message.
    }
    #ifdef DEBUG
