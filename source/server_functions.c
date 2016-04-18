@@ -630,13 +630,13 @@ int32_t mail_responder(uint32_t socket)
 
   //Allocate primary buffers and counters
   char source_account_buffer[ROUTING_FIELD_SIZE];
-  uint32_t source_account_counter = 0;
+  uint32_t source_account_length = 0;
   char source_domain_buffer[ROUTING_FIELD_SIZE];
-  uint32_t source_server_counter = 0;
+  uint32_t source_domain_length = 0;
   char dest_account_buffer[ROUTING_FIELD_SIZE];
-  uint32_t dest_account_counter = 0;
+  uint32_t dest_account_length = 0;
   char dest_domain_buffer[ROUTING_FIELD_SIZE];
-  uint32_t dest_server_counter = 0;
+  uint32_t dest_domain_length = 0;
   uint32_t version = 0;
   char attachment_count[sizeof(uint32_t)] = {0};
   char message_length[sizeof(uint64_t)] = {0};
@@ -706,34 +706,34 @@ int32_t mail_responder(uint32_t socket)
   }
   write_to_file(message_length, 8, unique_file_location);
   //Read in account and domain info
-  if (read_until(socket, dest_account_buffer, sizeof(dest_account_buffer), '\0')<0)
+  if ((dest_account_length=read_until(socket, dest_account_buffer, sizeof(dest_account_buffer), '\0'))<0)
   {
     perror("read_until");
     print_to_log("Read error while reading dest_account_buffer", LOG_ERR);
     return -1;
   }
-  if (read_until(socket, dest_domain_buffer, sizeof(dest_domain_buffer), '\0')<0)
+  write_to_file(dest_account_buffer, dest_account_length, unique_file_location);
+  if ((dest_domain_length=read_until(socket, dest_domain_buffer, sizeof(dest_domain_buffer), '\0'))<0)
   {
     perror("read_until");
     print_to_log("Read error while reading dest_domain_buffer", LOG_ERR);
     return -1;
   }
-  if (read_until(socket, source_account_buffer, sizeof(source_account_buffer), '\0')<0)
+  write_to_file(dest_domain_buffer, dest_domain_length, unique_file_location);
+  if ((source_account_length=read_until(socket, source_account_buffer, sizeof(source_account_buffer), '\0'))<0)
   {
     perror("read_until");
     print_to_log("Read error while reading source_account_buffer", LOG_ERR);
     return -1;
   }
-  if (read_until(socket, source_domain_buffer, sizeof(source_domain_buffer), '\0')<0)
+  write_to_file(source_account_buffer, source_account_length, unique_file_location);
+  if ((source_domain_length=read_until(socket, source_domain_buffer, sizeof(source_domain_buffer), '\0'))<0)
   {
     perror("read_until");
     print_to_log("Read error while reading source_domain_buffer", LOG_ERR);
     return -1;
   }
-  write_to_file(dest_account_buffer, dest_account_counter, unique_file_location);
-  write_to_file(dest_domain_buffer, dest_server_counter, unique_file_location);
-  write_to_file(source_account_buffer, source_account_counter, unique_file_location);
-  write_to_file(source_domain_buffer, source_server_counter, unique_file_location);
+  write_to_file(source_domain_buffer, source_domain_length, unique_file_location);
 
 
   //This completes the header of the message
@@ -783,7 +783,7 @@ int32_t mail_responder(uint32_t socket)
   }
 
   //Destination cases
-   if ((memcmp(dest_domain_buffer, home_domain, dest_server_counter)==0)&&(memcmp(dest_account_buffer,"",1))==0)
+   if ((memcmp(dest_domain_buffer, home_domain, dest_domain_length)==0)&&(memcmp(dest_account_buffer,"",1))==0)
    {
      #ifdef DEBUG
      printf("Devlivered mail is for server. Begin processing.\n");
@@ -791,7 +791,7 @@ int32_t mail_responder(uint32_t socket)
      print_to_log("Mail has arrived for the server. Processing.",LOG_INFO);
      //Destination is this domain and for the server
    }
-   else if ((memcmp(dest_domain_buffer, home_domain, dest_server_counter)==0))
+   else if ((memcmp(dest_domain_buffer, home_domain, dest_domain_length)==0))
    {
      #ifdef DEBUG
      printf("Devlivered mail is for a user on this domain. Store.\n");
