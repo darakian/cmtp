@@ -17,6 +17,7 @@
 #include <syslog.h>
 #include <pthread.h>
 #include <confuse.h>
+#include <endian.h>
 
 //Include header
 #include "server_functions.h"
@@ -638,9 +639,9 @@ int32_t mail_responder(uint32_t socket)
   char dest_domain_buffer[ROUTING_FIELD_SIZE];
   uint32_t dest_domain_length = 0;
   uint32_t version = 0;
-  char attachment_count[sizeof(uint32_t)] = {0};
-  char message_length[sizeof(uint64_t)] = {0};
-  char log_length[sizeof(uint64_t)] = {0};
+  uint32_t attachment_count = 0;
+  uint64_t message_length = 0;
+  uint64_t log_length = 0;
   //Generate unique file from current time and current FD
   //Get time with nanosecond resolution (or so they say)
   struct timespec time_for_file;
@@ -697,6 +698,7 @@ int32_t mail_responder(uint32_t socket)
     print_to_log("Read error while reading message length", LOG_ERR);
     return -1;
   }
+  log_length = be64toh(log_length);
   write_to_file(log_length, 8, unique_file_location);
   if (read_n_bytes(socket, message_length, 8)!=8)
   {
@@ -704,6 +706,7 @@ int32_t mail_responder(uint32_t socket)
     print_to_log("Read error while reading message length", LOG_ERR);
     return -1;
   }
+  message_length = be64toh(message_length);
   write_to_file(message_length, 8, unique_file_location);
   //Read in account and domain info
   if ((dest_account_length=read_until(socket, dest_account_buffer, sizeof(dest_account_buffer), '\0'))<0)
@@ -734,16 +737,15 @@ int32_t mail_responder(uint32_t socket)
     return -1;
   }
   write_to_file(source_domain_buffer, source_domain_length, unique_file_location);
+  //This completes the read of the header
 
 
-  //This completes the header of the message
-  //Next we handle the body of the message
-  uint64_t numeric_message_length = be64toh(*(uint64_t*)(&(message_length[0])));
-  uint64_t numeric_log_length = be64toh(*(uint64_t*)(&(log_length[0])));
+  //uint64_t numeric_message_length = be64toh(*(uint64_t*)(&(message_length[0])));
+  //uint64_t numeric_log_length = be64toh(*(uint64_t*)(&(log_length[0])));
 
   char temp_byte[1] = {0};
   //Read log
-  for (uint64_t i = 0; i<numeric_log_length; i++)
+  for (uint64_t i = 0; i<log_length; i++)
   {
     if (read(socket, temp_byte, 1)<1)
     {
@@ -754,7 +756,7 @@ int32_t mail_responder(uint32_t socket)
     write_to_file(temp_byte, 1, unique_file_location);
   }
   //Read message body
-  for (uint64_t i = 0; i<numeric_message_length; i++)
+  for (uint64_t i = 0; i<message_length; i++)
   {
     if (read(socket, temp_byte, 1)<1)
     {
@@ -769,9 +771,9 @@ int32_t mail_responder(uint32_t socket)
   printf("Message body finished. Moving to attachment handling.\n");
   #endif /*DEBUG*/
   //Read for attachment
-  uint32_t numeric_attachment_count = be32toh(*(uint32_t*)(&(attachment_count[0])));
+  //uint32_t numeric_attachment_count = be32toh(*(uint32_t*)(&(attachment_count[0])));
   temp_byte[0] = 0;
-  for (uint64_t i = 0; i<numeric_attachment_count; i++)
+  for (uint64_t i = 0; i<attachment_count; i++)
   {
     if (read(socket, temp_byte, 1)<1)
     {
