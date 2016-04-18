@@ -811,7 +811,7 @@ int32_t mail_responder(uint32_t socket)
      //Destination is on the web. Forward message.
    }
    #ifdef DEBUG
-   printf("Mail section complete. Clearing buffer and return NULLing.\n");
+   printf("Mail section complete.\n");
    #endif /*DEBUG*/
    return 0;
 }
