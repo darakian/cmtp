@@ -423,6 +423,11 @@ int32_t read_n_bytes(uint32_t socket, char * reception_buffer, uint64_t n)
 	do{
     //Check for return value of -1 or 0. Terminate if so.
 		count = read(socket, reception_buffer+received, 1);
+    if (count<=0)
+    {
+      perror("read_n_bytes");
+      print_to_log("Error reading in read_n_bytes", LOG_ERR);
+    }
 		received+=count;
 		if (received==n)
 		  {
@@ -439,6 +444,11 @@ int32_t read_until(uint32_t socket, char * reception_buffer, uint32_t reception_
 	do{
     //Check for return value of -1 or 0. Terminate if so.
 		count = read(socket, reception_buffer+received, 1);
+    if (count<=0)
+    {
+      perror("read_until");
+      print_to_log("Error reading in read_until", LOG_ERR);
+    }
 		if (reception_buffer[received]==terminator)
 		  {
         return received+1;
