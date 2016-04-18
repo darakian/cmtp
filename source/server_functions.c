@@ -631,13 +631,13 @@ int32_t mail_responder(uint32_t socket)
 
   //Allocate primary buffers and counters
   char source_account_buffer[ROUTING_FIELD_SIZE];
-  uint32_t source_account_length = 0;
+  int32_t source_account_length = 0;
   char source_domain_buffer[ROUTING_FIELD_SIZE];
-  uint32_t source_domain_length = 0;
+  int32_t source_domain_length = 0;
   char dest_account_buffer[ROUTING_FIELD_SIZE];
-  uint32_t dest_account_length = 0;
+  int32_t dest_account_length = 0;
   char dest_domain_buffer[ROUTING_FIELD_SIZE];
-  uint32_t dest_domain_length = 0;
+  int32_t dest_domain_length = 0;
   uint32_t version = 0;
   uint32_t attachment_count = 0;
   uint64_t message_length = 0;
@@ -677,37 +677,37 @@ int32_t mail_responder(uint32_t socket)
 
   //Read primary routing and processing information
   //First read in fixed length fields
-  if (read_n_bytes(socket, (char *)version, 4)!=4)
+  if (read_n_bytes(socket, (char *)&version, 4)!=4)
   {
     perror("read_n_bytes version");
     print_to_log("Read error while reading crypto type", LOG_ERR);
     return -1;
   }
   version = ntohl(version);
-  write_to_file(version, 4, unique_file_location);
-  if (read_n_bytes(socket, attachment_count, 4)!=4)
+  write_to_file((char *)&version, 4, unique_file_location);
+  if (read_n_bytes(socket, (char *)&attachment_count, 4)!=4)
   {
     perror("read_n_bytes attachment_count");
     print_to_log("Read error while reading attachment count", LOG_ERR);
     return -1;
   }
-  write_to_file(attachment_count, 4, unique_file_location);
-  if (read_n_bytes(socket, log_length, 8)!=8)
+  write_to_file((char *)&attachment_count, 4, unique_file_location);
+  if (read_n_bytes(socket, (char *)&log_length, 8)!=8)
   {
     perror("read_n_bytes log_length");
     print_to_log("Read error while reading message length", LOG_ERR);
     return -1;
   }
   log_length = be64toh(log_length);
-  write_to_file(log_length, 8, unique_file_location);
-  if (read_n_bytes(socket, message_length, 8)!=8)
+  write_to_file((char *)&log_length, 8, unique_file_location);
+  if (read_n_bytes(socket, (char *)&message_length, 8)!=8)
   {
     perror("read_n_bytes message_length");
     print_to_log("Read error while reading message length", LOG_ERR);
     return -1;
   }
   message_length = be64toh(message_length);
-  write_to_file(message_length, 8, unique_file_location);
+  write_to_file((char *)&message_length, 8, unique_file_location);
   //Read in account and domain info
   if ((dest_account_length=read_until(socket, dest_account_buffer, sizeof(dest_account_buffer), '\0'))<0)
   {

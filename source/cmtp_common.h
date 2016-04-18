@@ -28,4 +28,7 @@ void print_buffer (const char * buffer, int count, char * desc, int max, int pri
 
 int32_t read_n_bytes(uint32_t socket, char * reception_buffer, uint64_t n);
 
+int32_t read_until(uint32_t socket, char * reception_buffer, uint32_t reception_buffer_size, char terminator);
+
+
 #endif /* _cmtp_common_h */
