@@ -465,7 +465,7 @@ uint32_t menu_prompt()
 
 uint32_t create_recipient_string(char * user, char * domain, char * full)
 {
-	snprintf(full, strlen(user)+strlen(domain)+2, "%s%d%s%d", user, '\0', domain, '\0');
+	snprintf(full, strlen(user)+strlen(domain)+2, "%s%c%s", user, '\0', domain);
 	return strlen(user)+strlen(domain)+2;
 }
 
