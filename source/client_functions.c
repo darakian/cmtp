@@ -217,6 +217,9 @@ int32_t build_header(char * recipient, uint32_t recipient_length, uint32_t versi
 int32_t build_message(unsigned char * body, long body_length, unsigned char * recipient_key, char * attachments, long attachments_length,  unsigned char * cipher_buffer)
 {
 	//Step 1: Encipher body and attachments
+	#ifdef DEBUG
+	printf("Building message with body_length = %ld and attachments_length = %ld\n", body_length, attachments_length);
+	#endif /*DEBUG*/
 	char * crypto_buffer = calloc(1, body_length + attachments_length);
 	unsigned char cipherd_body[crypto_box_SEALBYTES + body_length];
 	char * body_buffer = calloc(1, body_length);
@@ -226,7 +229,10 @@ int32_t build_message(unsigned char * body, long body_length, unsigned char * re
 	memset(body_buffer, 0, body_length);
 	memcpy(crypto_buffer+(body_length+crypto_box_SEALBYTES), attachments, attachments_length);
 	//Step 3: Return everything as cipher_buffer
-	memcpy(cipher_buffer, crypto_buffer, sizeof(&crypto_buffer));
+	#ifdef DEBUG
+	printf("Messsage size is %d\n", (body_length+attachments_length));
+	#endif /*DEBUG*/
+	memcpy(cipher_buffer, crypto_buffer, (body_length+attachments_length));
 	free(crypto_buffer);
 	return 1;
 }
