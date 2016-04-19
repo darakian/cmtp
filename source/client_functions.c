@@ -194,7 +194,11 @@ int32_t write_message(char * temp_file)
 int32_t build_header(char * recipient, uint32_t recipient_length, uint32_t version, uint32_t attachment_count, uint64_t log_length, char * return_buffer)
 {
 	#ifdef DEBUG
-	printf("Building message header destined for %s\n", recipient);
+	printf("Building message header destined for: \n", recipient);
+	for (int i =0; i<recipient_length; i++)
+	{
+		printf("%c/%x\n", recipient[i], recipient[i]);
+	}
 	printf("Variables are: recipient_length = %d, attachment_count = %d, log_length = %d\n", recipient_length, attachment_count, log_length);
 	#endif /*DEBUG*/
 	//Builds the CMTP message header
@@ -461,8 +465,8 @@ uint32_t menu_prompt()
 
 uint32_t create_recipient_string(char * user, char * domain, char * full)
 {
-	snprintf(full, strlen(user)+strlen(domain), "%s%d%s%d", user, '\0', domain, '\0');
-	return strlen(user)+strlen(domain);
+	snprintf(full, strlen(user)+strlen(domain)+2, "%s%d%s%d", user, '\0', domain, '\0');
+	return strlen(user)+strlen(domain)+2;
 }
 
 //Gets input from user. Removes trailing newline character.

@@ -144,7 +144,7 @@ int main(int argc, char *argv[])
       {
         //Build header
         //build_header(char * recipient, uint32_t recipient_length, uint32_t crypto_type, uint32_t attachment_count, char * return_buffer)
-        printf("Attempting to build header\n");
+        printf("Attempting to build header for %s\n", recipient_full);
         if ((header_buffer_length = build_header(recipient_full, recipient_length, 1, 0, 0, header_buffer))<0)
         {
           perror("build_header");
