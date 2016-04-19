@@ -193,6 +193,10 @@ int32_t write_message(char * temp_file)
 
 int32_t build_header(char * recipient, uint32_t recipient_length, uint32_t version, uint32_t attachment_count, uint64_t log_length, char * return_buffer)
 {
+	#ifdef DEBUG
+	printf("Building message header destined for %s\n", recipient);
+	printf("Variables are: recipient_length = %d, attachment_count = %d, log_length = %d\n", recipient_length, attachment_count, log_length);
+	#endif /*DEBUG*/
 	//Builds the CMTP message header
 	int32_t target = 0;
 	uint32_t net_version = htobe32(version);
