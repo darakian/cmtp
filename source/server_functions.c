@@ -77,7 +77,7 @@ int server_init(struct init_params * passback_params)
     char * working_user = "nobody";
     char * config_file = "/etc/cmtpd/cmtpd.conf";
     struct config_struct working_config;
-    network_crypto_version = htonl(crypto_version);
+    network_crypto_version = htobe32(crypto_version);
 
     if (getdomainname(home_domain, sizeof(home_domain))<0)
     {
@@ -186,9 +186,9 @@ int server_init(struct init_params * passback_params)
 
     //Configure server socket
     server_socket = socket(AF_INET, SOCK_STREAM, 0);
-    server_address.sin_port = htons(LISTEN_PORT);
+    server_address.sin_port = htobe16(LISTEN_PORT);
   	server_address.sin_family = AF_INET;
-  	server_address.sin_addr.s_addr = htonl(INADDR_ANY);
+  	server_address.sin_addr.s_addr = htobe32(INADDR_ANY);
     if (bind(server_socket,(struct sockaddr *)&server_address, sizeof(server_address)) < 0)
   	{
       print_to_log("Binding to local socket failed. Cannot continue", LOG_EMERG);
@@ -683,7 +683,7 @@ int32_t mail_responder(uint32_t socket)
     print_to_log("Read error while reading crypto type", LOG_ERR);
     return -1;
   }
-  version = ntohl(version);
+  version = be32toh(version);
   write_to_file((char *)&version, 4, unique_file_location);
   #ifdef DEBUG
   printf("Version = %d\n", version);
@@ -694,7 +694,7 @@ int32_t mail_responder(uint32_t socket)
     print_to_log("Read error while reading attachment count", LOG_ERR);
     return -1;
   }
-  attachment_count = ntohl(attachment_count);
+  attachment_count = be32toh(attachment_count);
   #ifdef DEBUG
   printf("Attachment count = %d\n", attachment_count);
   #endif /*DEBUG*/

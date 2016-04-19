@@ -195,8 +195,8 @@ int32_t build_header(char * recipient, uint32_t recipient_length, uint32_t versi
 {
 	//Builds the CMTP message header
 	int32_t target = 0;
-	uint32_t net_version = htonl(version);
-	uint32_t net_attachment_count = htonl(attachment_count);
+	uint32_t net_version = htobe32(version);
+	uint32_t net_attachment_count = htobe32(attachment_count);
 	uint64_t net_log_length = htobe64(log_length);
 	char * maximal_header[MAX_HEADER] = {0};
 	memcpy(maximal_header+target, &net_version, 4);
@@ -369,7 +369,7 @@ int32_t request_user_key(uint32_t socket, char * user, char * domain, unsigned c
 
 
 	//Verify and copy result to key_buffer
-	version = ntohl(*(uint32_t *)reception_buffer);
+	version = be32toh(*(uint32_t *)reception_buffer);
 	#ifdef DEBUG
 	printf("Key version = %d\n", version);
 	#endif /*DEBUG*/
