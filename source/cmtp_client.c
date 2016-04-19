@@ -152,7 +152,7 @@ int main(int argc, char *argv[])
         }
         printf("Header built!\n");
         printf("header length = %d\n", header_buffer_length);
-        printf("%s\n", header_buffer);
+        printf("%030x\n", header_buffer);
       }
       //Read file back in and get a char * to it
       struct stat temp_file_stats;
@@ -189,6 +189,9 @@ int main(int argc, char *argv[])
         print_to_log("Error building encrypred message", LOG_ERR);
       }
       //Send mail
+      #ifdef DEBUG
+      printf("Sending message with header size = %d, Message body size = %d\n", header_buffer_length, encrypted_file_buffer_length);
+      #endif /*DEBUG*/
       if(send_message(client_socket, header_buffer, header_buffer_length, encrypted_file_buffer, encrypted_file_buffer_length)<0)
       {
         perror("send_message");

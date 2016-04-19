@@ -12,6 +12,7 @@
 #include <syslog.h>
 #include <sys/wait.h>
 #include <ctype.h>
+#include <endian.h>
 
 //Include crypto
 #include <sodium.h>
@@ -191,12 +192,15 @@ int32_t build_header(char * recipient, uint32_t recipient_length, uint32_t versi
 {
 	//Builds the CMTP message header
 	int32_t target = 0;
+	uint32_t net_version = htonl(version);
+	uint32_t net_attachment_count = htonl(attachment_count);
+	uint64_t net_log_length = htobe64(log_length);
 	char * maximal_header[MAX_HEADER] = {0};
-	memcpy(maximal_header+target, &version, 4);
+	memcpy(maximal_header+target, &net_version, 4);
 	target += 4;
-	memcpy(maximal_header+target, &attachment_count, 4);
+	memcpy(maximal_header+target, &net_attachment_count, 4);
 	target += 4;
-	memcpy(maximal_header+target, &log_length, 8);
+	memcpy(maximal_header+target, &net_log_length, 8);
 	target += 8;
 	memcpy(maximal_header+target, recipient, recipient_length);
 	target += recipient_length;
