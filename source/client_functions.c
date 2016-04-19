@@ -234,7 +234,7 @@ int32_t build_message(unsigned char * body, long body_length, unsigned char * re
 	#endif /*DEBUG*/
 	memcpy(cipher_buffer, crypto_buffer, (body_length+attachments_length));
 	free(crypto_buffer);
-	return 1;
+	return (body_length+attachments_length);
 }
 
 int encrypt_all_attachmets(int * sizes, unsigned char * * attachments, int num_attachments)
