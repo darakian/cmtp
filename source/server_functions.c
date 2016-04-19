@@ -685,12 +685,19 @@ int32_t mail_responder(uint32_t socket)
   }
   version = ntohl(version);
   write_to_file((char *)&version, 4, unique_file_location);
+  #ifdef DEBUG
+  printf("Version = %d\n", version);
+  #endif /*DEBUG*/
   if (read_n_bytes(socket, (char *)&attachment_count, 4)!=4)
   {
     perror("read_n_bytes attachment_count");
     print_to_log("Read error while reading attachment count", LOG_ERR);
     return -1;
   }
+  attachment_count = ntohl(attachment_count);
+  #ifdef DEBUG
+  printf("Attachment count = %d\n", attachment_count);
+  #endif /*DEBUG*/
   write_to_file((char *)&attachment_count, 4, unique_file_location);
   if (read_n_bytes(socket, (char *)&log_length, 8)!=8)
   {
@@ -699,6 +706,9 @@ int32_t mail_responder(uint32_t socket)
     return -1;
   }
   log_length = be64toh(log_length);
+  #ifdef DEBUG
+  printf("Log length = %ld\n", log_length);
+  #endif /*DEBUG*/
   write_to_file((char *)&log_length, 8, unique_file_location);
   if (read_n_bytes(socket, (char *)&message_length, 8)!=8)
   {
@@ -707,6 +717,9 @@ int32_t mail_responder(uint32_t socket)
     return -1;
   }
   message_length = be64toh(message_length);
+  #ifdef DEBUG
+  printf("Message length = %ld\n", message_length);
+  #endif /*DEBUG*/
   write_to_file((char *)&message_length, 8, unique_file_location);
   //Read in account and domain info
   if ((dest_account_length=read_until(socket, dest_account_buffer, sizeof(dest_account_buffer), '\0'))<0)
@@ -716,6 +729,9 @@ int32_t mail_responder(uint32_t socket)
     return -1;
   }
   write_to_file(dest_account_buffer, dest_account_length, unique_file_location);
+  #ifdef DEBUG
+  printf("dest_account_length = %d\n", dest_account_length);
+  #endif /*DEBUG*/
   if ((dest_domain_length=read_until(socket, dest_domain_buffer, sizeof(dest_domain_buffer), '\0'))<0)
   {
     perror("read_until");
@@ -723,6 +739,9 @@ int32_t mail_responder(uint32_t socket)
     return -1;
   }
   write_to_file(dest_domain_buffer, dest_domain_length, unique_file_location);
+  #ifdef DEBUG
+  printf("dest_domain_length = %d\n", version);
+  #endif /*DEBUG*/
   if ((source_account_length=read_until(socket, source_account_buffer, sizeof(source_account_buffer), '\0'))<0)
   {
     perror("read_until");
@@ -730,6 +749,9 @@ int32_t mail_responder(uint32_t socket)
     return -1;
   }
   write_to_file(source_account_buffer, source_account_length, unique_file_location);
+  #ifdef DEBUG
+  printf("source_account_length = %d\n", version);
+  #endif /*DEBUG*/
   if ((source_domain_length=read_until(socket, source_domain_buffer, sizeof(source_domain_buffer), '\0'))<0)
   {
     perror("read_until");
@@ -737,6 +759,9 @@ int32_t mail_responder(uint32_t socket)
     return -1;
   }
   write_to_file(source_domain_buffer, source_domain_length, unique_file_location);
+  #ifdef DEBUG
+  printf("source_domain_length = %d\n", version);
+  #endif /*DEBUG*/
   //This completes the read of the header
 
 
