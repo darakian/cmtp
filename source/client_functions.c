@@ -143,19 +143,22 @@ int login(uint32_t socket, char * username, char * key_buffer)
 int32_t send_message(uint32_t socket, char * header_buffer, uint32_t header_buffer_length, char * message_buffer, uint32_t message_buffer_length)
 {
 	//Send MAIL\0 command
+	#ifdef DEBUG
+	printf("send_message called with header of size %d and message of size %d\n", header_buffer_length, message_buffer_length);
+	#endif /*DEBUG*/
 	if (write(socket, cmtp_command_MAIL, sizeof(cmtp_command_MAIL))<0)
 	{
 		perror("Write");
 		print_to_log("Sending mail command failed.", LOG_ERR);
 		return -1;
 	}
-	if (write(socket, header_buffer, sizeof(header_buffer_length))<0)
+	if (write(socket, header_buffer, header_buffer_length)<0)
 	{
 		perror("Write");
 		print_to_log("Sending message failed.", LOG_ERR);
 		return -1;
 	}
-	if (write(socket, message_buffer, sizeof(message_buffer_length))<0)
+	if (write(socket, message_buffer, message_buffer_length)<0)
 	{
 		perror("Write");
 		print_to_log("Sending message failed.", LOG_ERR);
