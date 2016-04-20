@@ -77,10 +77,10 @@ int32_t set_local_params(char * local_user, char * local_server)
 		print_to_log("Invalid call to set_local_params", LOG_ERR);
 		return -1;
 	}
-	memcpy(local_account, local_user, strlen(local_user)-1);
-	local_account_length = strlen(local_user)-1;
-	memcpy(local_domain, local_server, strlen(local_server)-1);
-	local_domain_length = strlen(local_server)-1;
+	memcpy(local_account, local_user, strlen(local_user));
+	local_account_length = strlen(local_user);
+	memcpy(local_domain, local_server, strlen(local_server));
+	local_domain_length = strlen(local_server);
 	print_to_log("Local user and domain set", LOG_INFO);
 	return 0;
 }
@@ -194,8 +194,8 @@ int32_t write_message(char * temp_file)
 int32_t build_header(char * recipient, uint32_t recipient_length, uint32_t version, uint32_t attachment_count, uint64_t log_length, char * return_buffer)
 {
 	#ifdef DEBUG
-	printf("Building message header destined for: \n", recipient);
-	for (int i =0; i<recipient_length; i++)
+	printf("Building message header destined for: \n");
+	for (uint32_t i =0; i<recipient_length; i++)
 	{
 		printf("%c / %x\n", recipient[i], recipient[i]);
 	}
@@ -214,31 +214,14 @@ int32_t build_header(char * recipient, uint32_t recipient_length, uint32_t versi
 	memcpy(maximal_header+target, &net_log_length, 8);
 	target += 8;
 	memcpy(maximal_header+target, recipient, recipient_length);
-	#ifdef DEBUG
-	printf("Complete buffer contents: \n", recipient);
-	for (int i =0; i<recipient_length; i++)
-	{
-		printf("recipient: %c / %x\n", recipient[i], recipient[i]);
-		printf("maximal_header: %c / %x\n", maximal_header[i], maximal_header[i]);
-	}
-	printf("target = %d\n", target);
-	#endif /*DEBUG*/
-	#ifdef DEBUG
-	printf("Complete buffer contents: \n", maximal_header);
-	for (int i =0; i<target; i++)
-	{
-		printf("%c / %x\n", maximal_header[i], maximal_header[i]);
-	}
-	printf("target = %d\n", target);
-	#endif /*DEBUG*/
 	target += recipient_length;
 	memcpy(maximal_header+target, local_account, local_account_length);
 	target += local_account_length;
 	memcpy(return_buffer, maximal_header, target);
 	//Return -1 if error
 	#ifdef DEBUG
-	printf("Complete buffer contents: \n", maximal_header);
-	for (int i =0; i<target; i++)
+	printf("Complete buffer contents: \n");
+	for (uint32_t i =0; i<target; i++)
 	{
 		printf("%c / %x\n", maximal_header[i], maximal_header[i]);
 	}
