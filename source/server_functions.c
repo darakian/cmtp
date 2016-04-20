@@ -674,6 +674,9 @@ int32_t mail_responder(uint32_t socket)
     print_to_log("snprintf failed to create a new file string. Cannot write message out",LOG_ERR);
     return -1;
   }
+  #ifdef DEBUG
+  printf("Writing mail to %s\n", unique_file_location);
+  #endif /*DEBUG*/
 
   //Read primary routing and processing information
   //First read in fixed length fields
