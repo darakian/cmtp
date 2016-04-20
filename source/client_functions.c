@@ -197,7 +197,7 @@ int32_t build_header(char * recipient, uint32_t recipient_length, uint32_t versi
 	printf("Building message header destined for: \n", recipient);
 	for (int i =0; i<recipient_length; i++)
 	{
-		printf("%c/%x\n", recipient[i], recipient[i]);
+		printf("%c / %x\n", recipient[i], recipient[i]);
 	}
 	printf("Variables are: recipient_length = %d, attachment_count = %d, log_length = %d\n", recipient_length, attachment_count, log_length);
 	#endif /*DEBUG*/
@@ -219,6 +219,14 @@ int32_t build_header(char * recipient, uint32_t recipient_length, uint32_t versi
 	target += local_account_length;
 	memcpy(return_buffer, maximal_header, target);
 	//Return -1 if error
+	#ifdef DEBUG
+	printf("Complete buffer contents: \n", maximal_header);
+	for (int i =0; i<target; i++)
+	{
+		printf("%c / %x\n", maximal_header[i], maximal_header[i]);
+	}
+	printf("target = %d\n", target);
+	#endif /*DEBUG*/
 	return target;
 }
 
