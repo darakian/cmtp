@@ -214,6 +214,23 @@ int32_t build_header(char * recipient, uint32_t recipient_length, uint32_t versi
 	memcpy(maximal_header+target, &net_log_length, 8);
 	target += 8;
 	memcpy(maximal_header+target, recipient, recipient_length);
+	#ifdef DEBUG
+	printf("Complete buffer contents: \n", recipient);
+	for (int i =0; i<recipient_length; i++)
+	{
+		printf("recipient: %c / %x\n", recipient[i], recipient[i]);
+		printf("maximal_header: %c / %x\n", maximal_header[i], maximal_header[i]);
+	}
+	printf("target = %d\n", target);
+	#endif /*DEBUG*/
+	#ifdef DEBUG
+	printf("Complete buffer contents: \n", maximal_header);
+	for (int i =0; i<target; i++)
+	{
+		printf("%c / %x\n", maximal_header[i], maximal_header[i]);
+	}
+	printf("target = %d\n", target);
+	#endif /*DEBUG*/
 	target += recipient_length;
 	memcpy(maximal_header+target, local_account, local_account_length);
 	target += local_account_length;
