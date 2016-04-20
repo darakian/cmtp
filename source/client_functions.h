@@ -17,7 +17,7 @@ int connect_remoteV4(uint32_t socket, struct sockaddr_in * remote_sockaddr);
 
 int login(uint32_t socket, char * username, char * key_buffer);
 
-int32_t send_message(uint32_t socket, char * header_buffer, uint32_t header_buffer_length, char * message_buffer, uint32_t message_buffer_length);
+int32_t send_message(uint32_t socket, char * header_buffer, uint32_t header_buffer_length, unsigned char * message_buffer, uint32_t message_buffer_length);
 
 int write_message(char * temp_file);
 

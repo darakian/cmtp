@@ -140,7 +140,7 @@ int login(uint32_t socket, char * username, char * key_buffer)
 	return 0;
 }
 
-int32_t send_message(uint32_t socket, char * header_buffer, uint32_t header_buffer_length, char * message_buffer, uint32_t message_buffer_length)
+int32_t send_message(uint32_t socket, char * header_buffer, uint32_t header_buffer_length, unsigned char * message_buffer, uint32_t message_buffer_length)
 {
 	//Send MAIL\0 command
 	#ifdef DEBUG
@@ -199,10 +199,10 @@ int32_t build_header(char * recipient, uint32_t recipient_length, uint32_t versi
 	{
 		printf("%c / %x\n", recipient[i], recipient[i]);
 	}
-	printf("Variables are: recipient_length = %d, attachment_count = %d, log_length = %d\n", recipient_length, attachment_count, log_length);
+	printf("Variables are: recipient_length = %d, attachment_count = %d, log_length = %ld\n", recipient_length, attachment_count, log_length);
 	#endif /*DEBUG*/
 	//Builds the CMTP message header
-	int32_t target = 0;
+	uint32_t target = 0;
 	uint32_t net_version = htobe32(version);
 	uint32_t net_attachment_count = htobe32(attachment_count);
 	uint64_t net_log_length = htobe64(log_length);
@@ -246,7 +246,7 @@ int32_t build_message(unsigned char * body, long body_length, unsigned char * re
 	memcpy(crypto_buffer+(body_length+crypto_box_SEALBYTES), attachments, attachments_length);
 	//Step 3: Return everything as cipher_buffer
 	#ifdef DEBUG
-	printf("Messsage size is %d\n", (body_length+attachments_length));
+	printf("Messsage size is %ld\n", (body_length+attachments_length));
 	#endif /*DEBUG*/
 	memcpy(cipher_buffer, crypto_buffer, (body_length+attachments_length));
 	free(crypto_buffer);

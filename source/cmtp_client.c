@@ -152,7 +152,6 @@ int main(int argc, char *argv[])
         }
         printf("Header built!\n");
         printf("header length = %d\n", header_buffer_length);
-        printf("%030x\n", header_buffer);
       }
       //Read file back in and get a char * to it
       struct stat temp_file_stats;
