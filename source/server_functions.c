@@ -719,11 +719,11 @@ int32_t mail_responder(uint32_t socket)
     print_to_log("Read error while reading message length", LOG_ERR);
     return -1;
   }
+  write_to_file((char *)&message_length, 8, unique_file_location);
+  message_length = be64toh(message_length);
   #ifdef DEBUG
   printf("Message length = %ld\n", message_length);
   #endif /*DEBUG*/
-  write_to_file((char *)&message_length, 8, unique_file_location);
-  message_length = be64toh(message_length);
   //Read in account and domain info
   if ((dest_account_length=read_until(socket, dest_account_buffer, sizeof(dest_account_buffer), '\0'))<0)
   {

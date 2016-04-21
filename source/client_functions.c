@@ -30,9 +30,9 @@ const char cmtp_command_LOGIN[] = {"LOGIN"};
 const char cmtp_command_OBAI[] = {"OBAI"};
 const char cmtp_command_KEYREQUEST[] = {"KEYREQUEST"};
 unsigned char server_public_key[crypto_sign_ed25519_PUBLICKEYBYTES] = {0};
-static char local_account[255] = {0};
+static char local_account[256] = {0};
 static uint32_t local_account_length = 0;
-static char local_domain[255] = {0};
+static char local_domain[256] = {0};
 static uint32_t local_domain_length = 0;
 const char termination_char = '\0';
 
@@ -71,16 +71,16 @@ int client_init()
 
 int32_t set_local_params(char * local_user, char * local_server)
 {
-	if ((strlen(local_user)<=0)||(strlen(local_server)<=0))
+	if ((strlen(local_user)<=0)||(strlen(local_server)<=0)||(strlen(local_user)>255)||(strlen(local_server)>255))
 	{
 		perror("strlen");
 		print_to_log("Invalid call to set_local_params", LOG_ERR);
 		return -1;
 	}
 	memcpy(local_account, local_user, strlen(local_user));
-	local_account_length = strlen(local_user);
+	local_account_length = strlen(local_user)+1;
 	memcpy(local_domain, local_server, strlen(local_server));
-	local_domain_length = strlen(local_server);
+	local_domain_length = strlen(local_server)+1;
 	print_to_log("Local user and domain set", LOG_INFO);
 	return 0;
 }
