@@ -447,6 +447,7 @@ int32_t read_until(uint32_t socket, char * reception_buffer, uint32_t reception_
       perror("read_until");
       print_to_log("Error reading in read_until", LOG_ERR);
     }
+    received+=count;
 		if (reception_buffer[received]==terminator)
 		  {
         return received+1;
