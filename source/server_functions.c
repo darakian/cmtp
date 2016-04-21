@@ -597,26 +597,23 @@ int32_t login_responder(uint32_t socket)
 {
   char login_username_buffer[ROUTING_FIELD_SIZE] = {0};
   char login_command_buffer[THREAD_COMMAND_BUFFER_SIZE] = {0};
-  char base64_username[341] = {0};
-  char priv_key_path[359] = {0};
+  char xzibit_path_buffer[359] = {0};
   uint32_t i = 0;
 
   write(socket, cmtp_login, sizeof(cmtp_login));
-  //This do loop should not need a command buffer. Wtf was I thinking?
   do {
     read(socket, login_username_buffer+i, 1);
     i++;
   } while((i<sizeof(login_command_buffer))&&(login_command_buffer[i-1]!=termination_char));
-  uint32_t base64_username_length = base64_encode((char *)login_username_buffer, strlen(login_username_buffer), base64_username, strlen(base64_username), (char *)filesystem_safe_base64_string, 64);
-  if (snprintf(priv_key_path, sizeof(priv_key_path), "%s%s%s", "/mail/", base64_username, "/private.key")<0)
+  if (snprintf(xzibit_path_buffer, sizeof(xzibit_path_buffer), "%s%s%s", "/mail/", login_username_buffer, "/private.key")<0)
   {
     perror("snprintf");
     print_to_log("snprintf error. Cannot check for user public key", LOG_ERR);
   }
 
-  if (access(priv_key_path,R_OK)<0)
+  if (access(xzibit_path_buffer,R_OK)<0)
   {
-    perror("access to private key");
+    perror("access to user xzibit");
     print_to_log("Cannot access user private key. User not registerd", LOG_ERR);
   }
   else

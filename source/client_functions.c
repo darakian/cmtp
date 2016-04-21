@@ -118,7 +118,7 @@ int connect_remoteV6()
 	return 0;
 }
 
-int login(uint32_t socket, char * username, char * key_buffer)
+int login(uint32_t socket, char * username, char * xzibit_buffer)
 {
 	char login_buffer[6+255] = {0};
 	char reception_buffer[4+32+1+16+1] = {0};
