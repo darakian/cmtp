@@ -197,6 +197,7 @@ int main(int argc, char *argv[])
       print_to_log("User has sent a message", LOG_INFO);
       break;
       case 5 : //Exit case
+      this_is_the_end(client_socket);
       print_to_log("User has terminated Shorebird. Exiting", LOG_INFO);
       exit(0);
       break;

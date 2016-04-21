@@ -241,22 +241,29 @@ int32_t build_message(unsigned char * body, long body_length, unsigned char * re
 	#ifdef DEBUG
 	printf("Building message with body_length = %ld and attachments_length = %ld\n", body_length, attachments_length);
 	#endif /*DEBUG*/
-	char * crypto_buffer = calloc(1, body_length + attachments_length);
-	unsigned char ciphered_body[crypto_box_SEALBYTES + body_length];
+	uint64_t cipher_text_length = body_length+crypto_box_SEALBYTES;
+	char * crypto_buffer = calloc(1, cipher_text_length + attachments_length);
+	unsigned char ciphered_body[cipher_text_length];
+	memset(ciphered_body, 0, cipher_text_length);
+	printf("Here 1\n");
 	//memset ciphered_body to zero here
 	char * body_buffer = calloc(1, body_length);
-	crypto_box_seal(ciphered_body, body, body_length, recipient_key);
+	crypto_box_seal(ciphered_body, body, cipher_text_length, recipient_key);
+	printf("Here 2\n");
 	//Step 2: copy encrypted contents to the buffer working
-	memcpy(crypto_buffer, ciphered_body, body_length);
+	memcpy(crypto_buffer, ciphered_body, cipher_text_length);
+	printf("Here 3\n");
 	memset(body_buffer, 0, body_length);
-	memcpy(crypto_buffer+(body_length+crypto_box_SEALBYTES), attachments, attachments_length);
+	printf("Here 3.5\n");
+	memcpy(crypto_buffer+(cipher_text_length), attachments, attachments_length);
+	printf("Here 4\n");
 	//Step 3: Return everything as cipher_buffer
 	#ifdef DEBUG
 	printf("Messsage size is %ld\n", (body_length+attachments_length));
 	#endif /*DEBUG*/
 	memcpy(cipher_buffer, crypto_buffer, (body_length+attachments_length));
 	free(crypto_buffer);
-	return (body_length+attachments_length);
+	return (cipher_text_length+attachments_length);
 }
 
 int encrypt_all_attachmets(int * sizes, unsigned char * * attachments, int num_attachments)
@@ -543,4 +550,9 @@ int32_t clear_socket(uint32_t socket)
 	printf("Clearing socket\n");
 	#endif /*DEBUG*/
 	return 0;
+}
+
+int32_t this_is_the_end(uint32_t my_only_friend) //Input should be a socket
+{
+	write(my_only_friend, cmtp_command_OBAI, sizeof(cmtp_command_OBAI));
 }
