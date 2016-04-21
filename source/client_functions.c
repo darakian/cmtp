@@ -245,18 +245,11 @@ int32_t build_message(unsigned char * body, long body_length, unsigned char * re
 	char * crypto_buffer = calloc(1, cipher_text_length + attachments_length);
 	unsigned char ciphered_body[cipher_text_length];
 	memset(ciphered_body, 0, cipher_text_length);
-	printf("Here 1\n");
 	//memset ciphered_body to zero here
-	char * body_buffer = calloc(1, body_length);
-	crypto_box_seal(ciphered_body, body, cipher_text_length, recipient_key);
-	printf("Here 2\n");
+	crypto_box_seal(ciphered_body, body, body_length, recipient_key);
 	//Step 2: copy encrypted contents to the buffer working
 	memcpy(crypto_buffer, ciphered_body, cipher_text_length);
-	printf("Here 3\n");
-	memset(body_buffer, 0, body_length);
-	printf("Here 3.5\n");
-	memcpy(crypto_buffer+(cipher_text_length), attachments, attachments_length);
-	printf("Here 4\n");
+	memcpy(crypto_buffer+cipher_text_length, attachments, attachments_length);
 	//Step 3: Return everything as cipher_buffer
 	#ifdef DEBUG
 	printf("Messsage size is %ld\n", (body_length+attachments_length));
@@ -554,5 +547,11 @@ int32_t clear_socket(uint32_t socket)
 
 int32_t this_is_the_end(uint32_t my_only_friend) //Input should be a socket
 {
-	write(my_only_friend, cmtp_command_OBAI, sizeof(cmtp_command_OBAI));
+	if (write(my_only_friend, cmtp_command_OBAI, sizeof(cmtp_command_OBAI))<0)
+	{
+		perror("write");
+		print_to_log("failed to write cmtp_command_OBAI.", LOG_ERR);
+		return -1;
+	}
+	return 0;
 }
