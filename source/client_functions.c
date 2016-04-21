@@ -206,13 +206,14 @@ int32_t build_header(char * recipient, uint32_t recipient_length, uint32_t versi
 	uint32_t net_version = htobe32(version);
 	uint32_t net_attachment_count = htobe32(attachment_count);
 	uint64_t net_log_length = htobe64(log_length);
-	char * maximal_header[MAX_HEADER] = {0};
+	char maximal_header[MAX_HEADER] = {0};
 	memcpy(maximal_header+target, &net_version, 4);
 	target += 4;
 	memcpy(maximal_header+target, &net_attachment_count, 4);
 	target += 4;
 	memcpy(maximal_header+target, &net_log_length, 8);
 	target += 8;
+	//Add message length here
 	memcpy(maximal_header+target, recipient, recipient_length);
 	target += recipient_length;
 	memcpy(maximal_header+target, local_account, local_account_length);
@@ -238,6 +239,7 @@ int32_t build_message(unsigned char * body, long body_length, unsigned char * re
 	#endif /*DEBUG*/
 	char * crypto_buffer = calloc(1, body_length + attachments_length);
 	unsigned char cipherd_body[crypto_box_SEALBYTES + body_length];
+	//memset cipherd_body to zero here
 	char * body_buffer = calloc(1, body_length);
 	crypto_box_seal(cipherd_body, body, body_length, recipient_key);
 	//Step 2: copy encrypted contents to the buffer working

@@ -686,7 +686,6 @@ int32_t mail_responder(uint32_t socket)
     print_to_log("Read error while reading crypto type", LOG_ERR);
     return -1;
   }
-  version = be32toh(version);
   write_to_file((char *)&version, 4, unique_file_location);
   #ifdef DEBUG
   printf("Version = %d\n", version);
@@ -697,7 +696,6 @@ int32_t mail_responder(uint32_t socket)
     print_to_log("Read error while reading attachment count", LOG_ERR);
     return -1;
   }
-  attachment_count = be32toh(attachment_count);
   #ifdef DEBUG
   printf("Attachment count = %d\n", attachment_count);
   #endif /*DEBUG*/
@@ -708,7 +706,6 @@ int32_t mail_responder(uint32_t socket)
     print_to_log("Read error while reading message length", LOG_ERR);
     return -1;
   }
-  log_length = be64toh(log_length);
   #ifdef DEBUG
   printf("Log length = %ld\n", log_length);
   #endif /*DEBUG*/
@@ -719,7 +716,6 @@ int32_t mail_responder(uint32_t socket)
     print_to_log("Read error while reading message length", LOG_ERR);
     return -1;
   }
-  message_length = be64toh(message_length);
   #ifdef DEBUG
   printf("Message length = %ld\n", message_length);
   #endif /*DEBUG*/
