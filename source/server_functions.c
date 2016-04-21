@@ -605,12 +605,14 @@ int32_t login_responder(uint32_t socket)
     read(socket, login_username_buffer+i, 1);
     i++;
   } while((i<sizeof(login_command_buffer))&&(login_command_buffer[i-1]!=termination_char));
-  if (snprintf(xzibit_path_buffer, sizeof(xzibit_path_buffer), "%s%s%s", "/mail/", login_username_buffer, "/private.key")<0)
+  if (snprintf(xzibit_path_buffer, sizeof(xzibit_path_buffer), "%s%s%s%s%s", "/mail/", login_username_buffer, "/", login_username_buffer , ".xzibit")<0)
   {
     perror("snprintf");
     print_to_log("snprintf error. Cannot check for user public key", LOG_ERR);
   }
-
+  #ifdef DEBUG
+  printf("Checking for user xzibit at %s\n", xzibit_path_buffer);
+  #endif /*DEBUG*/
   if (access(xzibit_path_buffer,R_OK)<0)
   {
     perror("access to user xzibit");
@@ -618,7 +620,7 @@ int32_t login_responder(uint32_t socket)
   }
   else
   {
-    //read private key and send along with item to be signed.
+    //Need to define LOGIN behaviour in docs befor coding this
   }
   return 0;
 }
