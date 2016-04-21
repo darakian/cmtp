@@ -18,7 +18,7 @@
 %\end{abstract}
 
 \section{High level overview}
-At the high level a Cipher Mail Message is broken into two classes. Envelope Data and Message Data. Envelope data is the plaintext used for routing a message and determining how to read it. Message data is the encrypted payload. Envelope information includes the sender and receiver, the version number, the log length and log body, the attachment count and attachment lengths, and the message length. All data is in network order on the wire. That is Big Endian.
+At the high level a Cipher Mail Message is broken into two classes. Envelope Data and Message Data. Envelope data is the plaintext used for routing a message and determining how to read it. Message data is the encrypted payload. Envelope information includes the sender and receiver, the version number, the log length and log body, the attachment count and attachment lengths, and the message length. All data is in network order on the wire. That is Big Endian. It is not strictly required that CMTP messages be stored on disk in Big Endian format, but it is highly advised. All reference code preserves the network data structure on disk.
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.5\linewidth]{message_format.eps}
