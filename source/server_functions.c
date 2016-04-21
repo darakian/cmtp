@@ -811,6 +811,9 @@ int32_t mail_responder(uint32_t socket)
     }
     write_to_file(temp_byte, 1, unique_file_location);
   }
+  #ifdef DEBUG
+  printf("Mail destin for %s\n", dest_domain_buffer);
+  #endif /*DEBUG*/
 
   //Destination cases
    if ((memcmp(dest_domain_buffer, home_domain, dest_domain_length)==0)&&(memcmp(dest_account_buffer,"",1))==0)
