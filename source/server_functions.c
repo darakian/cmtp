@@ -687,6 +687,7 @@ int32_t mail_responder(uint32_t socket)
     return -1;
   }
   write_to_file((char *)&version, 4, unique_file_location);
+  version = be32toh(version);
   #ifdef DEBUG
   printf("Version = %d\n", version);
   #endif /*DEBUG*/
@@ -700,6 +701,7 @@ int32_t mail_responder(uint32_t socket)
   printf("Attachment count = %d\n", attachment_count);
   #endif /*DEBUG*/
   write_to_file((char *)&attachment_count, 4, unique_file_location);
+  attachment_count = be32toh(attachment_count);
   if (read_n_bytes(socket, (char *)&log_length, 8)!=8)
   {
     perror("read_n_bytes log_length");
@@ -710,6 +712,7 @@ int32_t mail_responder(uint32_t socket)
   printf("Log length = %ld\n", log_length);
   #endif /*DEBUG*/
   write_to_file((char *)&log_length, 8, unique_file_location);
+  log_length = be64toh(log_length);
   if (read_n_bytes(socket, (char *)&message_length, 8)!=8)
   {
     perror("read_n_bytes message_length");
@@ -720,6 +723,7 @@ int32_t mail_responder(uint32_t socket)
   printf("Message length = %ld\n", message_length);
   #endif /*DEBUG*/
   write_to_file((char *)&message_length, 8, unique_file_location);
+  message_length = be64toh(message_length);
   //Read in account and domain info
   if ((dest_account_length=read_until(socket, dest_account_buffer, sizeof(dest_account_buffer), '\0'))<0)
   {
