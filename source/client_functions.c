@@ -220,6 +220,8 @@ int32_t build_header(char * recipient, uint32_t recipient_length, uint32_t versi
 	target += recipient_length;
 	memcpy(maximal_header+target, local_account, local_account_length);
 	target += local_account_length;
+	memcpy(maximal_header+target, local_domain, local_domain_length);
+	target += local_domain_length;
 	memcpy(return_buffer, maximal_header, target);
 	//Return -1 if error
 	#ifdef DEBUG
