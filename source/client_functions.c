@@ -252,10 +252,11 @@ int32_t build_message(unsigned char * body, long body_length, unsigned char * re
 	memcpy(crypto_buffer+cipher_text_length, attachments, attachments_length);
 	//Step 3: Return everything as cipher_buffer
 	#ifdef DEBUG
-	printf("Messsage size is %ld\n", (body_length+attachments_length));
+	printf("Messsage size is %ld\n", (cipher_text_length+attachments_length));
 	#endif /*DEBUG*/
-	memcpy(cipher_buffer, crypto_buffer, (body_length+attachments_length));
+	memcpy(cipher_buffer, crypto_buffer, (cipher_text_length+attachments_length));
 	free(crypto_buffer);
+	print_buffer(cipher_buffer, cipher_text_length, NULL, sizeof(cipher_buffer), 1);
 	return (cipher_text_length+attachments_length);
 }
 
