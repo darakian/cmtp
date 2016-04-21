@@ -191,7 +191,7 @@ int32_t write_message(char * temp_file)
 	return -1;
 }
 
-int32_t build_header(char * recipient, uint32_t recipient_length, uint32_t version, uint32_t attachment_count, uint64_t log_length, char * return_buffer)
+int32_t build_header(char * recipient, uint32_t recipient_length, uint32_t version, uint32_t attachment_count, uint64_t log_length, uint64_t message_length, char * return_buffer)
 {
 	#ifdef DEBUG
 	printf("Building message header destined for: \n");
@@ -206,6 +206,7 @@ int32_t build_header(char * recipient, uint32_t recipient_length, uint32_t versi
 	uint32_t net_version = htobe32(version);
 	uint32_t net_attachment_count = htobe32(attachment_count);
 	uint64_t net_log_length = htobe64(log_length);
+	uint64_t net_message_length = htobe64(message_length);
 	char maximal_header[MAX_HEADER] = {0};
 	memcpy(maximal_header+target, &net_version, 4);
 	target += 4;
@@ -213,7 +214,8 @@ int32_t build_header(char * recipient, uint32_t recipient_length, uint32_t versi
 	target += 4;
 	memcpy(maximal_header+target, &net_log_length, 8);
 	target += 8;
-	//Add message length here
+	memcpy(maximal_header+target, &net_message_length, 8);
+	target+=8;
 	memcpy(maximal_header+target, recipient, recipient_length);
 	target += recipient_length;
 	memcpy(maximal_header+target, local_account, local_account_length);

@@ -140,19 +140,6 @@ int main(int argc, char *argv[])
         printf("Please fill in a recipient and write a message");
         break;
       }
-      else
-      {
-        //Build header
-        //build_header(char * recipient, uint32_t recipient_length, uint32_t crypto_type, uint32_t attachment_count, char * return_buffer)
-        printf("Attempting to build header for %s\n", recipient_full);
-        if ((header_buffer_length = build_header(recipient_full, recipient_length, 1, 0, 0, header_buffer))<0)
-        {
-          perror("build_header");
-          print_to_log("Failed to build message header", LOG_ERR);
-        }
-        printf("Header built!\n");
-        printf("header length = %d\n", header_buffer_length);
-      }
       //Read file back in and get a char * to it
       struct stat temp_file_stats;
       stat(temp_file, &temp_file_stats);
@@ -187,6 +174,16 @@ int main(int argc, char *argv[])
         perror("build_message");
         print_to_log("Error building encrypred message", LOG_ERR);
       }
+      //Build header
+      //build_header(char * recipient, uint32_t recipient_length, uint32_t crypto_type, uint32_t attachment_count, char * return_buffer)
+      printf("Attempting to build header for %s\n", recipient_full);
+      if ((header_buffer_length = build_header(recipient_full, recipient_length, 1, 0, 0, encrypted_file_buffer_length, header_buffer))<0)
+      {
+        perror("build_header");
+        print_to_log("Failed to build message header", LOG_ERR);
+      }
+      printf("Header built!\n");
+      printf("header length = %d\n", header_buffer_length);
       //Send mail
       #ifdef DEBUG
       printf("Sending message with header size = %d, Message body size = %d\n", header_buffer_length, encrypted_file_buffer_length);
