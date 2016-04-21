@@ -242,12 +242,12 @@ int32_t build_message(unsigned char * body, long body_length, unsigned char * re
 	printf("Building message with body_length = %ld and attachments_length = %ld\n", body_length, attachments_length);
 	#endif /*DEBUG*/
 	char * crypto_buffer = calloc(1, body_length + attachments_length);
-	unsigned char cipherd_body[crypto_box_SEALBYTES + body_length];
-	//memset cipherd_body to zero here
+	unsigned char ciphered_body[crypto_box_SEALBYTES + body_length];
+	//memset ciphered_body to zero here
 	char * body_buffer = calloc(1, body_length);
-	crypto_box_seal(cipherd_body, body, body_length, recipient_key);
+	crypto_box_seal(ciphered_body, body, body_length, recipient_key);
 	//Step 2: copy encrypted contents to the buffer working
-	memcpy(crypto_buffer, cipherd_body, body_length);
+	memcpy(crypto_buffer, ciphered_body, body_length);
 	memset(body_buffer, 0, body_length);
 	memcpy(crypto_buffer+(body_length+crypto_box_SEALBYTES), attachments, attachments_length);
 	//Step 3: Return everything as cipher_buffer

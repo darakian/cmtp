@@ -146,7 +146,7 @@ int main(int argc, char *argv[])
       uint32_t temp_file_size = temp_file_stats.st_size;
       int32_t encrypted_file_buffer_length = 0;
       unsigned char * temp_file_buffer = calloc(1, temp_file_size);
-      unsigned char * encrypted_file_buffer = calloc(1, temp_file_size);
+      unsigned char * encrypted_file_buffer = calloc(1, temp_file_size+crypto_box_SEALBYTES);
       int32_t temp_file_descriptor = 0;
       temp_file_descriptor = open(temp_file, O_RDONLY);
       #ifdef DEBUG
