@@ -90,6 +90,10 @@ int server_init(struct init_params * passback_params)
       print_to_log("Domain name null", LOG_EMERG);
       exit(1);
     }
+    #ifdef DEBUG
+    //Setting home_domain to hawaii.edu for testing purposes
+    memcpy(home_domain, "hawaii.edu", 11);
+    #endif /*DEBUG*/
 
     //Config file
     if (parse_config(config_file, &working_config)<0)
@@ -743,7 +747,7 @@ int32_t mail_responder(uint32_t socket)
   }
   write_to_file(dest_domain_buffer, dest_domain_length, unique_file_location);
   #ifdef DEBUG
-  printf("dest_domain_length = %d\n", version);
+  printf("dest_domain_length = %d\n", dest_domain_length);
   #endif /*DEBUG*/
   if ((source_account_length=read_until(socket, source_account_buffer, sizeof(source_account_buffer), '\0'))<0)
   {
@@ -753,7 +757,7 @@ int32_t mail_responder(uint32_t socket)
   }
   write_to_file(source_account_buffer, source_account_length, unique_file_location);
   #ifdef DEBUG
-  printf("source_account_length = %d\n", version);
+  printf("source_account_length = %d\n", source_account_length);
   #endif /*DEBUG*/
   if ((source_domain_length=read_until(socket, source_domain_buffer, sizeof(source_domain_buffer), '\0'))<0)
   {
@@ -763,7 +767,7 @@ int32_t mail_responder(uint32_t socket)
   }
   write_to_file(source_domain_buffer, source_domain_length, unique_file_location);
   #ifdef DEBUG
-  printf("source_domain_length = %d\n", version);
+  printf("source_domain_length = %d\n", source_domain_length);
   #endif /*DEBUG*/
   //This completes the read of the header
 
@@ -813,6 +817,7 @@ int32_t mail_responder(uint32_t socket)
   }
   #ifdef DEBUG
   printf("Mail destin for %s\n", dest_domain_buffer);
+  printf("Server domain is %s\n", home_domain);
   #endif /*DEBUG*/
 
   //Destination cases
@@ -842,7 +847,7 @@ int32_t mail_responder(uint32_t socket)
      //Destination is on the web. Forward message.
    }
    #ifdef DEBUG
-   printf("Mail section complete.\n");
+   printf("Mail section complete. Returning to mail loop.\n");
    #endif /*DEBUG*/
    return 0;
 }
