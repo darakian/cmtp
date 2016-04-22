@@ -53,8 +53,20 @@ In this way delays and 'no key' messages can be passed back to the client. Curre
 \subsection{NOOP}
 The NOOP command exists because SMTP has a NOOP command. This may be removed if a better reason for existence cannot be found.
 \subsection{LOGIN <USER>}
-The LOGIN command takes one parameter and returns an encrypted copy of the users private key along with a clear text message which the server expects the user to sign and return. The private key is encrypted with a symmetric cipher and so signing the clear text message is sufficient to verify a user login. The message can be randomly generated on each login attempt to prevent replay attacks. Version one defines the reply as \newline
-[Version][EncipheredPrivateKey][ServerSigofKey]
+The LOGIN command takes one parameter and returns an encrypted copy of the users xzibit along with a clear text message which the server expects the user to sign and return. The cleartext reply allows the server to authenticate a user should that be desired. The xzibit itself is encrypted with a symmetric cipher and so signing the clear text message is sufficient to verify a user login as it implies the user can decrypt the xzibit and use the private key inside. The message can be randomly generated on each login attempt to prevent replay attacks. Version one defines the reply as 
+\newline
+[Version][XzibitLength][Xzibit][ServerSigofXzibit][ServerMessageLength][ServerMessage][ServerSigofServerMessage]
+\newline
+Field lengths are as follows.
+\begin{itemize}
+  \item Version: 4 bytes
+  \item XzibitLength: 4 bytes
+  \item Xzibit: Length defined by XzibitLength. XzibitLength*(1 byte).
+  \item ServerSigofXzibit: Defined by crypto version. In version 1 signatures are 64 bytes long.
+  \item ServerMessageLength: 4 bytes
+  \item ServerMessage: Length defined by ServerMessageLength. ServerMessageLength*(1 byte).
+  \item ServerSigofServerMessage: Defined by crypto version. In version 1 signatures are 64 bytes long.
+\end{itemize}
 \subsection{OBAI}
 The OBAI command is in place to terminate a connection. Connections may terminate for other reasons (time outs, tcp connection breaking, etc...), but OBAI allows for a graceful exit. 
 
