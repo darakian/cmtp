@@ -458,9 +458,8 @@ int32_t read_until(uint32_t socket, char * reception_buffer, uint32_t reception_
 }
 
 //Gets input from user. Removes trailing newline character.
-uint32_t prompt_input_string(char * descriptor, char * storage)
+uint32_t prompt_input_string(char * welcome, char * descriptor, char * storage)
 {
-	char * welcome = "Please type in ";
 	char input[256] = {0};
 	printf("%s%s\n", welcome, descriptor);
 	if (fgets(input, sizeof(input), stdin)==NULL)

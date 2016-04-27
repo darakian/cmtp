@@ -484,8 +484,6 @@ uint32_t create_recipient_string(char * user, char * domain, char * full)
 	return strlen(user)+strlen(domain)+2;
 }
 
-
-
 int32_t interperate_server_response(uint32_t socket)
 {
 	char server_response[255] = {0};
