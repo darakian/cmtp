@@ -484,20 +484,7 @@ uint32_t create_recipient_string(char * user, char * domain, char * full)
 	return strlen(user)+strlen(domain)+2;
 }
 
-//Gets input from user. Removes trailing newline character.
-uint32_t prompt_input_string(char * descriptor, char * storage)
-{
-	char * welcome = "Please type in ";
-	char input[256] = {0};
-	printf("%s%s\n", welcome, descriptor);
-	if (fgets(input, sizeof(input), stdin)==NULL)
-  {
-    perror("fgets");
-  }
-	fseek(stdin,0,SEEK_END);
-	memcpy(storage, input, strlen(input)-1);
-	return sizeof(storage);
-}
+
 
 int32_t interperate_server_response(uint32_t socket)
 {

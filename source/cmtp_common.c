@@ -456,3 +456,18 @@ int32_t read_until(uint32_t socket, char * reception_buffer, uint32_t reception_
     memset(reception_buffer, 0, reception_buffer_size);
     return -1;
 }
+
+//Gets input from user. Removes trailing newline character.
+uint32_t prompt_input_string(char * descriptor, char * storage)
+{
+	char * welcome = "Please type in ";
+	char input[256] = {0};
+	printf("%s%s\n", welcome, descriptor);
+	if (fgets(input, sizeof(input), stdin)==NULL)
+  {
+    perror("fgets");
+  }
+	fseek(stdin,0,SEEK_END);
+	memcpy(storage, input, strlen(input)-1);
+	return sizeof(storage);
+}

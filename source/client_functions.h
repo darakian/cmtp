@@ -23,8 +23,6 @@ int write_message(char * temp_file);
 
 int32_t set_local_params(char * local_user, char * local_domain);
 
-uint32_t prompt_input_string(char * descriptor, char * storage);
-
 uint32_t create_recipient_string(char * user, char * domain, char * full);
 
 int32_t build_header(char * recipient, uint32_t recipient_length, uint32_t version, uint32_t attachment_count, uint64_t log_length, uint64_t message_length, char * return_buffer);
