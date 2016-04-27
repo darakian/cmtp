@@ -458,8 +458,12 @@ int32_t read_until(uint32_t socket, char * reception_buffer, uint32_t reception_
 }
 
 //Gets input from user. Removes trailing newline character.
-uint32_t prompt_input_string(char * welcome, char * descriptor, char * storage)
+uint32_t prompt_input_string(char * welcome, char * descriptor, char * storage, uint32_t storage_length)
 {
+  if (storage_length>256)
+  {
+    return -1;
+  }
 	char input[256] = {0};
 	printf("%s%s\n", welcome, descriptor);
 	if (fgets(input, sizeof(input), stdin)==NULL)
@@ -467,6 +471,11 @@ uint32_t prompt_input_string(char * welcome, char * descriptor, char * storage)
     perror("fgets");
   }
 	fseek(stdin,0,SEEK_END);
-	memcpy(storage, input, strlen(input)-1);
-	return sizeof(storage);
+  if (strlen(input-1)<=storage_length)
+  {
+    memcpy(storage, input, strlen(input)-1);
+  	return sizeof(storage);
+  }
+  memset(input, 0, 256);
+  return -1;
 }

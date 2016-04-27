@@ -116,8 +116,8 @@ int main(int argc, char *argv[])
     {
       case 1 :
       print_to_log("User setting recipient", LOG_INFO);
-      prompt_input_string("Please type in ", "recipient user", recipient_user);
-      prompt_input_string("Please type in ", "recipient domain", recipient_domain);
+      prompt_input_string("Please type in ", "recipient user", recipient_user, sizeof(recipient_user));
+      prompt_input_string("Please type in ", "recipient domain", recipient_domain, sizeof(recipient_domain));
       recipient_length = create_recipient_string(recipient_user, recipient_domain, recipient_full);
       request_user_key(client_socket, recipient_user, recipient_domain, recipient_key_buffer);
       printf("Ending recipient setting\n");

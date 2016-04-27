@@ -30,6 +30,6 @@ int32_t read_n_bytes(uint32_t socket, char * reception_buffer, uint64_t n);
 
 int32_t read_until(uint32_t socket, char * reception_buffer, uint32_t reception_buffer_size, char terminator);
 
-uint32_t prompt_input_string(char * welcome, char * descriptor, char * storage);
+uint32_t prompt_input_string(char * welcome, char * descriptor, char * storage, uint32_t storage_length);
 
 #endif /* _cmtp_common_h */
