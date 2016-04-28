@@ -463,19 +463,18 @@ int32_t keyrequest_responder(uint32_t socket)
   //Read in username
   do {
     read(socket, user_keyrequest_buffer+i, 1);
-    //printf("user_keyrequest_buffer[%d] = %c/%x\n",i,user_keyrequest_buffer[i], user_keyrequest_buffer[i]);
+    if (user_keyrequest_buffer[i]==-1)
+    {
+      #ifdef DEBUG
+      printf("Negative return value in main read loop. Killing everything!\n");
+      return 0;
+      #endif /*DEBUG*/
+    }
     i++;
   } while((i<sizeof(user_keyrequest_buffer))&&(user_keyrequest_buffer[i-1]!='\0'));
   if (memcmp(user_keyrequest_buffer, &termination_char, 1)==0)
   {
     crypto_sign_detached(signature_of_public_key, NULL, server_public_key, sizeof(server_public_key), server_private_key);
-    #ifdef DEBUG
-    //print_buffer (server_private_key, 64, "server private key: ", 64, 1);
-    //print_buffer (server_public_key, 32, "server public key: ", 32, 1);
-    //print_buffer (signature_of_public_key, 64, "server public key signature: ", 64, 1);
-    crypto_sign_verify_detached(signature_of_public_key, server_public_key, crypto_sign_ed25519_PUBLICKEYBYTES, server_public_key);
-    #endif /*DEBUG*/
-
     //Wants server key. Reply and return.
     //Create single buffer
     memcpy(write_buffer, &network_crypto_version, sizeof(network_crypto_version));
