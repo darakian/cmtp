@@ -600,10 +600,11 @@ int32_t login_responder(uint32_t socket)
   uint32_t i = 0;
 
   write(socket, cmtp_login, sizeof(cmtp_login));
-  do {
-    read(socket, login_username_buffer+i, 1);
-    i++;
-  } while((i<sizeof(login_command_buffer))&&(login_command_buffer[i-1]!=termination_char));
+  read_until(socket, login_username_buffer, sizeof(login_username_buffer), termination_char);
+  // do {
+  //   read(socket, login_username_buffer+i, 1);
+  //   i++;
+  // } while((i<sizeof(login_command_buffer))&&(login_command_buffer[i-1]!=termination_char));
   if (snprintf(xzibit_path_buffer, sizeof(xzibit_path_buffer), "%s%s%s%s%s", "/mail/", login_username_buffer, "/", login_username_buffer , ".xzibit")<0)
   {
     perror("snprintf");
@@ -619,7 +620,18 @@ int32_t login_responder(uint32_t socket)
   }
   else
   {
-    //Need to define LOGIN behaviour in docs befor coding this
+    int xzibit_fd = open(xzibit_path_buffer, O_RDONLY);
+    char temp_char = '\0';
+    while(read(xzibit_fd, temp_char, 1)>0)
+    {
+      if (write(socket, temp_char, 1)<0)
+      {
+        perror("write");
+        print_to_log("Error sending the Xzibit", LOG_ERR);
+        return -1;
+      }
+      temp_char = '\0';
+    }
   }
   return 0;
 }
