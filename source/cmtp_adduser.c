@@ -35,6 +35,10 @@ int main(int argc, char * argv[])
 
   printf("Create cmtp user %s?\n", argv[1]);
   prompt_input_string("y/n: ", " ", yes_no, sizeof(yes_no));
+  if ((strcmp(yes_no, "n")==0)||(strcmp(yes_no,"no")==0))
+  {
+    return 0;
+  }
   prompt_input_string("Password please: ", " ", user_password, sizeof(user_password));
   #ifdef DEBUG
   printf("Attempting to create user %s in /var/cmtp/mail/\n", argv[1]);
@@ -83,6 +87,7 @@ int main(int argc, char * argv[])
     return -1;
   }
   //Create xzibit
+
 
 
 }
