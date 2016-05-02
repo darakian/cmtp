@@ -620,6 +620,7 @@ int32_t login_responder(uint32_t socket)
   }
   else
   {
+    //I will need some preamble here, but this works for now
     int xzibit_fd = open(xzibit_path_buffer, O_RDONLY);
     char temp_char = '\0';
     while(read(xzibit_fd, temp_char, 1)>0)

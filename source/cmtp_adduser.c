@@ -87,6 +87,16 @@ int main(int argc, char * argv[])
     return -1;
   }
   //Create xzibit
+  unsigned char nonce[crypto_aead_aes256gcm_NPUBBYTES];
+  unsigned char salt[crypto_pwhash_SALTBYTES];
+  unsigned char key[KEY_LEN];
+
+  randombytes_buf(nonce, sizeof nonce);
+  randombytes_buf(salt, sizeof salt);
+  if (crypto_pwhash(key, sizeof(key), user_password, strlen(user_password), salt, crypto_pwhash_OPSLIMIT_INTERACTIVE, crypto_pwhash_MEMLIMIT_INTERACTIVE, crypto_pwhash_ALG_DEFAULT) != 0)
+  {
+    perror("crypto_pwhash");
+  }
 
 
 
