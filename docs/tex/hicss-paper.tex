@@ -1,0 +1,43 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{graphicx}
+\usepackage{ulem}
+\usepackage{alltt}
+\usepackage{listings}
+\usepackage{csquotes}
+\usepackage{float}
+\usepackage{hyperref}
+\usepackage{titling}
+
+%Set package options
+\lstset{
+basicstyle=\small\ttfamily,
+columns=flexible,
+breaklines=true
+}
+\hypersetup{colorlinks=true,linkcolor=black,urlcolor=black,citecolor=black}
+
+%Define variables
+\def \codesource{https://github.com/darakian/cmtp}
+
+\begin{document}
+%Make document header
+\title{Introducing the cipher mail transport protocol (CMTP)}
+\author{Jonathan Moroney\\
+University of Hawaii at Manoa\\
+\texttt{jmoroney@hawaii.edu}}
+\date{\today}
+
+\maketitle
+\tableofcontents
+
+\begin{abstract}
+This paper will introduce the design of the cipher mail transport protocol (CMTP) which aims to improve the security of the existing email transport system (SMTP) without breaking the usage model of email. This paper will include an introduction to email, a discussion of the plaintext problem and the proposed solution (CMTP). CMTP is inspired by PGP and uses public key cryptography but in such a way that users can generally ignore that the keys exist. CMTP is based on open network design in the same way that SMTP is, and is designed to be a drop in replacement for SMTP. Additionally CMTP aims to be implementation friendly with a minimal interface.
+\end{abstract}
+
+\bibliographystyle{acm}
+\bibliography{Proposal,rfc}
+
+\end{document}
