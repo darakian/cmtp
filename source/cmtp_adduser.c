@@ -98,6 +98,13 @@ int main(int argc, char * argv[])
     perror("crypto_pwhash");
   }
 
+  //Symetric cipher with hashed user_password
+  unsigned char ciphertext[MESSAGE_LEN + crypto_aead_aes256gcm_ABYTES];
+  if (crypto_aead_aes256gcm_encrypt(ciphertext,sizeof(ciphertext), xzibit, sizeof(xzibit), NULL, 0, NULL, nonce, key)<0)
+  {
+    perror("crypto_aead_aes256gcm_encrypt");
+  }
+
 
 
 }
