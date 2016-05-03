@@ -623,6 +623,7 @@ int32_t login_responder(uint32_t socket)
     //I will need some preamble here, but this works for now
     int xzibit_fd = open(xzibit_path_buffer, O_RDONLY);
     char temp_char = '\0';
+    write(socket, network_crypto_version, sizeof(network_crypto_version));
     while(read(xzibit_fd, temp_char, 1)>0)
     {
       if (write(socket, temp_char, 1)<0)
@@ -645,13 +646,13 @@ int32_t mail_responder(uint32_t socket)
   //Allocate general variables
 
   //Allocate primary buffers and counters
-  char source_account_buffer[ROUTING_FIELD_SIZE];
+  char source_account_buffer[ROUTING_FIELD_SIZE] = {0};
   int32_t source_account_length = 0;
-  char source_domain_buffer[ROUTING_FIELD_SIZE];
+  char source_domain_buffer[ROUTING_FIELD_SIZE] = {0};
   int32_t source_domain_length = 0;
-  char dest_account_buffer[ROUTING_FIELD_SIZE];
+  char dest_account_buffer[ROUTING_FIELD_SIZE] = {0};
   int32_t dest_account_length = 0;
-  char dest_domain_buffer[ROUTING_FIELD_SIZE];
+  char dest_domain_buffer[ROUTING_FIELD_SIZE] = {0};
   int32_t dest_domain_length = 0;
   uint32_t version = 0;
   uint32_t attachment_count = 0;
@@ -682,17 +683,6 @@ int32_t mail_responder(uint32_t socket)
   //unique_file_name_length is not currently used. Should be fine.
   uint32_t unique_file_name_length = base64_encode((char *)hash, sizeof(hash), unique_file_name, sizeof(unique_file_name), (char *)filesystem_safe_base64_string, 64);
   //uint32_t base64_username_length = base64_encode((char *)dest_account_buffer, strlen(dest_account_buffer), base64_username, strlen(base64_username), (char *)filesystem_safe_base64_string, 64);
-
-  if (snprintf(unique_file_location, sizeof(unique_file_location), "%s%s%s", "/mail/", dest_account_buffer, unique_file_name)<0)
-  {
-    perror("snprintf");
-    print_to_log("snprintf failed to create a new file string. Cannot write message out",LOG_ERR);
-    return -1;
-  }
-  #ifdef DEBUG
-  printf("Writing mail to %s\n", unique_file_location);
-  #endif /*DEBUG*/
-
   //Read primary routing and processing information
   //First read in fixed length fields
   if (read_n_bytes(socket, (char *)&version, 4)!=4)
@@ -701,44 +691,24 @@ int32_t mail_responder(uint32_t socket)
     print_to_log("Read error while reading crypto type", LOG_ERR);
     return -1;
   }
-  write_to_file((char *)&version, 4, unique_file_location);
-  version = be32toh(version);
-  #ifdef DEBUG
-  printf("Version = %d\n", version);
-  #endif /*DEBUG*/
   if (read_n_bytes(socket, (char *)&attachment_count, 4)!=4)
   {
     perror("read_n_bytes attachment_count");
     print_to_log("Read error while reading attachment count", LOG_ERR);
     return -1;
   }
-  #ifdef DEBUG
-  printf("Attachment count = %d\n", attachment_count);
-  #endif /*DEBUG*/
-  write_to_file((char *)&attachment_count, 4, unique_file_location);
-  attachment_count = be32toh(attachment_count);
   if (read_n_bytes(socket, (char *)&log_length, 8)!=8)
   {
     perror("read_n_bytes log_length");
     print_to_log("Read error while reading message length", LOG_ERR);
     return -1;
   }
-  #ifdef DEBUG
-  printf("Log length = %ld\n", log_length);
-  #endif /*DEBUG*/
-  write_to_file((char *)&log_length, 8, unique_file_location);
-  log_length = be64toh(log_length);
   if (read_n_bytes(socket, (char *)&message_length, 8)!=8)
   {
     perror("read_n_bytes message_length");
     print_to_log("Read error while reading message length", LOG_ERR);
     return -1;
   }
-  write_to_file((char *)&message_length, 8, unique_file_location);
-  message_length = be64toh(message_length);
-  #ifdef DEBUG
-  printf("Message length = %ld\n", message_length);
-  #endif /*DEBUG*/
   //Read in account and domain info
   if ((dest_account_length=read_until(socket, dest_account_buffer, sizeof(dest_account_buffer), '\0'))<0)
   {
@@ -746,6 +716,28 @@ int32_t mail_responder(uint32_t socket)
     print_to_log("Read error while reading dest_account_buffer", LOG_ERR);
     return -1;
   }
+  write_to_file((char *)&version, 4, unique_file_location);
+  version = be32toh(version);
+  write_to_file((char *)&attachment_count, 4, unique_file_location);
+  attachment_count = be32toh(attachment_count);
+  write_to_file((char *)&log_length, 8, unique_file_location);
+  log_length = be64toh(log_length);
+  write_to_file((char *)&message_length, 8, unique_file_location);
+  message_length = be64toh(message_length);
+  if (snprintf(unique_file_location, sizeof(unique_file_location), "%s%s%s", "/mail/", dest_account_buffer, unique_file_name)<0)
+  {
+    perror("snprintf");
+    print_to_log("snprintf failed to create a new file string. Cannot write message out",LOG_ERR);
+    return -1;
+  }
+  #ifdef DEBUG
+  printf("Writing mail to %s\n", unique_file_location);
+  printf("Log length = %ld\n", log_length);
+  printf("Version = %d\n", version);
+  printf("Attachment count = %d\n", attachment_count);
+  printf("Message length = %ld\n", message_length);
+  #endif /*DEBUG*/
+
   write_to_file(dest_account_buffer, dest_account_length, unique_file_location);
   #ifdef DEBUG
   printf("dest_account_length = %d\n", dest_account_length);
