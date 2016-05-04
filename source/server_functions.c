@@ -752,6 +752,12 @@ int32_t mail_responder(uint32_t socket)
   #ifdef DEBUG
   printf("dest_domain_length = %d\n", dest_domain_length);
   #endif /*DEBUG*/
+  //Check if this is the destination
+  if(strcmp(dest_domain_buffer, home_domain)!=0)
+  {
+    //Send delivery failure, close connection and return.
+  }
+
   if ((source_account_length=read_until(socket, source_account_buffer, sizeof(source_account_buffer), '\0'))<0)
   {
     perror("read_until");

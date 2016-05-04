@@ -40,6 +40,10 @@ The Cipher Mail Transport Protocol (CMTP) uses a text based, command/reply inter
 The OHAI command is in place to prevent SMTP clients from seeing a CMTP server as a valid SMTP server. Conveniently OHAI is four characters long which should mean even the oldest SMTP client should fail in a defined way when attempting to connect to a CMTP server.
 \subsection{MAIL}
 The MAIL command is a stand alone command which servers only to tell the CMTP server that a message is to follow. The CMTP message is self describing in length so that a server knows when it has received the entire thing. Subsequently no state is needed in order to pass a message.
+\begin{description}
+  \item [DELIVERYFAILURE] \hfill \\
+   Used as a reply if mail cannot be delivered. Failure to deliver can be due to forwarding not being allowed, account not found or destination server not found. On the wire this looks like [Version][DELIVERYFAILURE][\textbackslash 0][ServerSigOfMessage][\textbackslash 0]
+\end{description}
 \subsection{KEYREQUEST <USER> <DOMAIN>}
 The KEYREQUEST command takes at least one parameter and at most two. The user parameter is required while the domain parameter is not. Each parameter is null terminated. In the case that the domain parameter is not present the CMTP server should assume that the user is local to it. The reply format is \newline
 [Version][UserPublicKey][\textbackslash 0][ServerSigOfKey][\textbackslash 0]. \newline
