@@ -46,11 +46,13 @@ const char cmtp_command_LOGIN[] = {"LOGIN"};
 const char cmtp_command_OBAI[] = {"OBAI"};
 const char cmtp_command_KEYREQUEST[] = {"KEYREQUEST"};
 const char cmtp_reply_KEYNOTAVAILABLE[] = {"KEYNOTAVAILABLE"};
+const char cmtp_reply_DELIVERYFAILURE[] = {"DELIVERYFAILURE"};
 const char termination_char = '\0';
 const uint32_t crypto_version = 1;
 uint32_t network_crypto_version = 0;
 char home_domain[64] = {0};
 uint32_t MAX_CONNECTIONS = 10;
+int32_t forward = 0;
 
 //Store signing keys. Can regenerate box keys from these.
 static unsigned char server_public_key[crypto_sign_ed25519_PUBLICKEYBYTES] = {0};
@@ -753,9 +755,21 @@ int32_t mail_responder(uint32_t socket)
   printf("dest_domain_length = %d\n", dest_domain_length);
   #endif /*DEBUG*/
   //Check if this is the destination
-  if(strcmp(dest_domain_buffer, home_domain)!=0)
+  if((strcmp(dest_domain_buffer, home_domain)!=0)&&(forward==0))
   {
-    //Send delivery failure, close connection and return.
+    //Send delivery failure, close connection, clean up and return.
+    unsigned char signature_of_DELIVERYFAILURE[crypto_sign_BYTES] = {0};
+    unsigned char write_buffer[sizeof(network_crypto_version)+sizeof(server_public_key)+sizeof(signature_of_DELIVERYFAILURE)+2];
+    crypto_sign_detached(signature_of_DELIVERYFAILURE, NULL, signature_of_DELIVERYFAILURE, sizeof(signature_of_DELIVERYFAILURE), server_private_key);
+    memcpy(write_buffer, &network_crypto_version, sizeof(network_crypto_version));
+    memcpy(write_buffer+sizeof(network_crypto_version), cmtp_reply_DELIVERYFAILURE, sizeof(cmtp_reply_DELIVERYFAILURE));
+    memcpy(write_buffer+sizeof(network_crypto_version)+sizeof(cmtp_reply_DELIVERYFAILURE), &signature_of_DELIVERYFAILURE, sizeof(signature_of_DELIVERYFAILURE));
+    memcpy(write_buffer+sizeof(network_crypto_version)+sizeof(cmtp_reply_DELIVERYFAILURE)+sizeof(signature_of_DELIVERYFAILURE), termination_char, sizeof(termination_char));
+    write(socket, write_buffer, sizeof(write_buffer));
+    if (close(unique_file_location)<0)
+    {
+
+    }
   }
 
   if ((source_account_length=read_until(socket, source_account_buffer, sizeof(source_account_buffer), '\0'))<0)
