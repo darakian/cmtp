@@ -93,9 +93,9 @@ int main(int argc, char * argv[])
 
   randombytes_buf(nonce, sizeof nonce);
   randombytes_buf(salt, sizeof salt);
-  if (crypto_pwhash(key, sizeof(key), user_password, strlen(user_password), salt, crypto_pwhash_OPSLIMIT_INTERACTIVE, crypto_pwhash_MEMLIMIT_INTERACTIVE, crypto_pwhash_ALG_DEFAULT) != 0)
+  if (crypto_pwhash_scryptsalsa208sha256(key, sizeof(key), user_password, strlen(user_password), salt, crypto_pwhash_OPSLIMIT_INTERACTIVE, crypto_pwhash_MEMLIMIT_INTERACTIVE, crypto_pwhash_ALG_DEFAULT) != 0)
   {
-    perror("crypto_pwhash");
+    perror("crypto_pwhash_scryptsalsa208sha256");
   }
 
   //Symetric cipher with hashed user_password
