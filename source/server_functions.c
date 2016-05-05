@@ -50,7 +50,7 @@ const char cmtp_reply_DELIVERYFAILURE[] = {"DELIVERYFAILURE"};
 const char termination_char = '\0';
 const uint32_t crypto_version = 1;
 uint32_t network_crypto_version = 0;
-char home_domain[64] = {0};
+char home_domain[1024] = {0};
 uint32_t MAX_CONNECTIONS = 10;
 int32_t forward = 0;
 
