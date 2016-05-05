@@ -11,11 +11,15 @@
 #include <fcntl.h>
 
 #include "cmtp_common.h"
+
 #define KEY_LEN 32
+const uint32_t crypto_version = 1;
+uint32_t network_crypto_version = 0;
 
 int main(int argc, char * argv[])
 {
   sodium_init();
+  network_crypto_version = htobe32(crypto_version);
   char yes_no[3] = {0};
   char user_path[256+15] = {0};
   char user_publickey_path[256+15+10] = {0};
@@ -95,6 +99,7 @@ int main(int argc, char * argv[])
 
   randombytes_buf(nonce, sizeof nonce);
   randombytes_buf(salt, sizeof salt);
+  //Using scrypt here. Switch to argon2 when available
   if (crypto_pwhash_scryptsalsa208sha256(key, sizeof(key), user_password, strlen(user_password), salt, crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_INTERACTIVE,crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_INTERACTIVE) != 0)
   {
     perror("crypto_pwhash_scryptsalsa208sha256");
@@ -112,12 +117,18 @@ int main(int argc, char * argv[])
   //Symetric cipher with hashed user_password
   unsigned char ciphertext[sizeof(user_publickey)+sizeof(user_secretkey)+crypto_aead_aes256gcm_ABYTES] = {0};
   uint64_t ciphertext_length = sizeof(ciphertext);
-  unsigned char xzibit[sizeof(ciphertext)+4] = {0};
-  if (crypto_aead_aes256gcm_encrypt(ciphertext, &ciphertext_length, xzibit, sizeof(xzibit), NULL, 0, NULL, nonce, key)<0)
+  unsigned char keys[sizeof(user_publickey)+sizeof(user_secretkey)] = {0};
+  memcpy(keys, user_publickey, sizeof(user_publickey));
+  memcpy(keys+sizeof(user_publickey), user_secretkey, sizeof(user_secretkey));
+  if (crypto_aead_aes256gcm_encrypt(ciphertext, &ciphertext_length, keys, sizeof(keys), NULL, 0, NULL, nonce, key)<0)
   {
     perror("crypto_aead_aes256gcm_encrypt");
   }
-  //Need to append the version and other envelope information to xzibit here
+  //Need to append the version and salt information to xzibit here
+  unsigned char * xzibit = calloc(1, ciphertext_length+32+4);
+  memcpy(xzibit, &network_crypto_version, sizeof(network_crypto_version));
+  memcpy(xzibit+sizeof(network_crypto_version), salt, sizeof(salt));
+  memcpy(xzibit+sizeof(network_crypto_version)+sizeof(salt), ciphertext, sizeof(ciphertext));
 
   if (snprintf(user_xzibit_path, sizeof(user_xzibit_path), "%s%s%s%s%s", "/var/cmtp/mail/", argv[1], "/", argv[1], ".xzibit")<0)
   {
