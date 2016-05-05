@@ -52,7 +52,7 @@ int main(int argc, char * argv[])
     perror("snprintf");
     return -1;
   }
-  if (snprintf(user_publickey_path, sizeof(user_publickey_path), "%s%s%s", "/var/cmtp/mail/", argv[1], "public.key")<0)
+  if (snprintf(user_publickey_path, sizeof(user_publickey_path), "%s%s%s", "/var/cmtp/mail/", argv[1], "/public.key")<0)
   {
     perror("snprintf");
     return -1;
@@ -103,17 +103,22 @@ int main(int argc, char * argv[])
   printf("Password hash:\n");
   for (int i=0; i<32;i++)
   {
-    printf("%x\n", key[i]);
+    printf("%x", key[i]);
   }
+  printf("\n");
+  printf("End password hash\n");
   #endif /*DEBUG*/
 
   //Symetric cipher with hashed user_password
   unsigned char ciphertext[sizeof(user_publickey)+sizeof(user_secretkey)+crypto_aead_aes256gcm_ABYTES];
+  printf("Here\n");
   unsigned char xzibit[sizeof(ciphertext+4)];
+  printf("Here\n");
   if (crypto_aead_aes256gcm_encrypt(ciphertext,sizeof(ciphertext), xzibit, sizeof(xzibit), NULL, 0, NULL, nonce, key)<0)
   {
     perror("crypto_aead_aes256gcm_encrypt");
   }
+  printf("Here\n");
   //Need to append the version and other envelope information to xzibit here
 
   if (snprintf(user_xzibit_path, sizeof(user_xzibit_path), "%s%s%s%s%s", "/var/cmtp/mail/", argv[1], "/", argv[1], ".xzibit")<0)
