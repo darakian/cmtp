@@ -139,21 +139,22 @@ int main(int argc, char * argv[])
   {
     perror("open");
     printf("Cannot write out user public key. Exiting.\n");
+    free(xzibit);
     return -1;
   }
   if (write(temp_descriptor, xzibit, ciphertext_length+32+4)<0)
   {
     perror("write");
     printf("Write of xzibit failed. Exiting.\n");
+    free(xzibit);
     return -1;
   }
   if (close(temp_descriptor)<0)
   {
     perror("close");
     printf("close has failed. Exiting.\n");
+    free(xzibit);
     return -1;
   }
-
-
-
+  free(xzibit);
 }
