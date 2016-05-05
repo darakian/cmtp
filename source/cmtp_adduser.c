@@ -116,6 +116,7 @@ int main(int argc, char * argv[])
   //Symetric cipher with hashed user_password
   unsigned char ciphertext[sizeof(user_publickey)+sizeof(user_secretkey)+crypto_aead_aes256gcm_ABYTES] = {0};
   uint64_t ciphertext_length = sizeof(ciphertext);
+  uint64_t be_ciphertext_length = htobe64(ciphertext_length);
   unsigned char keys[sizeof(user_publickey)+sizeof(user_secretkey)] = {0};
   memcpy(keys, user_publickey, sizeof(user_publickey));
   memcpy(keys+sizeof(user_publickey), user_secretkey, sizeof(user_secretkey));
@@ -127,7 +128,7 @@ int main(int argc, char * argv[])
   unsigned char * xzibit = calloc(1, ciphertext_length+32+4+8);
   memcpy(xzibit, &network_crypto_version, sizeof(network_crypto_version));
   memcpy(xzibit+sizeof(network_crypto_version), salt, sizeof(salt));
-  memcpy(xzibit+sizeof(network_crypto_version)+sizeof(salt), &ciphertext_length, sizeof(ciphertext_length));
+  memcpy(xzibit+sizeof(network_crypto_version)+sizeof(salt), &be_ciphertext_length, sizeof(be_ciphertext_length));
   memcpy(xzibit+sizeof(network_crypto_version)+sizeof(salt)+sizeof(ciphertext_length), ciphertext, sizeof(ciphertext));
   if (snprintf(user_xzibit_path, sizeof(user_xzibit_path), "%s%s%s%s%s", "/var/cmtp/mail/", argv[1], "/", argv[1], ".xzibit")<0)
   {
@@ -141,7 +142,7 @@ int main(int argc, char * argv[])
     free(xzibit);
     return -1;
   }
-  if (write(temp_descriptor, xzibit, ciphertext_length+32+4)<0)
+  if (write(temp_descriptor, xzibit, ciphertext_length+32+4+8)<0)
   {
     perror("write");
     printf("Write of xzibit failed. Exiting.\n");
