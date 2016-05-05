@@ -26,7 +26,6 @@ int main(int argc, char * argv[])
   char user_xzibit_path[256+15+10] = {0};
   char user_password[256] = {0};
   int temp_descriptor = -1;
-  char user_password_hash[crypto_aead_aes256gcm_KEYBYTES] = {0}; //size = 32
 
   if (argc<=1)
   {
@@ -141,7 +140,7 @@ int main(int argc, char * argv[])
     printf("Cannot write out user public key. Exiting.\n");
     return -1;
   }
-  if (write(temp_descriptor, xzibit, sizeof(xzibit))<0)
+  if (write(temp_descriptor, xzibit, ciphertext_length+32+4)<0)
   {
     perror("write");
     printf("Write of xzibit failed. Exiting.\n");
