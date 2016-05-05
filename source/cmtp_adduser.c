@@ -110,15 +110,13 @@ int main(int argc, char * argv[])
   #endif /*DEBUG*/
 
   //Symetric cipher with hashed user_password
-  unsigned char ciphertext[sizeof(user_publickey)+sizeof(user_secretkey)+crypto_aead_aes256gcm_ABYTES];
-  printf("Here\n");
-  unsigned char xzibit[sizeof(ciphertext+4)];
-  printf("Here\n");
-  if (crypto_aead_aes256gcm_encrypt(ciphertext,sizeof(ciphertext), xzibit, sizeof(xzibit), NULL, 0, NULL, nonce, key)<0)
+  unsigned char ciphertext[sizeof(user_publickey)+sizeof(user_secretkey)+crypto_aead_aes256gcm_ABYTES] = {0};
+  uint64_t ciphertext_length = sizeof(ciphertext);
+  unsigned char xzibit[sizeof(ciphertext)+4] = {0};
+  if (crypto_aead_aes256gcm_encrypt(ciphertext, &ciphertext_length, xzibit, sizeof(xzibit), NULL, 0, NULL, nonce, key)<0)
   {
     perror("crypto_aead_aes256gcm_encrypt");
   }
-  printf("Here\n");
   //Need to append the version and other envelope information to xzibit here
 
   if (snprintf(user_xzibit_path, sizeof(user_xzibit_path), "%s%s%s%s%s", "/var/cmtp/mail/", argv[1], "/", argv[1], ".xzibit")<0)
