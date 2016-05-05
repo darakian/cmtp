@@ -123,11 +123,12 @@ int main(int argc, char * argv[])
   {
     perror("crypto_aead_aes256gcm_encrypt");
   }
-  //Need to append the version and salt information to xzibit here
-  unsigned char * xzibit = calloc(1, ciphertext_length+32+4);
+  //Need to append the version, salt and length information to xzibit here
+  unsigned char * xzibit = calloc(1, ciphertext_length+32+4+8);
   memcpy(xzibit, &network_crypto_version, sizeof(network_crypto_version));
   memcpy(xzibit+sizeof(network_crypto_version), salt, sizeof(salt));
-  memcpy(xzibit+sizeof(network_crypto_version)+sizeof(salt), ciphertext, sizeof(ciphertext));
+  memcpy(xzibit+sizeof(network_crypto_version)+sizeof(salt), ciphertext_length, sizeof(ciphertext_length));
+  memcpy(xzibit+sizeof(network_crypto_version)+sizeof(salt)+sizeof(ciphertext_length), ciphertext, sizeof(ciphertext));
 
   if (snprintf(user_xzibit_path, sizeof(user_xzibit_path), "%s%s%s%s%s", "/var/cmtp/mail/", argv[1], "/", argv[1], ".xzibit")<0)
   {

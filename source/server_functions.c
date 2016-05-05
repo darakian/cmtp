@@ -618,7 +618,7 @@ int32_t login_responder(uint32_t socket)
   if (access(xzibit_path_buffer,R_OK)<0)
   {
     perror("access to user xzibit");
-    print_to_log("Cannot access user private key. User not registerd", LOG_ERR);
+    print_to_log("Cannot access user xzibit. User not valid", LOG_ERR);
   }
   else
   {
