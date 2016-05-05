@@ -8,7 +8,7 @@ UTIL_SOURCE = source/cmtp_adduser.c source/cmtp_common.c include/base64.c
 HEADERS = source/server_functions.h source/client_functions.h source/cmtp_common.h include/base64.h
 SERVER_LIBS = -lsodium -lresolv -lconfuse -lpthread
 CLIENT_LIBS = -lsodium -lresolv
-UTIL_LIBS = -lsodium
+UTIL_LIBS = -lsodium -lresolv
 CFLAGS=-g -Wall -Wextra -pedantic -pipe -O0
 
 

@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <stdint.h>
 #include <sys/time.h>
 #include <unistd.h>
@@ -10,6 +11,7 @@
 #include <fcntl.h>
 
 #include "cmtp_common.h"
+#define KEY_LEN 32
 
 int main(int argc, char * argv[])
 {
@@ -88,18 +90,25 @@ int main(int argc, char * argv[])
   }
   //Create xzibit
   unsigned char nonce[crypto_aead_aes256gcm_NPUBBYTES];
-  unsigned char salt[crypto_pwhash_SALTBYTES];
+  unsigned char salt[crypto_pwhash_scryptsalsa208sha256_SALTBYTES];
   unsigned char key[KEY_LEN];
 
   randombytes_buf(nonce, sizeof nonce);
   randombytes_buf(salt, sizeof salt);
-  if (crypto_pwhash_scryptsalsa208sha256(key, sizeof(key), user_password, strlen(user_password), salt, crypto_pwhash_OPSLIMIT_INTERACTIVE, crypto_pwhash_MEMLIMIT_INTERACTIVE, crypto_pwhash_ALG_DEFAULT) != 0)
+  if (crypto_pwhash_scryptsalsa208sha256(key, sizeof(key), user_password, strlen(user_password), salt, crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_INTERACTIVE,crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_INTERACTIVE) != 0)
   {
     perror("crypto_pwhash_scryptsalsa208sha256");
   }
+  #ifdef DEBUG
+  printf("Password hash:\n");
+  for (int i=0; i<32;i++)
+  {
+    printf("%x\n", key[i]);
+  }
+  #endif /*DEBUG*/
 
   //Symetric cipher with hashed user_password
-  unsigned char ciphertext[MESSAGE_LEN + crypto_aead_aes256gcm_ABYTES];
+  unsigned char ciphertext[sizeof(user_publickey)+sizeof(user_secretkey)+crypto_aead_aes256gcm_ABYTES];
   unsigned char xzibit[sizeof(ciphertext+4)];
   if (crypto_aead_aes256gcm_encrypt(ciphertext,sizeof(ciphertext), xzibit, sizeof(xzibit), NULL, 0, NULL, nonce, key)<0)
   {
