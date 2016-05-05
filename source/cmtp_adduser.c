@@ -125,7 +125,8 @@ int main(int argc, char * argv[])
     perror("crypto_aead_aes256gcm_encrypt");
   }
   //Need to append the version, salt and length information to xzibit here
-  unsigned char * xzibit = calloc(1, ciphertext_length+32+4+8);
+  uint64_t xzibit_length = ciphertext_length+32+4+8;
+  unsigned char * xzibit = calloc(1, xzibit_length);
   memcpy(xzibit, &network_crypto_version, sizeof(network_crypto_version));
   memcpy(xzibit+sizeof(network_crypto_version), salt, sizeof(salt));
   memcpy(xzibit+sizeof(network_crypto_version)+sizeof(salt), &be_ciphertext_length, sizeof(be_ciphertext_length));
@@ -142,7 +143,7 @@ int main(int argc, char * argv[])
     free(xzibit);
     return -1;
   }
-  if (write(temp_descriptor, xzibit, ciphertext_length+32+4+8)<0)
+  if (write(temp_descriptor, xzibit, xzibit_length)<0)
   {
     perror("write");
     printf("Write of xzibit failed. Exiting.\n");
