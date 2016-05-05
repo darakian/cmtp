@@ -127,9 +127,8 @@ int main(int argc, char * argv[])
   unsigned char * xzibit = calloc(1, ciphertext_length+32+4+8);
   memcpy(xzibit, &network_crypto_version, sizeof(network_crypto_version));
   memcpy(xzibit+sizeof(network_crypto_version), salt, sizeof(salt));
-  memcpy(xzibit+sizeof(network_crypto_version)+sizeof(salt), ciphertext_length, sizeof(ciphertext_length));
+  memcpy(xzibit+sizeof(network_crypto_version)+sizeof(salt), &ciphertext_length, sizeof(ciphertext_length));
   memcpy(xzibit+sizeof(network_crypto_version)+sizeof(salt)+sizeof(ciphertext_length), ciphertext, sizeof(ciphertext));
-
   if (snprintf(user_xzibit_path, sizeof(user_xzibit_path), "%s%s%s%s%s", "/var/cmtp/mail/", argv[1], "/", argv[1], ".xzibit")<0)
   {
     perror("snprintf");
