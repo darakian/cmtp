@@ -39,11 +39,11 @@ endif
 cmtp_adduser: $(UTIL_SOURCE)
 ifndef nodebug
 	mkdir -p bin
-	$(CC) $(UTIL_SOURCE) $(CFLAGS) -D_GNU_SOURCE -DDEBUG=true $(CLIENT_LIBS) -o bin/cmtp_adduser
+	$(CC) $(UTIL_SOURCE) $(CFLAGS) -D_GNU_SOURCE -DDEBUG=true $(UTIL_LIBS) -o bin/cmtp_adduser
 	@echo $@ made in debug mode
 else
 	mkdir -p bin
-	$(CC) $(UTIL_SOURCE) $(CFLAGS) -D_GNU_SOURCE $(CLIENT_LIBS) -o bin/cmtp_adduser
+	$(CC) $(UTIL_SOURCE) $(CFLAGS) -D_GNU_SOURCE $(UTIL_LIBS) -o bin/cmtp_adduser
 	@echo $@ made
 endif
 
