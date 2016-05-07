@@ -1,4 +1,4 @@
-all: cmtp_server cmtp_client
+all: cmtp_server cmtp_client cmtp_adduser
 
 CC = gcc
 OBJECTS = cmtp_common.o client_functions.o server_functions.o
