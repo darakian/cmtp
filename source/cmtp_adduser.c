@@ -70,9 +70,9 @@ int main(int argc, char * argv[])
     perror("create_verify_dir");
     return -1;
   }
-  unsigned char user_publickey[crypto_box_PUBLICKEYBYTES];
-  unsigned char user_secretkey[crypto_box_SECRETKEYBYTES];
-  crypto_box_keypair(user_publickey, user_secretkey);
+  unsigned char user_publickey[crypto_sign_ed25519_PUBLICKEYBYTES];
+  unsigned char user_secretkey[crypto_sign_ed25519_SECRETKEYBYTES];
+  crypto_sign_ed25519_keypair(user_publickey, user_secretkey);
   if ((temp_descriptor=open(user_publickey_path, O_WRONLY|O_CREAT, S_IRUSR|S_IRGRP|S_IROTH))<0)
   {
     perror("open");
@@ -115,6 +115,9 @@ int main(int argc, char * argv[])
 
   //Symetric cipher with hashed user_password
   unsigned char ciphertext[sizeof(user_publickey)+sizeof(user_secretkey)+crypto_aead_aes256gcm_ABYTES] = {0};
+  #ifdef DEBUG
+  printf("Ciphertext length = %d, private key length = %d, public key length = %d\n", sizeof(ciphertext), sizeof(user_secretkey), sizeof(user_publickey));
+  #endif /*DEBUG*/
   uint64_t ciphertext_length = sizeof(ciphertext);
   uint64_t be_ciphertext_length = htobe64(ciphertext_length);
   unsigned char keys[sizeof(user_publickey)+sizeof(user_secretkey)] = {0};
