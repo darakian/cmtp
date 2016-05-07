@@ -121,7 +121,7 @@ int connect_remoteV6()
 int login(uint32_t socket, char * username, char * xzibit_buffer)
 {
 	char login_buffer[6+255] = {0};
-	char reception_buffer[4+32+1+16+1] = {0};
+	char reception_buffer[500] = {0};
 	uint32_t login_buffer_length = snprintf(login_buffer, sizeof(login_buffer), "%s%s", "LOGIN\0", username);
 	if (write(socket, login_buffer, login_buffer_length)<0)
 	{
@@ -129,10 +129,45 @@ int login(uint32_t socket, char * username, char * xzibit_buffer)
 		print_to_log("Error writing login request to socket", LOG_ERR);
 		return -1;
 	}
-	if (read(socket, reception_buffer, sizeof(reception_buffer))<0)
+  if (read_n_bytes(socket, reception_buffer, 4)<4)
 	{
-		perror("read");
-		print_to_log("Error reading from socket after login attempt.", LOG_ERR);
+		perror("read_n_bytes");
+		print_to_log("Failed to read in login", LOG_ERR);
+		return -1;
+	}
+	if (be32toh((int32_t)reception_buffer)!=1)
+	{
+		perror("Incorrect xzibit version");
+		print_to_log("Incorrect xzibit", LOG_ERR);
+		return -1;
+	}
+	//read salt
+	if (read_n_bytes(socket, reception_buffer+4, 32)<32)
+	{
+		perror("Incorrect read amount");
+		print_to_log("Failed to read xzibit salt", LOG_ERR);
+		return -1;
+	}
+	//read xzibit length
+	if (read_n_bytes(socket, reception_buffer+4+32, 8)<8)
+	{
+		perror("Incorrect read amount");
+		print_to_log("Failed to read xzibit salt", LOG_ERR);
+		return -1;
+	}
+	//Read xzibit
+	uint64_t xzibit_length = be64toh((int64_t)(reception_buffer+4+32));
+	if (read_n_bytes(socket, reception_buffer+4+32, xzibit_length)<xzibit_length)
+	{
+		perror("Incorrect read amount");
+		print_to_log("Failed to read xzibit", LOG_ERR);
+		return -1;
+	}
+	//Read signature
+	if (read_n_bytes(socket, reception_buffer+4+32+xzibit_length, 64)<64)
+	{
+		perror("Incorrect read amount");
+		print_to_log("Failed to read signature", LOG_ERR);
 		return -1;
 	}
 	//Else we have what we want.
