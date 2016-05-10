@@ -35,7 +35,7 @@ int32_t request_server_key(uint32_t socket, unsigned char * key_buffer);
 
 int32_t request_user_key(uint32_t socket, char * user, char * server, unsigned char * key_buffer);
 
-int32_t decipher_private_key(char * password, unsigned char * cipher_key_buffer, unsigned char * clear_key_buffer);
+int32_t decipher_xzibit(char * password, unsigned char * xzibit_buffer, unsigned char * private_key_buffer);
 
 int32_t interperate_server_response(uint32_t socket);
 

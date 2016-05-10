@@ -484,9 +484,15 @@ int32_t request_user_key(uint32_t socket, char * user, char * domain, unsigned c
 	return 0;
 }
 
-int32_t decipher_private_key(char * password, unsigned char * cipher_key_buffer, unsigned char * clear_key_buffer)
+int32_t decipher_xzibit(char * password, unsigned char * xzibit_buffer, unsigned char * private_key_buffer)
 {
-	//TODO
+	if(sodium_init()==-1)
+	{
+		perror("Cannot use crypto", LOG_ERR);
+		print_to_log("Sodium init failed. Cannot decrypt xzibit", LOG_ERR);
+		return -1;
+	}
+	
 	return 0;
 }
 
