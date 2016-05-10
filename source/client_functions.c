@@ -20,6 +20,8 @@
 #include "client_functions.h"
 #include "cmtp_common.h"
 
+#define KEY_LEN 32
+
 //Globals
 static int init = 0;
 const char cmtp_command_OHAI[] = {"OHAI"};
@@ -484,15 +486,40 @@ int32_t request_user_key(uint32_t socket, char * user, char * domain, unsigned c
 	return 0;
 }
 
-int32_t decipher_xzibit(char * password, unsigned char * xzibit_buffer, unsigned char * private_key_buffer)
+/*
+* decipher_xzibit takes the entire xzibit as parameter two (version, salt, everything) and fills in private_key_buffer with the enciphered private key
+*/
+int32_t decipher_xzibit(char * password, uint32_t password_length, unsigned char * xzibit_buffer, unsigned char * private_key_buffer)
 {
 	if(sodium_init()==-1)
 	{
-		perror("Cannot use crypto", LOG_ERR);
+		perror("Cannot use crypto");
 		print_to_log("Sodium init failed. Cannot decrypt xzibit", LOG_ERR);
 		return -1;
 	}
-	
+	unsigned char hash[KEY_LEN] = {0};
+	uint64_t ciphertext_len = be64toh((uint64_t)xzibit_buffer+36);
+	unsigned char plaintext[512];
+	uint64_t plaintext_len = 0;
+	unsigned char nonce[crypto_aead_aes256gcm_NPUBBYTES];
+	randombytes_buf(nonce, sizeof nonce);
+	//Hash password
+	if (crypto_pwhash_scryptsalsa208sha256(hash, sizeof(hash), password, password_length, xzibit_buffer+4, crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_INTERACTIVE,crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_INTERACTIVE) != 0)
+  {
+    perror("crypto_pwhash_scryptsalsa208sha256");
+		print_to_log("Cannot hash user password.", LOG_ERR);
+		return -1;
+  }
+
+	if (ciphertext_len < crypto_aead_aes256gcm_ABYTES || crypto_aead_aes256gcm_decrypt(plaintext, &plaintext_len, NULL, xzibit_buffer+44, ciphertext_len, NULL, 0, nonce, hash) != 0)
+	{
+    perror("xzibit decrypt error");
+		print_to_log("Xzibit decrypt error", LOG_ERR);
+		return -1;
+	}
+	//Copy key and return
+	memcpy(private_key_buffer, plaintext, 64);
+
 	return 0;
 }
 
