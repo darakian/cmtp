@@ -718,6 +718,12 @@ int32_t mail_responder(uint32_t socket)
     print_to_log("Read error while reading dest_account_buffer", LOG_ERR);
     return -1;
   }
+  if (snprintf(unique_file_location, sizeof(unique_file_location), "%s%s%s%s", "/mail/", dest_account_buffer, "/" , unique_file_name)<0)
+  {
+    perror("snprintf");
+    print_to_log("snprintf failed to create a new file string. Cannot write message out",LOG_ERR);
+    return -1;
+  }
   write_to_file((char *)&version, 4, unique_file_location);
   version = be32toh(version);
   write_to_file((char *)&attachment_count, 4, unique_file_location);
@@ -726,12 +732,6 @@ int32_t mail_responder(uint32_t socket)
   log_length = be64toh(log_length);
   write_to_file((char *)&message_length, 8, unique_file_location);
   message_length = be64toh(message_length);
-  if (snprintf(unique_file_location, sizeof(unique_file_location), "%s%s%s", "/mail/", dest_account_buffer, unique_file_name)<0)
-  {
-    perror("snprintf");
-    print_to_log("snprintf failed to create a new file string. Cannot write message out",LOG_ERR);
-    return -1;
-  }
   #ifdef DEBUG
   printf("Writing mail to %s\n", unique_file_location);
   printf("Log length = %ld\n", log_length);
