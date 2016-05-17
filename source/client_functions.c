@@ -140,6 +140,7 @@ int login(uint32_t socket, char * username, char * xzibit_buffer)
 	}
 	#ifdef DEBUG
 	printf("Attempting check version = %d\n", be32toh((int32_t)reception_buffer));
+	print_buffer(reception_buffer, 4, NULL, sizeof(reception_buffer), 1);
 	#endif /**/
 	if (be32toh((int32_t)reception_buffer)!=1)
 	{
@@ -168,7 +169,7 @@ int login(uint32_t socket, char * username, char * xzibit_buffer)
 		return -1;
 	}
 	#ifdef DEBUG
-	printf("Attempting to read response\n");
+	printf("Attempting to xzibit_length\n");
 	#endif /**/
 	//Read xzibit
 	uint64_t xzibit_length = be64toh((int64_t)(reception_buffer+4+32));
