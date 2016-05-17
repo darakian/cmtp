@@ -650,6 +650,9 @@ int32_t login_responder(uint32_t socket)
       return -1;
     }
     //Write it to the wire
+    #ifdef DEBUG
+    printf("Writing xzibit to the wire\n");
+    #endif /*DEBUG*/
     if (write(socket, xzibit, sizeof(xzibit))<0)
     {
       perror("Writing xzibit to the wire has failed");
