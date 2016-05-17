@@ -609,6 +609,7 @@ int32_t login_responder(uint32_t socket)
   {
     printf("%x  :  %c\n", login_username_buffer[j]);
   }
+  #endif /*DEBUG*/
   if (snprintf(xzibit_path_buffer, sizeof(xzibit_path_buffer), "%s%s%s%s%s", "/mail/", login_username_buffer, "/", login_username_buffer , ".xzibit")<0)
   {
     perror("snprintf");
