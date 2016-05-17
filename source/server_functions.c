@@ -37,7 +37,6 @@ const char cmtp_ohai_response[] = {"HAI!!! :3\n"};
 const char cmtp_noop[] = "O_O\n";
 const char cmtp_help[] = "Commands: OHAI, MAIL, HELP, NOOP, KEYREQUEST, OBAI\n";
 const char cmtp_obai[] = "Good bye\n";
-const char cmtp_login[] = "T_T\n";
 const char cmtp_command_OHAI[] = {"OHAI"};
 const char cmtp_command_MAIL[] = {"MAIL"};
 const char cmtp_command_HELP[] = {"HELP"};
@@ -603,8 +602,6 @@ int32_t login_responder(uint32_t socket)
   char login_command_buffer[THREAD_COMMAND_BUFFER_SIZE] = {0};
   char xzibit_path_buffer[359] = {0};
   uint32_t i = 0;
-
-  write(socket, cmtp_login, sizeof(cmtp_login));
   read_until(socket, login_username_buffer, sizeof(login_username_buffer), termination_char);
   // do {
   //   read(socket, login_username_buffer+i, 1);

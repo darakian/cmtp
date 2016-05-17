@@ -124,19 +124,13 @@ int login(uint32_t socket, char * username, char * xzibit_buffer)
 {
 	char login_buffer[6+255] = {0};
 	char reception_buffer[500] = {0};
-	uint32_t login_buffer_length = snprintf(login_buffer, sizeof(login_buffer), "%s%s", "LOGIN\0", username);
-	#ifdef DEBUG
-	printf("Attempting write login for %s\n", username);
-	#endif /*DEBUG*/
+	uint32_t login_buffer_length = snprintf(login_buffer, sizeof(login_buffer), "%s%c%s%c", "LOGIN", '\0', username, '\0');
 	if (write(socket, login_buffer, login_buffer_length)<0)
 	{
 		perror("write");
 		print_to_log("Error writing login request to socket", LOG_ERR);
 		return -1;
 	}
-	#ifdef DEBUG
-	printf("Attempting to read response\n");
-	#endif /**/
 	//read version
   if (read_n_bytes(socket, reception_buffer, 4)<4)
 	{
@@ -145,7 +139,7 @@ int login(uint32_t socket, char * username, char * xzibit_buffer)
 		return -1;
 	}
 	#ifdef DEBUG
-	printf("Attempting to read response\n");
+	printf("Attempting check version = %d\n", be32toh((int32_t)reception_buffer));
 	#endif /**/
 	if (be32toh((int32_t)reception_buffer)!=1)
 	{
