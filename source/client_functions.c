@@ -131,6 +131,7 @@ int login(uint32_t socket, char * username, char * xzibit_buffer)
 		print_to_log("Error writing login request to socket", LOG_ERR);
 		return -1;
 	}
+	//read version
   if (read_n_bytes(socket, reception_buffer, 4)<4)
 	{
 		perror("read_n_bytes");
@@ -170,6 +171,13 @@ int login(uint32_t socket, char * username, char * xzibit_buffer)
 	{
 		perror("Incorrect read amount");
 		print_to_log("Failed to read signature", LOG_ERR);
+		return -1;
+	}
+	//Verify xzibit
+	if (crypto_sign_verify_detached(reception_buffer+4+32+xzibit_length, reception_buffer+4+32, xzibit_length, server_public_key)!=0)
+	{
+		perror("Invalid signature for error message.");
+		print_to_log("Error message recived in response to keyrequest. Cannot verify message. Bad joo joo time is here", LOG_ERR);
 		return -1;
 	}
 	//Else we have what we want.
