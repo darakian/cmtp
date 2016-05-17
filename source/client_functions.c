@@ -124,6 +124,7 @@ int login(uint32_t socket, char * username, char * xzibit_buffer)
 {
 	char login_buffer[6+255] = {0};
 	char reception_buffer[500] = {0};
+	uint32_t xzibit_version = 0;
 	uint32_t login_buffer_length = snprintf(login_buffer, sizeof(login_buffer), "%s%c%s%c", "LOGIN", '\0', username, '\0');
 	if (write(socket, login_buffer, login_buffer_length)<0)
 	{
@@ -138,11 +139,13 @@ int login(uint32_t socket, char * username, char * xzibit_buffer)
 		print_to_log("Failed to read in login", LOG_ERR);
 		return -1;
 	}
+	memcpy(&xzibit_version, reception_buffer, 4);
+	xzibit_version = be32toh(xzibit_version);
 	#ifdef DEBUG
-	printf("Attempting check version = %d\n", be32toh((int32_t)reception_buffer));
+	printf("Attempting check version = %d\n", xzibit_version);
 	print_buffer(reception_buffer, 4, NULL, sizeof(reception_buffer), 1);
 	#endif /**/
-	if (be32toh((int32_t)reception_buffer)!=1)
+	if (xzibit_version!=1)
 	{
 		perror("Incorrect xzibit version");
 		print_to_log("Incorrect xzibit", LOG_ERR);
