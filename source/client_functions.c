@@ -59,14 +59,14 @@ int client_init()
 		exit(1);
 	}
 	client_socket = socket(AF_INET, SOCK_STREAM, 0);
-	client_address.sin_port = htons(CLIENT_PORT);
-	client_address.sin_family = AF_INET;
-	client_address.sin_addr.s_addr = INADDR_ANY;
-	if (bind(client_socket,(struct sockaddr *)&client_address, sizeof(client_address)) < 0)
-	{
-		perror("Bind() on client_socket has failed\n");
-		return -1;
-	}
+	// client_address.sin_port = htons(CLIENT_PORT);
+	// client_address.sin_family = AF_INET;
+	// client_address.sin_addr.s_addr = INADDR_ANY;
+	// if (bind(client_socket,(struct sockaddr *)&client_address, sizeof(client_address)) < 0)
+	// {
+	// 	perror("Bind() on client_socket has failed\n");
+	// 	return -1;
+	// }
 	init = 1;
 	return client_socket;
 }
