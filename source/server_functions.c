@@ -604,17 +604,11 @@ int32_t login_responder(uint32_t socket)
   uint32_t i = 0;
   i = read_until(socket, login_username_buffer, sizeof(login_username_buffer), termination_char);
   #ifdef DEBUG
-  printf("In between read_untils in login_responder\n");
   printf("login_username_buffer looks like:\n");
   for (int j = 0; j<i;j++)
   {
     printf("%x  :  %c\n", login_username_buffer[j]);
   }
-  #endif /*DEBUG*/
-  read_until(socket, login_username_buffer+i, sizeof(login_username_buffer)-i, termination_char);
-  #ifdef DEBUG
-  printf("Past read_untils in login_responder\n");
-  #endif /*DEBUG*/
   if (snprintf(xzibit_path_buffer, sizeof(xzibit_path_buffer), "%s%s%s%s%s", "/mail/", login_username_buffer, "/", login_username_buffer , ".xzibit")<0)
   {
     perror("snprintf");
