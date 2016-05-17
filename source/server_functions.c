@@ -603,6 +603,9 @@ int32_t login_responder(uint32_t socket)
   char xzibit_path_buffer[359] = {0};
   uint32_t i = 0;
   i = read_until(socket, login_username_buffer, sizeof(login_username_buffer), termination_char);
+  #ifdef DEBUG
+  printf("In between read_untils in login_responder\n");
+  #endif /*DEBUG*/
   read_until(socket, login_username_buffer+i, sizeof(login_username_buffer)-i, termination_char);
   #ifdef DEBUG
   printf("Past read_untils in login_responder\n");
