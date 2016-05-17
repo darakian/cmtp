@@ -643,7 +643,7 @@ int32_t login_responder(uint32_t socket)
     #endif /*DEBUG*/
     //Sign xzibit
     char * server_sign_of_xzibit = calloc(1, 64);
-    if (crypto_sign_detached(server_sign_of_xzibit, NULL, xzibit, sizeof(xzibit), server_private_key)!=0)
+    if (crypto_sign_detached(server_sign_of_xzibit, NULL, xzibit, xzibit_size, server_private_key)!=0)
     {
       perror("crypto_sign_detached failed in login responder");
       print_to_log("crypto_sign_detached failed in login responder", LOG_ERR);

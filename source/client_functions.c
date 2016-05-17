@@ -192,7 +192,7 @@ int login(uint32_t socket, char * username, char * xzibit_buffer)
 		return -1;
 	}
 	//Verify xzibit
-	if (crypto_sign_verify_detached(reception_buffer+4+32+xzibit_length, reception_buffer+4+32+8, xzibit_length, server_public_key)!=0)
+	if (crypto_sign_verify_detached(reception_buffer+4+32+xzibit_length, reception_buffer, xzibit_length+4+32+8, server_public_key)!=0)
 	{
 		perror("Invalid signature for error message.");
 		print_to_log("Error message recived in response to keyrequest. Cannot verify message. Bad joo joo time is here", LOG_ERR);
