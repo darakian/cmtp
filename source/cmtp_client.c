@@ -84,9 +84,15 @@ int main(int argc, char *argv[])
     print_to_log("Username too long or password too short. Exiting.", LOG_CRIT);
     exit(1);
   }
-  //Base64-ify the username
-  base64_encode(argv[1], strlen(argv[1]), base64_username, sizeof(base64_username), (char *)filesystem_safe_base64_string, 64);
-  //Check for user private key. Perhaps this should be a call to LOGIN on the server
+  #ifdef DEBUG
+	printf("Attempting to login user %s\n", argv[1]);
+	#endif /*DEBUG*/
+
+  char * xzibit = calloc(1, 200);
+	login(client_socket, argv[1], xzibit);
+  #ifdef DEBUG
+	printf("Login complete for user %s\n", argv[1]);
+	#endif /*DEBUG*/
   snprintf(user_key_path, sizeof(user_key_path), "%s%s%s", "/var/cmtp/mail/", base64_username, "/private.key");
   if (access(user_key_path, R_OK)<0)
   {

@@ -125,12 +125,18 @@ int login(uint32_t socket, char * username, char * xzibit_buffer)
 	char login_buffer[6+255] = {0};
 	char reception_buffer[500] = {0};
 	uint32_t login_buffer_length = snprintf(login_buffer, sizeof(login_buffer), "%s%s", "LOGIN\0", username);
+	#ifdef DEBUG
+	printf("Attempting write login for %s\n", username);
+	#endif /*DEBUG*/
 	if (write(socket, login_buffer, login_buffer_length)<0)
 	{
 		perror("write");
 		print_to_log("Error writing login request to socket", LOG_ERR);
 		return -1;
 	}
+	#ifdef DEBUG
+	printf("Attempting to read response\n");
+	#endif /**/
 	//read version
   if (read_n_bytes(socket, reception_buffer, 4)<4)
 	{
@@ -138,12 +144,18 @@ int login(uint32_t socket, char * username, char * xzibit_buffer)
 		print_to_log("Failed to read in login", LOG_ERR);
 		return -1;
 	}
+	#ifdef DEBUG
+	printf("Attempting to read response\n");
+	#endif /**/
 	if (be32toh((int32_t)reception_buffer)!=1)
 	{
 		perror("Incorrect xzibit version");
 		print_to_log("Incorrect xzibit", LOG_ERR);
 		return -1;
 	}
+	#ifdef DEBUG
+	printf("Attempting to read response\n");
+	#endif /**/
 	//read salt
 	if (read_n_bytes(socket, reception_buffer+4, 32)<32)
 	{
@@ -151,6 +163,9 @@ int login(uint32_t socket, char * username, char * xzibit_buffer)
 		print_to_log("Failed to read xzibit salt", LOG_ERR);
 		return -1;
 	}
+	#ifdef DEBUG
+	printf("Attempting to read response\n");
+	#endif /**/
 	//read xzibit length
 	if (read_n_bytes(socket, reception_buffer+4+32, 8)<8)
 	{
@@ -158,6 +173,9 @@ int login(uint32_t socket, char * username, char * xzibit_buffer)
 		print_to_log("Failed to read xzibit salt", LOG_ERR);
 		return -1;
 	}
+	#ifdef DEBUG
+	printf("Attempting to read response\n");
+	#endif /**/
 	//Read xzibit
 	uint64_t xzibit_length = be64toh((int64_t)(reception_buffer+4+32));
 	if (read_n_bytes(socket, reception_buffer+4+32, xzibit_length)<xzibit_length)
@@ -180,9 +198,10 @@ int login(uint32_t socket, char * username, char * xzibit_buffer)
 		print_to_log("Error message recived in response to keyrequest. Cannot verify message. Bad joo joo time is here", LOG_ERR);
 		return -1;
 	}
+	//Return everything but the signature
+	memcpy(xzibit_buffer, reception_buffer, 4+32+xzibit_length);
 	//Else we have what we want.
-	//Need to lock down LOGIN documentation before proceeding
-	return 0;
+	return 4+32+xzibit_length;
 }
 
 int32_t send_message(uint32_t socket, char * header_buffer, uint32_t header_buffer_length, unsigned char * message_buffer, uint32_t message_buffer_length)
