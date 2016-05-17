@@ -659,12 +659,18 @@ int32_t login_responder(uint32_t socket)
       print_to_log("Writing xzibit to the wire has failed", LOG_ERR);
       return -1;
     }
+    #ifdef DEBUG
+    printf("After writing xzibit\n");
+    #endif /*DEBUG*/
     if (write(socket, server_sign_of_xzibit, sizeof(server_sign_of_xzibit))<0)
     {
       perror("Writing server_sign_of_xzibit to the wire has failed");
       print_to_log("Writing server_sign_of_xzibit to the wire has failed", LOG_ERR);
       return -1;
     }
+    #ifdef DEBUG
+    printf("After writing signature\n");
+    #endif /*DEBUG*/
   }
   return 0;
 }
