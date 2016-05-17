@@ -178,21 +178,24 @@ int login(uint32_t socket, char * username, char * xzibit_buffer)
 	printf("Attempting to xzibit of length = %ld\n", xzibit_length);
 	#endif /*DEBUG*/
 	//Read xzibit
-	if (read_n_bytes(socket, reception_buffer+4+32, xzibit_length)<xzibit_length)
+	if (read_n_bytes(socket, reception_buffer+4+32+8, xzibit_length)<xzibit_length)
 	{
 		perror("Incorrect read amount");
 		print_to_log("Failed to read xzibit", LOG_ERR);
 		return -1;
 	}
 	//Read signature
-	if (read_n_bytes(socket, reception_buffer+4+32+xzibit_length, 64)<64)
+	if (read_n_bytes(socket, reception_buffer+4+32+8+xzibit_length, 64)<64)
 	{
 		perror("Incorrect read amount");
 		print_to_log("Failed to read signature", LOG_ERR);
 		return -1;
 	}
 	//Verify xzibit
-	if (crypto_sign_verify_detached(reception_buffer+4+32+xzibit_length, reception_buffer, xzibit_length+4+32+8, server_public_key)!=0)
+	#ifdef DEBUG
+	print_buffer(reception_buffer, 156, NULL, 156, 1);
+	#endif /*DEBUG*/
+	if (crypto_sign_verify_detached(reception_buffer+4+32+8+xzibit_length, reception_buffer, xzibit_length+4+32+8, server_public_key)!=0)
 	{
 		perror("Invalid signature for error message.");
 		print_to_log("Error message recived in response to keyrequest. Cannot verify message. Bad joo joo time is here", LOG_ERR);
