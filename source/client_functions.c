@@ -125,6 +125,7 @@ int login(uint32_t socket, char * username, char * xzibit_buffer)
 	char login_buffer[6+255] = {0};
 	char reception_buffer[500] = {0};
 	uint32_t xzibit_version = 0;
+	uint64_t xzibit_length = 0;
 	uint32_t login_buffer_length = snprintf(login_buffer, sizeof(login_buffer), "%s%c%s%c", "LOGIN", '\0', username, '\0');
 	if (write(socket, login_buffer, login_buffer_length)<0)
 	{
@@ -152,7 +153,7 @@ int login(uint32_t socket, char * username, char * xzibit_buffer)
 		return -1;
 	}
 	#ifdef DEBUG
-	printf("Attempting to read response\n");
+	printf("Attempting to read salt\n");
 	#endif /**/
 	//read salt
 	if (read_n_bytes(socket, reception_buffer+4, 32)<32)
@@ -162,20 +163,21 @@ int login(uint32_t socket, char * username, char * xzibit_buffer)
 		return -1;
 	}
 	#ifdef DEBUG
-	printf("Attempting to read response\n");
+	printf("Attempting to read xzibit length\n");
 	#endif /**/
 	//read xzibit length
 	if (read_n_bytes(socket, reception_buffer+4+32, 8)<8)
 	{
 		perror("Incorrect read amount");
-		print_to_log("Failed to read xzibit salt", LOG_ERR);
+		print_to_log("Failed to read xzibit length", LOG_ERR);
 		return -1;
 	}
+	memcpy(&xzibit_length, reception_buffer+4+32, 8);
+	xzibit_length = be64toh(xzibit_length);
 	#ifdef DEBUG
-	printf("Attempting to xzibit_length\n");
-	#endif /**/
+	printf("Attempting to xzibit of length = %ld\n", xzibit_length);
+	#endif /*DEBUG*/
 	//Read xzibit
-	uint64_t xzibit_length = be64toh((int64_t)(reception_buffer+4+32));
 	if (read_n_bytes(socket, reception_buffer+4+32, xzibit_length)<xzibit_length)
 	{
 		perror("Incorrect read amount");
@@ -190,7 +192,7 @@ int login(uint32_t socket, char * username, char * xzibit_buffer)
 		return -1;
 	}
 	//Verify xzibit
-	if (crypto_sign_verify_detached(reception_buffer+4+32+xzibit_length, reception_buffer+4+32, xzibit_length, server_public_key)!=0)
+	if (crypto_sign_verify_detached(reception_buffer+4+32+xzibit_length, reception_buffer+4+32+8, xzibit_length, server_public_key)!=0)
 	{
 		perror("Invalid signature for error message.");
 		print_to_log("Error message recived in response to keyrequest. Cannot verify message. Bad joo joo time is here", LOG_ERR);
