@@ -596,6 +596,9 @@ int32_t noop_responder(uint32_t socket)
 
 int32_t login_responder(uint32_t socket)
 {
+  #ifdef DEBUG
+	printf("Begin login_responder\n");
+	#endif /**/
   char login_username_buffer[ROUTING_FIELD_SIZE] = {0};
   char login_command_buffer[THREAD_COMMAND_BUFFER_SIZE] = {0};
   char xzibit_path_buffer[359] = {0};
