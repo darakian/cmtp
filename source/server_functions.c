@@ -602,11 +602,11 @@ int32_t login_responder(uint32_t socket)
   char login_command_buffer[THREAD_COMMAND_BUFFER_SIZE] = {0};
   char xzibit_path_buffer[359] = {0};
   uint32_t i = 0;
-  read_until(socket, login_username_buffer, sizeof(login_username_buffer), termination_char);
-  // do {
-  //   read(socket, login_username_buffer+i, 1);
-  //   i++;
-  // } while((i<sizeof(login_command_buffer))&&(login_command_buffer[i-1]!=termination_char));
+  i = read_until(socket, login_username_buffer, sizeof(login_username_buffer), termination_char);
+  read_until(socket, login_username_buffer+i, sizeof(login_username_buffer)-i, termination_char);
+  #ifdef DEBUG
+  printf("Past read_untils in login_responder\n");
+  #endif /*DEBUG*/
   if (snprintf(xzibit_path_buffer, sizeof(xzibit_path_buffer), "%s%s%s%s%s", "/mail/", login_username_buffer, "/", login_username_buffer , ".xzibit")<0)
   {
     perror("snprintf");
