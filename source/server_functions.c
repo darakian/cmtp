@@ -622,22 +622,37 @@ int32_t login_responder(uint32_t socket)
   {
     perror("access to user xzibit");
     print_to_log("Cannot access user xzibit. User not valid", LOG_ERR);
+    return -1;
   }
   else
   {
-    //I will need some preamble here, but this works for now
+    //Read Xzibit to buffer
     int xzibit_fd = open(xzibit_path_buffer, O_RDONLY);
-    char temp_char = '\0';
-    write(socket, network_crypto_version, sizeof(network_crypto_version));
-    while(read(xzibit_fd, temp_char, 1)>0)
+    struct stat xzibit_stats;
+    fstat(xzibit_fd, &xzibit_stats);
+    uint64_t xzibit_size = xzibit_stats.st_size;
+    char * xzibit = calloc(1, xzibit_size);
+    if(read(xzibit_fd, xzibit, xzibit_size)<0)
     {
-      if (write(socket, temp_char, 1)<0)
-      {
-        perror("write");
-        print_to_log("Error sending the Xzibit", LOG_ERR);
-        return -1;
-      }
-      temp_char = '\0';
+      perror("Reading user xzibit has gone wrong!");
+      print_to_log("Reading user xzibit has gone wrong. Abort!", LOG_ERR);
+      return -1;
+    }
+    //Sign xzibit
+    char * server_sign_of_xzibit = calloc(1, 64);
+    crypto_sign_detached(server_sign_of_xzibit, NULL, xzibit, sizeof(xzibit), server_private_key);
+    //Write it to the wire
+    if (write(socket, xzibit, sizeof(xzibit))<0)
+    {
+      perror("Writing xzibit to the wire has failed");
+      print_to_log("Writing xzibit to the wire has failed", LOG_ERR);
+      return -1;
+    }
+    if (write(socket, server_sign_of_xzibit, sizeof(server_sign_of_xzibit))<0)
+    {
+      perror("Writing server_sign_of_xzibit to the wire has failed");
+      print_to_log("Writing server_sign_of_xzibit to the wire has failed", LOG_ERR);
+      return -1;
     }
   }
   return 0;
