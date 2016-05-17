@@ -638,9 +638,17 @@ int32_t login_responder(uint32_t socket)
       print_to_log("Reading user xzibit has gone wrong. Abort!", LOG_ERR);
       return -1;
     }
+    #ifdef DEBUG
+    printf("Xzibit size = %d\n", xzibit_size);
+    #endif /*DEBUG*/
     //Sign xzibit
     char * server_sign_of_xzibit = calloc(1, 64);
-    crypto_sign_detached(server_sign_of_xzibit, NULL, xzibit, sizeof(xzibit), server_private_key);
+    if (crypto_sign_detached(server_sign_of_xzibit, NULL, xzibit, sizeof(xzibit), server_private_key)!=0)
+    {
+      perror("crypto_sign_detached failed in login responder");
+      print_to_log("crypto_sign_detached failed in login responder", LOG_ERR);
+      return -1;
+    }
     //Write it to the wire
     if (write(socket, xzibit, sizeof(xzibit))<0)
     {
