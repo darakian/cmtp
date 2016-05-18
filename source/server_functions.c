@@ -270,7 +270,13 @@ void * connection_manager(void * connection_manager_argument)
     //OHAI
     if (memcmp(cmtp_command_OHAI, thread_command_buffer, sizeof(cmtp_command_OHAI))==0)
     {
-      ohai_responder(thread_connection);
+      if (ohai_responder(thread_connection)<0)
+      {
+        perror("ohai_responder error");
+        print_to_log("ohai_responder error", LOG_ERR);
+        memset(thread_command_buffer, 0, sizeof(thread_command_buffer));
+        return -1;
+      }
       memset(thread_command_buffer, 0, sizeof(thread_command_buffer));
     }
 
@@ -278,14 +284,26 @@ void * connection_manager(void * connection_manager_argument)
     //Should send the crypto_type (All 4 bytes!) followed by the public key of the null terminated user followed by the server signature of the users public key.
     if (i==11&&memcmp(cmtp_command_KEYREQUEST, thread_command_buffer, sizeof(cmtp_command_KEYREQUEST))==0)
     {
-      keyrequest_responder(thread_connection);
+      if(keyrequest_responder(thread_connection)<0)
+      {
+        perror("keyrequest_responder error");
+        print_to_log("keyrequest_responder error", LOG_ERR);
+        memset(thread_command_buffer, 0, sizeof(thread_command_buffer));
+        return -1;
+      }
       memset(thread_command_buffer, 0, sizeof(thread_command_buffer));
     }
 
     //NOOP
     if (memcmp(cmtp_command_NOOP, thread_command_buffer, sizeof(cmtp_command_NOOP))==0)
     {
-      noop_responder(thread_connection);
+      if (noop_responder(thread_connection)<0)
+      {
+        perror("noop_responder error");
+        print_to_log("noop_responder error", LOG_ERR);
+        memset(thread_command_buffer, 0, sizeof(thread_command_buffer));
+        return -1;
+      }
       memset(thread_command_buffer, 0, sizeof(thread_command_buffer));
     }
 
@@ -294,14 +312,26 @@ void * connection_manager(void * connection_manager_argument)
     //In the future this can be made more elaborate with the user signing something to prove they can decrypt the private key.
     if (memcmp(cmtp_command_LOGIN, thread_command_buffer, sizeof(cmtp_command_LOGIN))==0)
     {
-      login_responder(thread_connection);
+      if(login_responder(thread_connection)<0)
+      {
+        perror("login_responder error");
+        print_to_log("login_responder error", LOG_ERR);
+        memset(thread_command_buffer, 0, sizeof(thread_command_buffer));
+        return -1;
+      }
       memset(thread_command_buffer, 0, sizeof(thread_command_buffer));
     }
 
     //MAIL
     if (memcmp(cmtp_command_MAIL, thread_command_buffer, sizeof(cmtp_command_MAIL))==0)
     {
-      mail_responder(thread_connection);
+      if(mail_responder(thread_connection)<0)
+      {
+        perror("mail_responder error");
+        print_to_log("mail_responder error", LOG_ERR);
+        memset(thread_command_buffer, 0, sizeof(thread_command_buffer));
+        return -1;
+      }
       memset(thread_command_buffer, 0, sizeof(thread_command_buffer));
     }
     //End MAIL section
@@ -309,14 +339,26 @@ void * connection_manager(void * connection_manager_argument)
     //HELP
     if (memcmp(cmtp_command_HELP, thread_command_buffer, sizeof(cmtp_command_HELP))==0)
     {
-      help_responder(thread_connection);
+      if(help_responder(thread_connection)<0)
+      {
+        perror("help_responder error");
+        print_to_log("help_responder error", LOG_ERR);
+        memset(thread_command_buffer, 0, sizeof(thread_command_buffer));
+        return -1;
+      }
       memset(thread_command_buffer, 0, sizeof(thread_command_buffer));
     }
 
     //OBAI
     if (memcmp(cmtp_command_OBAI, thread_command_buffer, 4)==0)
     {
-      obai_responder(thread_connection);
+      if(obai_responder(thread_connection)<0)
+      {
+        perror("obai_responder error");
+        print_to_log("obai_responder error", LOG_ERR);
+        memset(thread_command_buffer, 0, sizeof(thread_command_buffer));
+        return -1;
+      }
       memset(thread_command_buffer, 0, sizeof(thread_command_buffer));
       return NULL;
     }
