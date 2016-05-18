@@ -479,3 +479,30 @@ uint32_t prompt_input_string(char * welcome, char * descriptor, char * storage, 
   memset(input, 0, 256);
   return -1;
 }
+
+int32_t cmtp_hash(uint32_t version, unsigned char * buffer_to_hash, uint32_t buffer_to_hash_length, unsigned char * salt, unsigned char * return_buffer, uint32_t return_buffer_length)
+{
+  if (version==1)
+  {
+    if (return_buffer_length!=32)
+    {
+      perror("return_buffer_length of incorrect size");
+      print_to_log("return_buffer_length of incorrect size in cmtp_hash", LOG_ERR);
+      return -1;
+    }
+    //do version 1 hash
+    unsigned char * hash = calloc(1, 32);
+    if (crypto_pwhash_scryptsalsa208sha256(hash, 32, buffer_to_hash, buffer_to_hash_length, salt, crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_INTERACTIVE,crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_INTERACTIVE) != 0)
+    {
+      perror("crypto_pwhash_scryptsalsa208sha256 error in cmtp_hash");
+      print_to_log("crypto_pwhash_scryptsalsa208sha256 error in cmtp_hash", LOG_ERR);
+      free(hash);
+      return -1;
+    }
+    memcpy(return_buffer, hash, 32);
+    free(hash);
+    return 0;
+  }
+  //Incorrect version. Fail.
+  return -1;
+}

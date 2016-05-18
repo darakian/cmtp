@@ -636,6 +636,7 @@ int32_t login_responder(uint32_t socket)
     {
       perror("Reading user xzibit has gone wrong!");
       print_to_log("Reading user xzibit has gone wrong. Abort!", LOG_ERR);
+      free(xzibit);
       return -1;
     }
     #ifdef DEBUG
@@ -647,6 +648,8 @@ int32_t login_responder(uint32_t socket)
     {
       perror("crypto_sign_detached failed in login responder");
       print_to_log("crypto_sign_detached failed in login responder", LOG_ERR);
+      free(xzibit);
+      free(server_sign_of_xzibit);
       return -1;
     }
     //Write it to the wire
@@ -657,8 +660,11 @@ int32_t login_responder(uint32_t socket)
     {
       perror("Writing xzibit to the wire has failed");
       print_to_log("Writing xzibit to the wire has failed", LOG_ERR);
+      free(xzibit);
+      free(server_sign_of_xzibit);
       return -1;
     }
+    free(xzibit);
     #ifdef DEBUG
     printf("After writing xzibit\n");
     #endif /*DEBUG*/
@@ -666,8 +672,10 @@ int32_t login_responder(uint32_t socket)
     {
       perror("Writing server_sign_of_xzibit to the wire has failed");
       print_to_log("Writing server_sign_of_xzibit to the wire has failed", LOG_ERR);
+      free(server_sign_of_xzibit);
       return -1;
     }
+    free(server_sign_of_xzibit);
     #ifdef DEBUG
     printf("After writing signature\n");
     #endif /*DEBUG*/
