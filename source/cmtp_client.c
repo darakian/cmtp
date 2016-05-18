@@ -88,8 +88,16 @@ int main(int argc, char *argv[])
 	printf("Attempting to login user %s\n", argv[1]);
 	#endif /*DEBUG*/
 
-  char * xzibit = calloc(1, 200);
+  unsigned char * xzibit = calloc(1, 200);
+  unsigned char * private_key_buffer = calloc(1, 64);
 	login(client_socket, argv[1], xzibit);
+  if(decipher_xzibit(user_password, sizeof(user_password), xzibit, private_key_buffer)<0)
+  {
+    perror("decipher_xzibit error");
+    print_to_log("Error deciphering user xzibit", LOG_ERR);
+    return -1;
+  }
+
   #ifdef DEBUG
 	printf("Login complete for user %s\n", argv[1]);
 	#endif /*DEBUG*/
