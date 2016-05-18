@@ -285,7 +285,7 @@ void * connection_manager(void * connection_manager_argument)
     //NOOP
     if (memcmp(cmtp_command_NOOP, thread_command_buffer, sizeof(cmtp_command_NOOP))==0)
     {
-      int32_t noop_responder(uint32_t socket);
+      noop_responder(thread_connection);
       memset(thread_command_buffer, 0, sizeof(thread_command_buffer));
     }
 
