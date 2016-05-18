@@ -524,8 +524,13 @@ int32_t decipher_xzibit(char * password, uint32_t password_length, unsigned char
 		print_to_log("Sodium init failed. Cannot decrypt xzibit", LOG_ERR);
 		return -1;
 	}
+	#ifdef DEBUG
+	printf("Post sodium init\n");
+	#endif /*DEBUG*/
 	unsigned char hash[KEY_LEN] = {0};
-	uint64_t ciphertext_len = be64toh((uint64_t)xzibit_buffer+36);
+	uint64_t ciphertext_len = 0;
+	memcpy(&ciphertext_len, xzibit_buffer+36, 8);
+	ciphertext_len = be64toh(ciphertext_len);
 	unsigned char plaintext[512];
 	uint64_t plaintext_len = 0;
 	unsigned char nonce[crypto_aead_aes256gcm_NPUBBYTES];
@@ -537,16 +542,25 @@ int32_t decipher_xzibit(char * password, uint32_t password_length, unsigned char
 		print_to_log("Cannot hash user password.", LOG_ERR);
 		return -1;
   }
-
+	#ifdef DEBUG
+	printf("Post password hash\n");
+	printf("nonce size = %d\n", crypto_aead_aes256gcm_NPUBBYTES);
+	printf("ciphertext_len = %ld\n", ciphertext_len);
+	#endif /*DEBUG*/
 	if (ciphertext_len < crypto_aead_aes256gcm_ABYTES || crypto_aead_aes256gcm_decrypt(plaintext, &plaintext_len, NULL, xzibit_buffer+44, ciphertext_len, NULL, 0, nonce, hash) != 0)
 	{
     perror("xzibit decrypt error");
 		print_to_log("Xzibit decrypt error", LOG_ERR);
 		return -1;
 	}
+	#ifdef DEBUG
+	printf("Post AES decrypt\n");
+	#endif /*DEBUG*/
 	//Copy key and return
 	memcpy(private_key_buffer, plaintext, 64);
-
+	#ifdef DEBUG
+	printf("Post memcpy. Returning\n");
+	#endif /*DEBUG*/
 	return 0;
 }
 
