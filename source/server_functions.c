@@ -643,15 +643,15 @@ int32_t login_responder(uint32_t socket)
   char login_username_buffer[ROUTING_FIELD_SIZE] = {0};
   char login_command_buffer[THREAD_COMMAND_BUFFER_SIZE] = {0};
   char xzibit_path_buffer[359] = {0};
-  uint32_t i = 0;
-  i = read_until(socket, login_username_buffer, sizeof(login_username_buffer), termination_char);
-  #ifdef DEBUG
-  printf("login_username_buffer looks like:\n");
-  for (int j = 0; j<i;j++)
-  {
-    printf("%x  :  %c\n", login_username_buffer[j]);
-  }
-  #endif /*DEBUG*/
+  //uint32_t i = 0;
+  read_until(socket, login_username_buffer, sizeof(login_username_buffer), termination_char);
+  // #ifdef DEBUG
+  // printf("login_username_buffer looks like:\n");
+  // for (int j = 0; j<i;j++)
+  // {
+  //   printf("%x  :  %c\n", login_username_buffer[j]);
+  // }
+  // #endif /*DEBUG*/
   if (snprintf(xzibit_path_buffer, sizeof(xzibit_path_buffer), "%s%s%s%s%s", "/mail/", login_username_buffer, "/", login_username_buffer , ".xzibit")<0)
   {
     perror("snprintf");
@@ -851,10 +851,6 @@ int32_t mail_responder(uint32_t socket)
     memcpy(write_buffer+sizeof(network_crypto_version)+sizeof(cmtp_reply_DELIVERYFAILURE), &signature_of_DELIVERYFAILURE, sizeof(signature_of_DELIVERYFAILURE));
     memcpy(write_buffer+sizeof(network_crypto_version)+sizeof(cmtp_reply_DELIVERYFAILURE)+sizeof(signature_of_DELIVERYFAILURE), termination_char, sizeof(termination_char));
     write(socket, write_buffer, sizeof(write_buffer));
-    if (close(unique_file_location)<0)
-    {
-
-    }
   }
 
   if ((source_account_length=read_until(socket, source_account_buffer, sizeof(source_account_buffer), '\0'))<0)
