@@ -192,9 +192,6 @@ int login(uint32_t socket, char * username, char * xzibit_buffer)
 		return -1;
 	}
 	//Verify xzibit
-	#ifdef DEBUG
-	print_buffer(reception_buffer, 156, NULL, 156, 1);
-	#endif /*DEBUG*/
 	if (crypto_sign_verify_detached(reception_buffer+4+32+8+xzibit_length, reception_buffer, xzibit_length+4+32+8, server_public_key)!=0)
 	{
 		perror("Invalid signature for error message.");
