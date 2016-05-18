@@ -682,7 +682,7 @@ int32_t login_responder(uint32_t socket)
       return -1;
     }
     #ifdef DEBUG
-    printf("Xzibit size = %d\n", xzibit_size);
+    printf("Xzibit size = %ld\n", xzibit_size);
     #endif /*DEBUG*/
     //Sign xzibit
     char * server_sign_of_xzibit = calloc(1, 64);
@@ -849,7 +849,7 @@ int32_t mail_responder(uint32_t socket)
     memcpy(write_buffer, &network_crypto_version, sizeof(network_crypto_version));
     memcpy(write_buffer+sizeof(network_crypto_version), cmtp_reply_DELIVERYFAILURE, sizeof(cmtp_reply_DELIVERYFAILURE));
     memcpy(write_buffer+sizeof(network_crypto_version)+sizeof(cmtp_reply_DELIVERYFAILURE), &signature_of_DELIVERYFAILURE, sizeof(signature_of_DELIVERYFAILURE));
-    memcpy(write_buffer+sizeof(network_crypto_version)+sizeof(cmtp_reply_DELIVERYFAILURE)+sizeof(signature_of_DELIVERYFAILURE), termination_char, sizeof(termination_char));
+    memcpy(write_buffer+sizeof(network_crypto_version)+sizeof(cmtp_reply_DELIVERYFAILURE)+sizeof(signature_of_DELIVERYFAILURE), &termination_char, sizeof(termination_char));
     write(socket, write_buffer, sizeof(write_buffer));
   }
 
