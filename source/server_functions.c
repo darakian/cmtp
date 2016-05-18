@@ -275,7 +275,7 @@ void * connection_manager(void * connection_manager_argument)
         perror("ohai_responder error");
         print_to_log("ohai_responder error", LOG_ERR);
         memset(thread_command_buffer, 0, sizeof(thread_command_buffer));
-        return -1;
+        return NULL;
       }
       memset(thread_command_buffer, 0, sizeof(thread_command_buffer));
     }
@@ -289,7 +289,7 @@ void * connection_manager(void * connection_manager_argument)
         perror("keyrequest_responder error");
         print_to_log("keyrequest_responder error", LOG_ERR);
         memset(thread_command_buffer, 0, sizeof(thread_command_buffer));
-        return -1;
+        return NULL;
       }
       memset(thread_command_buffer, 0, sizeof(thread_command_buffer));
     }
@@ -302,7 +302,7 @@ void * connection_manager(void * connection_manager_argument)
         perror("noop_responder error");
         print_to_log("noop_responder error", LOG_ERR);
         memset(thread_command_buffer, 0, sizeof(thread_command_buffer));
-        return -1;
+        return NULL;
       }
       memset(thread_command_buffer, 0, sizeof(thread_command_buffer));
     }
@@ -317,7 +317,7 @@ void * connection_manager(void * connection_manager_argument)
         perror("login_responder error");
         print_to_log("login_responder error", LOG_ERR);
         memset(thread_command_buffer, 0, sizeof(thread_command_buffer));
-        return -1;
+        return NULL;
       }
       memset(thread_command_buffer, 0, sizeof(thread_command_buffer));
     }
@@ -330,7 +330,7 @@ void * connection_manager(void * connection_manager_argument)
         perror("mail_responder error");
         print_to_log("mail_responder error", LOG_ERR);
         memset(thread_command_buffer, 0, sizeof(thread_command_buffer));
-        return -1;
+        return NULL;
       }
       memset(thread_command_buffer, 0, sizeof(thread_command_buffer));
     }
@@ -344,7 +344,7 @@ void * connection_manager(void * connection_manager_argument)
         perror("help_responder error");
         print_to_log("help_responder error", LOG_ERR);
         memset(thread_command_buffer, 0, sizeof(thread_command_buffer));
-        return -1;
+        return NULL;
       }
       memset(thread_command_buffer, 0, sizeof(thread_command_buffer));
     }
@@ -357,7 +357,7 @@ void * connection_manager(void * connection_manager_argument)
         perror("obai_responder error");
         print_to_log("obai_responder error", LOG_ERR);
         memset(thread_command_buffer, 0, sizeof(thread_command_buffer));
-        return -1;
+        return NULL;
       }
       memset(thread_command_buffer, 0, sizeof(thread_command_buffer));
       return NULL;
