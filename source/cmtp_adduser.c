@@ -116,7 +116,7 @@ int main(int argc, char * argv[])
   //Symetric cipher with hashed user_password
   unsigned char ciphertext[sizeof(user_publickey)+sizeof(user_secretkey)+crypto_aead_aes256gcm_ABYTES] = {0};
   #ifdef DEBUG
-  printf("Ciphertext length = %d, private key length = %d, public key length = %d\n", sizeof(ciphertext), sizeof(user_secretkey), sizeof(user_publickey));
+  printf("Ciphertext length = %ld, private key length = %ld, public key length = %ld\n", sizeof(ciphertext), sizeof(user_secretkey), sizeof(user_publickey));
   #endif /*DEBUG*/
   uint64_t ciphertext_length = sizeof(ciphertext);
   uint64_t be_ciphertext_length = htobe64(ciphertext_length);
