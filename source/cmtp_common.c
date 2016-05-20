@@ -482,7 +482,7 @@ uint32_t prompt_input_string(char * welcome, char * descriptor, char * storage, 
   return -1;
 }
 
-int32_t cmtp_hash(uint32_t version, unsigned char * buffer_to_hash, uint32_t buffer_to_hash_length, unsigned char * salt, unsigned char * return_buffer, uint32_t return_buffer_length)
+int32_t cmtp_hash(uint32_t version, char * buffer_to_hash, uint32_t buffer_to_hash_length, unsigned char * salt, unsigned char * return_buffer, uint32_t return_buffer_length)
 {
   if (version==1)
   {

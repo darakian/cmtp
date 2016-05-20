@@ -641,7 +641,7 @@ int32_t login_responder(uint32_t socket)
 	printf("Begin login_responder\n");
 	#endif /**/
   char login_username_buffer[ROUTING_FIELD_SIZE] = {0};
-  char login_command_buffer[THREAD_COMMAND_BUFFER_SIZE] = {0};
+  //char login_command_buffer[THREAD_COMMAND_BUFFER_SIZE] = {0};
   char xzibit_path_buffer[359] = {0};
   //uint32_t i = 0;
   read_until(socket, login_username_buffer, sizeof(login_username_buffer), termination_char);
@@ -673,7 +673,7 @@ int32_t login_responder(uint32_t socket)
     struct stat xzibit_stats;
     fstat(xzibit_fd, &xzibit_stats);
     uint64_t xzibit_size = xzibit_stats.st_size;
-    char * xzibit = calloc(1, xzibit_size);
+    unsigned char * xzibit = calloc(1, xzibit_size);
     if(read(xzibit_fd, xzibit, xzibit_size)<0)
     {
       perror("Reading user xzibit has gone wrong!");
@@ -685,7 +685,7 @@ int32_t login_responder(uint32_t socket)
     printf("Xzibit size = %ld\n", xzibit_size);
     #endif /*DEBUG*/
     //Sign xzibit
-    char * server_sign_of_xzibit = calloc(1, 64);
+    unsigned char * server_sign_of_xzibit = calloc(1, 64);
     if (crypto_sign_detached(server_sign_of_xzibit, NULL, xzibit, xzibit_size, server_private_key)!=0)
     {
       perror("crypto_sign_detached failed in login responder");
@@ -769,6 +769,12 @@ int32_t mail_responder(uint32_t socket)
 
   //unique_file_name_length is not currently used. Should be fine.
   uint32_t unique_file_name_length = base64_encode((char *)hash, sizeof(hash), unique_file_name, sizeof(unique_file_name), (char *)filesystem_safe_base64_string, 64);
+  if (unique_file_name_length<=0)
+  {
+    perror("base64_encode. unique_file_name failed to be created");
+    print_to_log("base64_encode failed to create a unique_file_name.", LOG_ERR);
+    return -1;
+  }
   //uint32_t base64_username_length = base64_encode((char *)dest_account_buffer, strlen(dest_account_buffer), base64_username, strlen(base64_username), (char *)filesystem_safe_base64_string, 64);
   //Read primary routing and processing information
   //First read in fixed length fields

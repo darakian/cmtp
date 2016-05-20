@@ -32,6 +32,6 @@ int32_t read_until(uint32_t socket, char * reception_buffer, uint32_t reception_
 
 uint32_t prompt_input_string(char * welcome, char * descriptor, char * storage, uint32_t storage_length);
 
-int32_t cmtp_hash(uint32_t version, unsigned char * buffer_to_hash, uint32_t buffer_to_hash_length, unsigned char * salt, unsigned char * return_buffer, uint32_t return_buffer_length);
+int32_t cmtp_hash(uint32_t version, char * buffer_to_hash, uint32_t buffer_to_hash_length, unsigned char * salt, unsigned char * return_buffer, uint32_t return_buffer_length);
 
 #endif /* _cmtp_common_h */
