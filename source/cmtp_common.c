@@ -418,7 +418,7 @@ void print_buffer (const char * buffer, int count, char * desc,
 
 int32_t read_n_bytes(uint32_t socket, char * reception_buffer, uint64_t n)
 {
-	int32_t received = 0;
+	uint32_t received = 0;
   int64_t count = 0;
 	do{
 		count = read(socket, reception_buffer+received, 1);
@@ -426,6 +426,7 @@ int32_t read_n_bytes(uint32_t socket, char * reception_buffer, uint64_t n)
     {
       perror("read_n_bytes");
       print_to_log("Error reading in read_n_bytes", LOG_ERR);
+      return -1;
     }
 		received+=count;
 		if (received==n)
@@ -438,7 +439,7 @@ int32_t read_n_bytes(uint32_t socket, char * reception_buffer, uint64_t n)
 
 int32_t read_until(uint32_t socket, char * reception_buffer, uint32_t reception_buffer_size, char terminator)
 {
-	int32_t received = 0;
+	uint32_t received = 0;
   int32_t count = 0;
 	do{
 		count = read(socket, reception_buffer+received, 1);
@@ -446,6 +447,7 @@ int32_t read_until(uint32_t socket, char * reception_buffer, uint32_t reception_
     {
       perror("read_until");
       print_to_log("Error reading in read_until", LOG_ERR);
+      return -1;
     }
 		if (reception_buffer[received]==terminator)
 		  {
