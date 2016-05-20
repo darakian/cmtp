@@ -644,7 +644,7 @@ int32_t login_responder(uint32_t socket)
   //char login_command_buffer[THREAD_COMMAND_BUFFER_SIZE] = {0};
   char xzibit_path_buffer[359] = {0};
   //uint32_t i = 0;
-  read_until(socket, login_username_buffer, sizeof(login_username_buffer), termination_char);
+  read_until(socket, (unsigned char *)login_username_buffer, sizeof(login_username_buffer), termination_char);
   // #ifdef DEBUG
   // printf("login_username_buffer looks like:\n");
   // for (int j = 0; j<i;j++)
@@ -778,32 +778,32 @@ int32_t mail_responder(uint32_t socket)
   //uint32_t base64_username_length = base64_encode((char *)dest_account_buffer, strlen(dest_account_buffer), base64_username, strlen(base64_username), (char *)filesystem_safe_base64_string, 64);
   //Read primary routing and processing information
   //First read in fixed length fields
-  if (read_n_bytes(socket, (char *)&version, 4)!=4)
+  if (read_n_bytes(socket, (unsigned char *)&version, 4)!=4)
   {
     perror("read_n_bytes version");
     print_to_log("Read error while reading crypto type", LOG_ERR);
     return -1;
   }
-  if (read_n_bytes(socket, (char *)&attachment_count, 4)!=4)
+  if (read_n_bytes(socket, (unsigned char *)&attachment_count, 4)!=4)
   {
     perror("read_n_bytes attachment_count");
     print_to_log("Read error while reading attachment count", LOG_ERR);
     return -1;
   }
-  if (read_n_bytes(socket, (char *)&log_length, 8)!=8)
+  if (read_n_bytes(socket, (unsigned char *)&log_length, 8)!=8)
   {
     perror("read_n_bytes log_length");
     print_to_log("Read error while reading message length", LOG_ERR);
     return -1;
   }
-  if (read_n_bytes(socket, (char *)&message_length, 8)!=8)
+  if (read_n_bytes(socket, (unsigned char *)&message_length, 8)!=8)
   {
     perror("read_n_bytes message_length");
     print_to_log("Read error while reading message length", LOG_ERR);
     return -1;
   }
   //Read in account and domain info
-  if ((dest_account_length=read_until(socket, dest_account_buffer, sizeof(dest_account_buffer), '\0'))<0)
+  if ((dest_account_length=read_until(socket, (unsigned char *)dest_account_buffer, sizeof(dest_account_buffer), '\0'))<0)
   {
     perror("read_until");
     print_to_log("Read error while reading dest_account_buffer", LOG_ERR);
@@ -835,7 +835,7 @@ int32_t mail_responder(uint32_t socket)
   #ifdef DEBUG
   printf("dest_account_length = %d\n", dest_account_length);
   #endif /*DEBUG*/
-  if ((dest_domain_length=read_until(socket, dest_domain_buffer, sizeof(dest_domain_buffer), '\0'))<0)
+  if ((dest_domain_length=read_until(socket, (unsigned char *)dest_domain_buffer, sizeof(dest_domain_buffer), '\0'))<0)
   {
     perror("read_until");
     print_to_log("Read error while reading dest_domain_buffer", LOG_ERR);
@@ -859,7 +859,7 @@ int32_t mail_responder(uint32_t socket)
     write(socket, write_buffer, sizeof(write_buffer));
   }
 
-  if ((source_account_length=read_until(socket, source_account_buffer, sizeof(source_account_buffer), '\0'))<0)
+  if ((source_account_length=read_until(socket, (unsigned char *)source_account_buffer, sizeof(source_account_buffer), '\0'))<0)
   {
     perror("read_until");
     print_to_log("Read error while reading source_account_buffer", LOG_ERR);
@@ -869,7 +869,7 @@ int32_t mail_responder(uint32_t socket)
   #ifdef DEBUG
   printf("source_account_length = %d\n", source_account_length);
   #endif /*DEBUG*/
-  if ((source_domain_length=read_until(socket, source_domain_buffer, sizeof(source_domain_buffer), '\0'))<0)
+  if ((source_domain_length=read_until(socket, (unsigned char *)source_domain_buffer, sizeof(source_domain_buffer), '\0'))<0)
   {
     perror("read_until");
     print_to_log("Read error while reading source_domain_buffer", LOG_ERR);

@@ -26,9 +26,9 @@ int enter_jail(char * jail_directory, char * new_user);
 
 void print_buffer (const char * buffer, int count, char * desc, int max, int print_eol);
 
-int32_t read_n_bytes(uint32_t socket, char * reception_buffer, uint64_t n);
+int32_t read_n_bytes(uint32_t socket, unsigned char * reception_buffer, uint64_t n);
 
-int32_t read_until(uint32_t socket, char * reception_buffer, uint32_t reception_buffer_size, char terminator);
+int32_t read_until(uint32_t socket, unsigned char * reception_buffer, uint32_t reception_buffer_size, char terminator);
 
 uint32_t prompt_input_string(char * welcome, char * descriptor, char * storage, uint32_t storage_length);
 

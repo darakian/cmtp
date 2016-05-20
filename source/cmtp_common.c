@@ -416,7 +416,7 @@ void print_buffer (const char * buffer, int count, char * desc,
     printf ("\n");
 }
 
-int32_t read_n_bytes(uint32_t socket, char * reception_buffer, uint64_t n)
+int32_t read_n_bytes(uint32_t socket, unsigned char * reception_buffer, uint64_t n)
 {
 	uint32_t received = 0;
   int64_t count = 0;
@@ -437,7 +437,7 @@ int32_t read_n_bytes(uint32_t socket, char * reception_buffer, uint64_t n)
     return received;
 }
 
-int32_t read_until(uint32_t socket, char * reception_buffer, uint32_t reception_buffer_size, char terminator)
+int32_t read_until(uint32_t socket, unsigned char * reception_buffer, uint32_t reception_buffer_size, char terminator)
 {
 	uint32_t received = 0;
   int32_t count = 0;

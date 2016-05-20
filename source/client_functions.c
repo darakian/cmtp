@@ -120,10 +120,10 @@ int connect_remoteV6()
 	return 0;
 }
 
-int login(uint32_t socket, char * username, char * xzibit_buffer)
+int login(uint32_t socket, char * username, unsigned char * xzibit_buffer)
 {
 	char login_buffer[6+255] = {0};
-	char reception_buffer[500] = {0};
+	unsigned char reception_buffer[500] = {0};
 	uint32_t xzibit_version = 0;
 	uint64_t xzibit_length = 0;
 	uint32_t login_buffer_length = snprintf(login_buffer, sizeof(login_buffer), "%s%c%s%c", "LOGIN", '\0', username, '\0');
@@ -144,7 +144,7 @@ int login(uint32_t socket, char * username, char * xzibit_buffer)
 	xzibit_version = be32toh(xzibit_version);
 	#ifdef DEBUG
 	printf("Attempting check version = %d\n", xzibit_version);
-	print_buffer(reception_buffer, 4, NULL, sizeof(reception_buffer), 1);
+	//print_buffer(reception_buffer, 4, NULL, sizeof(reception_buffer), 1);
 	#endif /**/
 	if (xzibit_version!=1)
 	{
@@ -320,7 +320,7 @@ int32_t build_message(unsigned char * body, long body_length, unsigned char * re
 	#endif /*DEBUG*/
 	memcpy(cipher_buffer, crypto_buffer, (cipher_text_length+attachments_length));
 	free(crypto_buffer);
-	print_buffer(cipher_buffer, cipher_text_length, NULL, sizeof(cipher_buffer), 1);
+	// print_buffer(cipher_buffer, cipher_text_length, NULL, sizeof(cipher_buffer), 1);
 	return (cipher_text_length+attachments_length);
 }
 
@@ -393,8 +393,8 @@ int32_t request_user_key(uint32_t socket, char * user, char * domain, unsigned c
 		printf("Read %d bytes as response to server keyrequest\n", read_length);
 		#endif /*DEBUG*/
 		//Verify server key
-		print_buffer(reception_buffer+4, 32, "Server public key: ", 32, 1);
-		print_buffer(reception_buffer+4+crypto_sign_ed25519_PUBLICKEYBYTES+sizeof(termination_char), 64, "Server public key signature: ", 64, 1);
+		// print_buffer(reception_buffer+4, 32, "Server public key: ", 32, 1);
+		// print_buffer(reception_buffer+4+crypto_sign_ed25519_PUBLICKEYBYTES+sizeof(termination_char), 64, "Server public key signature: ", 64, 1);
 		int32_t temp_int = 0;
 		if ((temp_int = crypto_sign_verify_detached(reception_buffer+4+crypto_sign_ed25519_PUBLICKEYBYTES+sizeof(termination_char), reception_buffer+4, crypto_sign_ed25519_PUBLICKEYBYTES, reception_buffer+4))!=0)
 		{
@@ -470,8 +470,8 @@ int32_t request_user_key(uint32_t socket, char * user, char * domain, unsigned c
 	{
 		//error message case. Verify signature and take action.
 		#ifdef DEBUG
-		print_buffer (server_public_key, 32, "Server public key: ", 32, 1);
-		print_buffer (reception_buffer+4, 32, "User public key: ", 32, 1);
+		// print_buffer (server_public_key, 32, "Server public key: ", 32, 1);
+		// print_buffer (reception_buffer+4, 32, "User public key: ", 32, 1);
 		#endif /*DEBUG*/
 		if (crypto_sign_verify_detached(reception_buffer+4+crypto_sign_ed25519_PUBLICKEYBYTES+sizeof(termination_char), reception_buffer+4, crypto_sign_ed25519_PUBLICKEYBYTES, server_public_key)!=0)
 		{
@@ -483,8 +483,8 @@ int32_t request_user_key(uint32_t socket, char * user, char * domain, unsigned c
 	if (version==1)
 	{
 		#ifdef DEBUG
-		print_buffer (server_public_key, 32, "Server public key: ", 32, 1);
-		print_buffer (reception_buffer+4, 32, "User public key: ", 32, 1);
+		// print_buffer (server_public_key, 32, "Server public key: ", 32, 1);
+		// print_buffer (reception_buffer+4, 32, "User public key: ", 32, 1);
 		#endif /*DEBUG*/
 		//check signature
 		if (crypto_sign_verify_detached(reception_buffer+4+crypto_sign_ed25519_PUBLICKEYBYTES+sizeof(termination_char), reception_buffer+4, crypto_sign_ed25519_PUBLICKEYBYTES, server_public_key) != 0)
@@ -596,7 +596,6 @@ uint32_t create_recipient_string(char * user, char * domain, char * full)
 int32_t interperate_server_response(uint32_t socket)
 {
 	char server_response[255] = {0};
-	char temp_read_byte = 0;
 	uint32_t i = 4;
 	//Read version
 	if (read(socket, server_response, 4)<0)

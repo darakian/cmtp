@@ -15,7 +15,7 @@ int client_init();
 
 int connect_remoteV4(uint32_t socket, struct sockaddr_in * remote_sockaddr);
 
-int login(uint32_t socket, char * username, char * xzibit_buffer);
+int login(uint32_t socket, char * username, unsigned char * xzibit_buffer);
 
 int32_t send_message(uint32_t socket, char * header_buffer, uint32_t header_buffer_length, unsigned char * message_buffer, uint32_t message_buffer_length);
 
@@ -42,5 +42,7 @@ int32_t interperate_server_response(uint32_t socket);
 uint32_t menu_prompt();
 
 int32_t clear_socket(uint32_t socket);
+
+int32_t this_is_the_end(uint32_t my_only_friend);
 
 #endif
