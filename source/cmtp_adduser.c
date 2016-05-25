@@ -95,9 +95,8 @@ int main(int argc, char * argv[])
   unsigned char nonce[crypto_aead_aes256gcm_NPUBBYTES];
   unsigned char salt[crypto_pwhash_scryptsalsa208sha256_SALTBYTES];
   unsigned char key[KEY_LEN];
-
-  randombytes_buf(nonce, sizeof nonce);
-  randombytes_buf(salt, sizeof salt);
+  randombytes_buf(salt, sizeof(salt));
+  memcpy(nonce, salt, sizeof(nonce));
   //Using scrypt here. Switch to argon2 when available
   if (crypto_pwhash_scryptsalsa208sha256(key, sizeof(key), user_password, strlen(user_password), salt, crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_INTERACTIVE,crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_INTERACTIVE) != 0)
   {

@@ -534,6 +534,7 @@ int32_t decipher_xzibit(char * password, uint32_t password_length, unsigned char
 	unsigned char plaintext[512];
 	uint64_t plaintext_len = 0;
 	unsigned char nonce[crypto_aead_aes256gcm_NPUBBYTES];
+	memcpy(nonce, xzibit_buffer+4, sizeof(nonce))
 	randombytes_buf(nonce, sizeof nonce);
 	//Hash password
 	if (crypto_pwhash_scryptsalsa208sha256(hash, sizeof(hash), password, password_length, xzibit_buffer+4, crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_INTERACTIVE,crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_INTERACTIVE) != 0)
