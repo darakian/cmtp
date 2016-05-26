@@ -84,14 +84,17 @@ int main(int argc, char *argv[])
     print_to_log("Username too long or password too short. Exiting.", LOG_CRIT);
     exit(1);
   }
+  //Trim trailing newline character from user_password
+  user_password[strcspn(user_password, "\n")] = 0;
   #ifdef DEBUG
 	printf("Attempting to login user %s\n", argv[1]);
+  printf("Password = %s\n", user_password);
 	#endif /*DEBUG*/
 
   unsigned char * xzibit = calloc(1, 200);
   unsigned char * private_key_buffer = calloc(1, 64);
 	login(client_socket, argv[1], xzibit);
-  if(decipher_xzibit(user_password, sizeof(user_password), xzibit, private_key_buffer)<0)
+  if(decipher_xzibit(user_password, strlen(user_password), xzibit, private_key_buffer)<0)
   {
     perror("decipher_xzibit error");
     print_to_log("Error deciphering user xzibit", LOG_ERR);

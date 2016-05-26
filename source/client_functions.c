@@ -521,7 +521,7 @@ int32_t decipher_xzibit(char * password, uint32_t password_length, unsigned char
 	if(sodium_init()==-1)
 	{
 		perror("Cannot use crypto");
-		print_to_log("Sodium init failed. Cannot decrypt xzibit", LOG_ERR);
+		print_to_log("Sodium init failed. Cannot decrypt xzibit_buffer", LOG_ERR);
 		return -1;
 	}
 	#ifdef DEBUG
@@ -534,10 +534,16 @@ int32_t decipher_xzibit(char * password, uint32_t password_length, unsigned char
 	unsigned char plaintext[512];
 	uint64_t plaintext_len = 0;
 	unsigned char nonce[crypto_aead_aes256gcm_NPUBBYTES];
+	unsigned char salt[crypto_pwhash_scryptsalsa208sha256_SALTBYTES];
 	memcpy(nonce, xzibit_buffer+4, sizeof(nonce));
+	memcpy(salt, xzibit_buffer+4, sizeof(salt));
+	#ifdef DEBUG
+	printf("password_length = %d\n", password_length);
 	print_buffer(nonce, sizeof(nonce), "nonce", 12, 1);
+	print_buffer(salt, sizeof(salt), "salt", 32, 1);
+	#endif /*DEBUG*/
 	//Hash password
-	if (crypto_pwhash_scryptsalsa208sha256(hash, sizeof(hash), password, password_length, xzibit_buffer+4, crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_INTERACTIVE,crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_INTERACTIVE) != 0)
+	if (crypto_pwhash_scryptsalsa208sha256(hash, sizeof(hash), password, password_length, salt, crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_INTERACTIVE,crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_INTERACTIVE) != 0)
   {
     perror("crypto_pwhash_scryptsalsa208sha256");
 		print_to_log("Cannot hash user password.", LOG_ERR);
@@ -553,7 +559,7 @@ int32_t decipher_xzibit(char * password, uint32_t password_length, unsigned char
 	{
 		printf("Here\n");
 		print_buffer(plaintext, plaintext_len, "plaintext", 256, 1);
-    perror("xzibit decrypt error");
+    perror("xzibit_buffer decrypt error");
 		print_to_log("Xzibit decrypt error", LOG_ERR);
 		return -1;
 	}
