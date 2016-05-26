@@ -110,6 +110,7 @@ int main(int argc, char * argv[])
   }
   printf("\n");
   printf("End password hash\n");
+  print_buffer(nonce, sizeof(nonce), "nonce", 12, 1);
   #endif /*DEBUG*/
 
   //Symetric cipher with hashed user_password
