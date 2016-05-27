@@ -199,9 +199,9 @@ int login(uint32_t socket, char * username, unsigned char * xzibit_buffer)
 		return -1;
 	}
 	//Return everything but the signature
-	memcpy(xzibit_buffer, reception_buffer, 4+32+xzibit_length);
+	memcpy(xzibit_buffer, reception_buffer, 4+32+8+xzibit_length);
 	//Else we have what we want.
-	return 4+32+xzibit_length;
+	return 4+32+8+xzibit_length;
 }
 
 int32_t send_message(uint32_t socket, char * header_buffer, uint32_t header_buffer_length, unsigned char * message_buffer, uint32_t message_buffer_length)
@@ -434,7 +434,6 @@ int32_t request_user_key(uint32_t socket, char * user, char * domain, unsigned c
 			perror("read");
 			print_to_log("Cannot read reply from key request.", LOG_ERR);
 		}
-
 	}
 
 	//Default keyrequest. Still sends to home server.
