@@ -114,7 +114,6 @@ int main(int argc, char *argv[])
   int32_t header_buffer_length = 0;
   uint32_t recipient_length = 0;
   uint32_t option = 0;
-  printf("DELETE THIS PRINT LATER\n");
   while((option=(menu_prompt()-48)))
   {
     #ifdef DEBUG
