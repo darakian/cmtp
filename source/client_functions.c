@@ -199,9 +199,9 @@ int login(uint32_t socket, char * username, unsigned char * xzibit_buffer)
 		return -1;
 	}
 	//Return everything but the signature
-	memcpy(xzibit_buffer, reception_buffer, 4+32+xzibit_length);
+	memcpy(xzibit_buffer, reception_buffer, 4+32+8+xzibit_length);
 	//Else we have what we want.
-	return 4+32+xzibit_length;
+	return 4+32+8+xzibit_length;
 }
 
 int32_t send_message(uint32_t socket, char * header_buffer, uint32_t header_buffer_length, unsigned char * message_buffer, uint32_t message_buffer_length)
@@ -434,7 +434,6 @@ int32_t request_user_key(uint32_t socket, char * user, char * domain, unsigned c
 			perror("read");
 			print_to_log("Cannot read reply from key request.", LOG_ERR);
 		}
-
 	}
 
 	//Default keyrequest. Still sends to home server.
@@ -527,20 +526,21 @@ int32_t decipher_xzibit(char * password, uint32_t password_length, unsigned char
 	#ifdef DEBUG
 	printf("Post sodium init\n");
 	#endif /*DEBUG*/
+	unsigned char nonce[crypto_aead_aes256gcm_NPUBBYTES];
+	unsigned char salt[crypto_pwhash_scryptsalsa208sha256_SALTBYTES];
 	unsigned char hash[KEY_LEN] = {0};
 	uint64_t ciphertext_len = 0;
+	memcpy(nonce, xzibit_buffer+4, sizeof(nonce));
+	memcpy(salt, xzibit_buffer+4, sizeof(salt));
 	memcpy(&ciphertext_len, xzibit_buffer+36, 8);
 	ciphertext_len = be64toh(ciphertext_len);
 	unsigned char plaintext[512];
 	uint64_t plaintext_len = 0;
-	unsigned char nonce[crypto_aead_aes256gcm_NPUBBYTES];
-	unsigned char salt[crypto_pwhash_scryptsalsa208sha256_SALTBYTES];
-	memcpy(nonce, xzibit_buffer+4, sizeof(nonce));
-	memcpy(salt, xzibit_buffer+4, sizeof(salt));
 	#ifdef DEBUG
 	printf("password_length = %d\n", password_length);
 	print_buffer(nonce, sizeof(nonce), "nonce", 12, 1);
 	print_buffer(salt, sizeof(salt), "salt", 32, 1);
+	print_buffer(xzibit_buffer+44, ciphertext_len, "ciphertext", 256, 1);
 	#endif /*DEBUG*/
 	//Hash password
 	if (crypto_pwhash_scryptsalsa208sha256(hash, sizeof(hash), password, password_length, salt, crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_INTERACTIVE,crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_INTERACTIVE) != 0)
@@ -549,15 +549,16 @@ int32_t decipher_xzibit(char * password, uint32_t password_length, unsigned char
 		print_to_log("Cannot hash user password.", LOG_ERR);
 		return -1;
   }
+	int i = 0;
 	#ifdef DEBUG
 	printf("Post password hash\n");
 	print_buffer(hash, sizeof(hash), "hash", 256, 1);
 	printf("nonce size = %d\n", crypto_aead_aes256gcm_NPUBBYTES);
 	printf("ciphertext_len = %ld, crypto_aead_aes256gcm_ABYTES = %d\n", ciphertext_len, crypto_aead_aes256gcm_ABYTES);
 	#endif /*DEBUG*/
-	if ((ciphertext_len < crypto_aead_aes256gcm_ABYTES) || (crypto_aead_aes256gcm_decrypt(plaintext, &plaintext_len, NULL, xzibit_buffer+44, ciphertext_len, NULL, 0, nonce, hash) != 0))
+	if ((ciphertext_len < crypto_aead_aes256gcm_ABYTES) || ((i=crypto_aead_aes256gcm_decrypt(plaintext, &plaintext_len, NULL, xzibit_buffer+44, ciphertext_len, NULL, 0, nonce, hash)) != 0))
 	{
-		printf("Here\n");
+		printf("AES return value = %d\n", i);
 		print_buffer(plaintext, plaintext_len, "plaintext", 256, 1);
     perror("xzibit_buffer decrypt error");
 		print_to_log("Xzibit decrypt error", LOG_ERR);

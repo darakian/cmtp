@@ -105,16 +105,6 @@ int main(int argc, char *argv[])
 	printf("Login complete for user %s\n", argv[1]);
   print_buffer(private_key_buffer, 64, "Private Key Buffer", 64, 1);
 	#endif /*DEBUG*/
-  snprintf(user_key_path, sizeof(user_key_path), "%s%s%s", "/var/cmtp/mail/", base64_username, "/private.key");
-  if (access(user_key_path, R_OK)<0)
-  {
-    #ifdef DEBUG
-    printf("Cannot access the file at %s\n", user_key_path);
-    #endif /*DEBUG*/
-    perror("Access to private key failed. Aborting");
-    print_to_log("Access to private key failed. Aborting", LOG_CRIT);
-    exit(1);
-  }
 
   char * temp_file = "/var/tmp/cmtp_compose";
   char recipient_user[256] = {0};
