@@ -103,6 +103,7 @@ int main(int argc, char *argv[])
 
   #ifdef DEBUG
 	printf("Login complete for user %s\n", argv[1]);
+  print_buffer(private_key_buffer, 64, "Private Key Buffer", 64, 1);
 	#endif /*DEBUG*/
   snprintf(user_key_path, sizeof(user_key_path), "%s%s%s", "/var/cmtp/mail/", base64_username, "/private.key");
   if (access(user_key_path, R_OK)<0)

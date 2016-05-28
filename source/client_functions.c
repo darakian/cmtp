@@ -553,7 +553,7 @@ int32_t decipher_xzibit(char * password, uint32_t password_length, unsigned char
 	printf("Post password hash\n");
 	print_buffer(hash, sizeof(hash), "hash", 256, 1);
 	printf("nonce size = %d\n", crypto_aead_aes256gcm_NPUBBYTES);
-	printf("ciphertext_len = %ld\n", ciphertext_len);
+	printf("ciphertext_len = %ld, crypto_aead_aes256gcm_ABYTES = %d\n", ciphertext_len, crypto_aead_aes256gcm_ABYTES);
 	#endif /*DEBUG*/
 	if ((ciphertext_len < crypto_aead_aes256gcm_ABYTES) || (crypto_aead_aes256gcm_decrypt(plaintext, &plaintext_len, NULL, xzibit_buffer+44, ciphertext_len, NULL, 0, nonce, hash) != 0))
 	{
