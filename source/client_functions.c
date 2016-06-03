@@ -668,6 +668,7 @@ int32_t select_mail(char * mail_directory)
 	struct dirent *ent;
 	uint32_t index = 0;
 	uint32_t selection = 0;
+	int32_t open_file = 0;
 	if ((dir = opendir(mail_directory)) != NULL)
 	{
 	  while ((ent = readdir(dir))!=NULL)
@@ -694,12 +695,33 @@ int32_t select_mail(char * mail_directory)
 			perror("Bad file selection");
 			return -1;
 		}
+		else
+		{
+			if ((dir = opendir(mail_directory)) != NULL)
+			{
+				for(int i = 0; i<selection; i++)
+				{
+					if(ent=readdir(dir)!=NULL)
+					{
+						continue;
+					}
+					else
+					{
+						perror("readdir");
+						closedir(dir);
+						return -1;
+					}
+				}
+				closedir(dir);
+				open_file = open(ent->d_name, O_RDONLY);
+				return open_file;
+			}
+		}
 	}
 	else
 	{
   perror ("opendir");
 	print_to_log("Could not open directory", LOG_ERR);
-  return NULL;
+  return -1;
 	}
-	return dir;
 }
