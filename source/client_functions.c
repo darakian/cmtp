@@ -662,29 +662,44 @@ int32_t this_is_the_end(uint32_t my_only_friend) //Input should be a socket
 	return 0;
 }
 
-int32_t print_dir(char * directory)
+int32_t select_mail(char * mail_directory)
 {
 	char * dir;
 	struct dirent *ent;
 	uint32_t index = 0;
-	if ((dir = opendir(directory)) != NULL)
+	uint32_t selection = 0;
+	if ((dir = opendir(mail_directory)) != NULL)
 	{
-  /* print all the files and directories within directory */
-  while ((ent = readdir(dir))!=NULL)
-	{
-		if (((strcmp(ent->d_name, ".")==0)||(strcmp(ent->d_name, "..")==0)))
+	  while ((ent = readdir(dir))!=NULL)
 		{
-			continue;
+			if (((strcmp(ent->d_name, ".")==0)||(strcmp(ent->d_name, "..")==0)))
+			{
+				continue;
+			}
+	    printf ("%d: %s\n", index, ent->d_name);
+			index++;
+	  }
+	  closedir (dir);
+		char input_selection[10] = {0};
+		if (prompt_input_string("Selection: ", "", input_selection, sizeof(input_selection))<0)
+		{
+			perror("prompt_input_string");
+			print_to_log("Failed to get user input in mail selection", LOG_ERR);
+			return -1;
 		}
-    printf ("%d: %s\n", index, ent->d_name);
-		index++;
-  }
-  closedir (dir);
+		//printf("atoi = %d\n", atoi(input_selection));
+		selection = atoi(input_selection);
+		if ((selection<0)||(selection>index))
+		{
+			perror("Bad file selection");
+			return -1;
+		}
 	}
 	else
 	{
-  /* could not open directory */
-  perror ("");
-  return EXIT_FAILURE;
+  perror ("opendir");
+	print_to_log("Could not open directory", LOG_ERR);
+  return NULL;
 	}
+	return dir;
 }

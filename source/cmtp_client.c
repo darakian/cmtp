@@ -25,6 +25,8 @@ struct addrinfo * addr_result;
 
 int main(int argc, char *argv[])
 {
+  select_mail("/var/cmtp/mail/jon");
+
   if (argc != 3)
   {
     printf("Usage: cmtp_client <USERNAME> <DOMAIN>\n");
