@@ -45,4 +45,6 @@ int32_t clear_socket(uint32_t socket);
 
 int32_t this_is_the_end(uint32_t my_only_friend);
 
+int32_t print_dir(char * directory);
+
 #endif

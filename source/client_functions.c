@@ -13,6 +13,7 @@
 #include <sys/wait.h>
 #include <ctype.h>
 #include <endian.h>
+#include <dirent.h>
 
 //Include crypto
 #include <sodium.h>
@@ -659,4 +660,24 @@ int32_t this_is_the_end(uint32_t my_only_friend) //Input should be a socket
 		return -1;
 	}
 	return 0;
+}
+
+int32_t print_dir(char * directory)
+{
+	struct dirent *ent;
+	if ((dir = opendir(directory)) != NULL)
+	{
+  /* print all the files and directories within directory */
+  while ((ent = readdir(dir)) != NULL)
+	{
+    printf ("%s\n", ent->d_name);
+  }
+  closedir (dir);
+	}
+	else
+	{
+  /* could not open directory */
+  perror ("");
+  return EXIT_FAILURE;
+	}
 }
