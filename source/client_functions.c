@@ -664,13 +664,20 @@ int32_t this_is_the_end(uint32_t my_only_friend) //Input should be a socket
 
 int32_t print_dir(char * directory)
 {
+	char * dir;
 	struct dirent *ent;
+	uint32_t index = 0;
 	if ((dir = opendir(directory)) != NULL)
 	{
   /* print all the files and directories within directory */
-  while ((ent = readdir(dir)) != NULL)
+  while ((ent = readdir(dir))!=NULL)
 	{
-    printf ("%s\n", ent->d_name);
+		if (((strcmp(ent->d_name, ".")==0)||(strcmp(ent->d_name, "..")==0)))
+		{
+			continue;
+		}
+    printf ("%d: %s\n", index, ent->d_name);
+		index++;
   }
   closedir (dir);
 	}
