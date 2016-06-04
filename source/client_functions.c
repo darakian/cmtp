@@ -713,7 +713,13 @@ int32_t select_mail(char * mail_directory)
 					}
 				}
 				closedir(dir);
-				open_file = open(ent->d_name, O_RDONLY);
+				char * selected_mail[512] = {0};
+				snprintf(selected_mail, 512, "%s%c%s", "mail_directory", '/', "ent->d_name");
+				printf("%s\n", selected_mail);
+				open_file = open(selected_mail, O_RDONLY);
+				#ifdef DEBUG
+				printf("Returning FD %d\n", open_file);
+				#endif /*DEBUG*/
 				return open_file;
 			}
 		}
