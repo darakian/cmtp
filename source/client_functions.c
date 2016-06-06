@@ -842,5 +842,9 @@ int32_t display_message(char * message_path, char * private_key_buffer, char * p
 		print_to_log("crypto_box_seal_open failed to decrypt message", LOG_ERR);
 		return -1;
 	}
-
+	for (uint64_t i = 0; i<message_length; i++)
+	{
+		printf("%c\n", plain_message_body[i]);
+	}
+	return 0;
 }
