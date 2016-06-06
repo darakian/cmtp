@@ -663,7 +663,7 @@ int32_t this_is_the_end(uint32_t my_only_friend) //Input should be a socket
 }
 
 //select_mail function returns a c string which corrosponds to the filesystem location of the mail to be read
-char * select_mail(char * mail_directory)
+int32_t select_mail(char * mail_directory, char * return_buffer, uint32_t return_buffer_length)
 {
 	char * dir;
 	struct dirent *ent;
@@ -687,14 +687,14 @@ char * select_mail(char * mail_directory)
 		{
 			perror("prompt_input_string");
 			print_to_log("Failed to get user input in mail selection", LOG_ERR);
-			return NULL;
+			return -1;
 		}
 		//printf("atoi = %d\n", atoi(input_selection));
 		selection = atoi(input_selection);
 		if ((selection<0)||(selection>index))
 		{
 			perror("Bad file selection");
-			return NULL;
+			return -1;
 		}
 		else
 		{
@@ -713,21 +713,22 @@ char * select_mail(char * mail_directory)
 					{
 						perror("readdir");
 						closedir(dir);
-						return NULL;
+						return -1;
 					}
 				}
 				closedir(dir);
 				char * selected_mail[512] = {0};
-				#ifdef DEBUG
-				printf("mail_directory = %s, ent->d_name = %s\n", mail_directory, ent->d_name);
-				#endif /*DEBUG*/
 				snprintf(selected_mail, 512, "%s%c%s", mail_directory, '/', ent->d_name);
-				printf("%s\n", selected_mail);
-				//open_file = open(selected_mail, O_RDONLY);
+				if (return_buffer_length<(strlen(selected_mail)+1))
+				{
+					return -1;
+				}
+				memset(return_buffer, 0, (strlen(selected_mail)+1));
+				memcpy(return_buffer, selected_mail, strlen(selected_mail));
 				#ifdef DEBUG
 				printf("Returning selected_mail =  %s\n", selected_mail);
 				#endif /*DEBUG*/
-				return selected_mail;
+				return 0;
 			}
 		}
 	}
@@ -735,6 +736,6 @@ char * select_mail(char * mail_directory)
 	{
   perror ("opendir");
 	print_to_log("Could not open directory", LOG_ERR);
-  return NULL;
+  return -1;
 	}
 }
