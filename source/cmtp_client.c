@@ -111,6 +111,8 @@ int main(int argc, char *argv[])
   char recipient_domain[256] = {0};
   char recipient_full[512] = {0};
   char header_buffer[MAX_HEADER] = {0};
+  char user_mail_dir[512] = {0};
+  char user_mail[1000] = {0};
   int32_t header_buffer_length = 0;
   uint32_t recipient_length = 0;
   uint32_t option = 0;
@@ -204,7 +206,12 @@ int main(int argc, char *argv[])
       }
       print_to_log("User has sent a message", LOG_INFO);
       break;
-      case 5 : //Exit case
+      case 5:
+
+      snprintf(user_mail_dir, 512, "%s%c%s", "/var/cmtp/mail", '/', argv[1]);
+      select_mail(user_mail_dir, user_mail, 1000);
+      break;
+      case 6 : //Exit case
       this_is_the_end(client_socket);
       print_to_log("User has terminated Shorebird. Exiting", LOG_INFO);
       exit(0);

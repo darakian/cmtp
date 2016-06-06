@@ -47,4 +47,6 @@ int32_t this_is_the_end(uint32_t my_only_friend);
 
 int32_t select_mail(char * mail_directory, char * return_buffer, uint32_t return_buffer_length);
 
+int32_t display_message(char * message_path);
+
 #endif

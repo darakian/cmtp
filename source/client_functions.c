@@ -586,7 +586,8 @@ uint32_t menu_prompt()
 	printf("2: Compose message\n");
 	printf("3: Add an attachment (NOT YET WORKING)\n");
 	printf("4: Send message\n");
-	printf("5: Quit\n");
+	printf("5: Read message\n");
+	printf("6: Quit\n");
 	printf("************************\n");
 	if (fgets(option, sizeof(option), stdin)==NULL)
   {
@@ -738,4 +739,9 @@ int32_t select_mail(char * mail_directory, char * return_buffer, uint32_t return
 	print_to_log("Could not open directory", LOG_ERR);
   return -1;
 	}
+}
+
+int32_t display_message(char * message_path)
+{
+
 }
