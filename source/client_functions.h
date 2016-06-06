@@ -35,7 +35,7 @@ int32_t request_server_key(uint32_t socket, unsigned char * key_buffer);
 
 int32_t request_user_key(uint32_t socket, char * user, char * server, unsigned char * key_buffer);
 
-int32_t decipher_xzibit(char * password, uint32_t password_length, unsigned char * xzibit_buffer, unsigned char * private_key_buffer);
+int32_t decipher_xzibit(char * password, uint32_t password_length, unsigned char * xzibit_buffer, unsigned char * public_key_buffer, unsigned char * private_key_buffer);
 
 int32_t interperate_server_response(uint32_t socket);
 
@@ -47,6 +47,6 @@ int32_t this_is_the_end(uint32_t my_only_friend);
 
 int32_t select_mail(char * mail_directory, char * return_buffer, uint32_t return_buffer_length);
 
-int32_t display_message(char * message_path);
+int32_t display_message(char * message_path, char * private_key_buffer, char * public_key_buffer, uint32_t key_version);
 
 #endif

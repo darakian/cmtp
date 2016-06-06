@@ -516,7 +516,7 @@ int32_t request_user_key(uint32_t socket, char * user, char * domain, unsigned c
 /*
 * decipher_xzibit takes the entire xzibit as parameter two (version, salt, everything) and fills in private_key_buffer with the enciphered private key
 */
-int32_t decipher_xzibit(char * password, uint32_t password_length, unsigned char * xzibit_buffer, unsigned char * private_key_buffer)
+int32_t decipher_xzibit(char * password, uint32_t password_length, unsigned char * xzibit_buffer, unsigned char * public_key_buffer, unsigned char * private_key_buffer)
 {
 	if(sodium_init()==-1)
 	{
@@ -569,7 +569,8 @@ int32_t decipher_xzibit(char * password, uint32_t password_length, unsigned char
 	printf("Post AES decrypt\n");
 	#endif /*DEBUG*/
 	//Copy key and return
-	memcpy(private_key_buffer, plaintext, 64);
+	memcpy(public_key_buffer, plaintext, 32);
+	memcpy(private_key_buffer, plaintext+32, 64);
 	#ifdef DEBUG
 	printf("Post memcpy. Returning\n");
 	#endif /*DEBUG*/
@@ -695,7 +696,11 @@ int32_t select_mail(char * mail_directory, char * return_buffer, uint32_t return
 		if ((selection<0)||(selection>index))
 		{
 			perror("Bad file selection");
-			return -1;
+			return -1;{
+	  perror ("opendir");
+		print_to_log("Could not open directory", LOG_ERR);
+	  return -1;
+		}
 		}
 		else
 		{
@@ -735,13 +740,107 @@ int32_t select_mail(char * mail_directory, char * return_buffer, uint32_t return
 	}
 	else
 	{
-  perror ("opendir");
-	print_to_log("Could not open directory", LOG_ERR);
-  return -1;
+	  perror ("opendir");
+		print_to_log("Could not open directory", LOG_ERR);
+	  return -1;
 	}
+	return -1;
 }
 
-int32_t display_message(char * message_path)
+int32_t display_message(char * message_path, char * private_key_buffer, char * public_key_buffer, uint32_t key_version)
 {
+	int32_t mail_file_descriptor = 0;
+	if((mail_file_descriptor = open(message_path, O_RDONLY))<0)
+	{
+		perror("open");
+		print_to_log("Opening message to display has failed", LOG_ERR);
+		return -1;
+	}
+	if (key_version!=1)
+	{
+		print_to_log("Incorrect key key_version", LOG_ERR);
+		return -1;
+	}
+	//Header buffers
+	uint32_t message_version = 0;
+	uint32_t attachment_count = 0;
+	uint64_t log_length = 0;
+	uint64_t message_length = 0;
+	char recipient[255] = {0};
+	char recipient_domain[255] = {0};
+	char sender[255] = {0};
+	char sender_domain[255] = {0};
+	if (read(mail_file_descriptor, message_version, 4)<0)
+	{
+		perror("read message_version");
+		print_to_log("Failed to read first 4 bytes from mail_file_descriptor", LOG_ERR);
+		return -1;
+	}
+	message_version = be32toh(message_version);
+	if(message_version!=key_version)
+	{
+		perror("Version mismatch");
+		print_to_log("Version difference between message beign read and key provided", LOG_ERR);
+		return -1;
+	}
+	if (read(mail_file_descriptor, attachment_count, 4)<0)
+	{
+		perror("read attachment_count");
+		print_to_log("Failed to read second 4 bytes from mail_file_descriptor", LOG_ERR);
+		return -1;
+	}
+	attachment_count = be32toh(attachment_count);
+	if (read(mail_file_descriptor, log_length, 4)<0)
+	{
+		perror("read log_length");
+		print_to_log("Failed to read 8 bytes from mail_file_descriptor", LOG_ERR);
+		return -1;
+	}
+	log_length = be64toh(log_length);
+	if (read(mail_file_descriptor, message_length, 4)<0)
+	{
+		perror("read message_length");
+		print_to_log("Failed to read 8 bytes from mail_file_descriptor", LOG_ERR);
+		return -1;
+	}
+	message_length = be64toh(message_length);
+	if (read_until(mail_file_descriptor, recipient, 255, '\0')<0)
+	{
+		perror("read_until");
+		print_to_log("read_until failed to read message recipient", LOG_ERR);
+		return -1;
+	}
+	if (read_until(mail_file_descriptor, recipient_domain, 255, '\0')<0)
+	{
+		perror("read_until");
+		print_to_log("read_until failed to read message recipient_domain", LOG_ERR);
+		return -1;
+	}
+	if (read_until(mail_file_descriptor, sender, 255, '\0')<0)
+	{
+		perror("read_until");
+		print_to_log("read_until failed to read message sender", LOG_ERR);
+		return -1;
+	}
+	if (read_until(mail_file_descriptor, sender_domain, 255, '\0')<0)
+	{
+		perror("read_until");
+		print_to_log("read_until failed to read message sender_domain", LOG_ERR);
+		return -1;
+	}
+	char * encrypted_message_body = calloc(1, message_length);
+	char * plain_message_body = calloc(1, message_length);
+	if(read_n_bytes(mail_file_descriptor, encrypted_message_body, message_length)<0)
+	{
+		perror("read_n_bytes");
+		print_to_log("Reading ciphertext from mail_file_descriptor has failed", LOG_ERR);
+		return -1;
+	}
+	if (crypto_box_seal_open(plain_message_body, encrypted_message_body, message_length, public_key_buffer, private_key_buffer) != 0)
+	{
+    perror("crypto_box_seal_open");
+		print_to_log("crypto_box_seal_open failed to decrypt message", LOG_ERR);
+		return -1;
+	}
 
 }

@@ -93,8 +93,9 @@ int main(int argc, char *argv[])
 
   unsigned char * xzibit = calloc(1, 200);
   unsigned char * private_key_buffer = calloc(1, 64);
+  unsigned char * public_key_buffer = calloc(1, 64);
 	login(client_socket, argv[1], xzibit);
-  if(decipher_xzibit(user_password, strlen(user_password), xzibit, private_key_buffer)<0)
+  if(decipher_xzibit(user_password, strlen(user_password), xzibit, public_key_buffer, private_key_buffer)<0)
   {
     perror("decipher_xzibit error");
     print_to_log("Error deciphering user xzibit", LOG_ERR);
@@ -207,9 +208,9 @@ int main(int argc, char *argv[])
       print_to_log("User has sent a message", LOG_INFO);
       break;
       case 5:
-
       snprintf(user_mail_dir, 512, "%s%c%s", "/var/cmtp/mail", '/', argv[1]);
       select_mail(user_mail_dir, user_mail, 1000);
+      display_message(user_mail, private_key_buffer, public_key_buffer, 1);
       break;
       case 6 : //Exit case
       this_is_the_end(client_socket);
