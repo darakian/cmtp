@@ -25,7 +25,7 @@ struct addrinfo * addr_result;
 
 int main(int argc, char *argv[])
 {
-  select_mail("/var/cmtp/mail/jon");
+  printf("%s", select_mail("/var/cmtp/mail/jon"));
 
   if (argc != 3)
   {

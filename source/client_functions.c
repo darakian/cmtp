@@ -702,8 +702,11 @@ char * select_mail(char * mail_directory)
 			{
 				for(int i = 0; i<selection; i++)
 				{
-					if(ent=readdir(dir)!=NULL)
+					if((ent=readdir(dir))!=NULL)
 					{
+						#ifdef DEBUG
+						printf("Incrementing ent. ent->d_name = %s\n", ent->d_name);
+						#endif /*DEBUG*/
 						continue;
 					}
 					else
@@ -715,6 +718,9 @@ char * select_mail(char * mail_directory)
 				}
 				closedir(dir);
 				char * selected_mail[512] = {0};
+				#ifdef DEBUG
+				printf("mail_directory = %s, ent->d_name = %s\n", mail_directory, ent->d_name);
+				#endif /*DEBUG*/
 				snprintf(selected_mail, 512, "%s%c%s", mail_directory, '/', ent->d_name);
 				printf("%s\n", selected_mail);
 				//open_file = open(selected_mail, O_RDONLY);
