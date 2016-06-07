@@ -794,14 +794,14 @@ int32_t display_message(char * message_path, char * private_key_buffer, char * p
 		return -1;
 	}
 	attachment_count = be32toh(attachment_count);
-	if (read(mail_file_descriptor, &log_length, 4)<0)
+	if (read(mail_file_descriptor, &log_length, 8)<0)
 	{
 		perror("read log_length");
 		print_to_log("Failed to read 8 bytes from mail_file_descriptor", LOG_ERR);
 		return -1;
 	}
 	log_length = be64toh(log_length);
-	if (read(mail_file_descriptor, &message_length, 4)<0)
+	if (read(mail_file_descriptor, &message_length, 8)<0)
 	{
 		perror("read message_length");
 		print_to_log("Failed to read 8 bytes from mail_file_descriptor", LOG_ERR);
