@@ -834,14 +834,15 @@ int32_t display_message(char * message_path, char * private_key_buffer, char * p
 	}
 	char * encrypted_message_body = calloc(1, message_length);
 	char * plain_message_body = calloc(1, message_length);
-	if(read_n_bytes(mail_file_descriptor, encrypted_message_body, message_length)<0)
+	int32_t bytes_read = 0;
+	if((bytes_read=read_n_bytes(mail_file_descriptor, encrypted_message_body, message_length))<0)
 	{
 		perror("read_n_bytes");
 		print_to_log("Reading ciphertext from mail_file_descriptor has failed", LOG_ERR);
 		return -1;
 	}
 	#ifdef DEBUG
-	printf("Message length = %ld\n", message_length);
+	printf("Message length = %ld, bytes_read = %d\n", message_length, bytes_read);
 	#endif /*DEBUG*/
 	if (crypto_box_seal_open(plain_message_body, encrypted_message_body, message_length, public_key_buffer, private_key_buffer) != 0)
 	{
