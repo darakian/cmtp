@@ -833,7 +833,7 @@ int32_t display_message(char * message_path, char * private_key_buffer, char * p
 		return -1;
 	}
 	char * encrypted_message_body = calloc(1, message_length);
-	char * plain_message_body = calloc(1, message_length);
+	char * plain_message_body = calloc(1, message_length-crypto_box_SEALBYTES);
 	int32_t bytes_read = 0;
 	if((bytes_read=read_n_bytes(mail_file_descriptor, encrypted_message_body, message_length))<0)
 	{
