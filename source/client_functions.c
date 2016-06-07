@@ -706,7 +706,7 @@ int32_t select_mail(char * mail_directory, char * return_buffer, uint32_t return
 		{
 			if ((dir = opendir(mail_directory)) != NULL)
 			{
-				for(int i = 0; i<selection; i++)
+				for(int i = 0; i<selection+2; i++)
 				{
 					if((ent=readdir(dir))!=NULL)
 					{
