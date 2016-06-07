@@ -840,6 +840,9 @@ int32_t display_message(char * message_path, char * private_key_buffer, char * p
 		print_to_log("Reading ciphertext from mail_file_descriptor has failed", LOG_ERR);
 		return -1;
 	}
+	#ifdef DEBUG
+	printf("Message length = %ld\n", message_length);
+	#endif /*DEBUG*/
 	if (crypto_box_seal_open(plain_message_body, encrypted_message_body, message_length, public_key_buffer, private_key_buffer) != 0)
 	{
     perror("crypto_box_seal_open");
