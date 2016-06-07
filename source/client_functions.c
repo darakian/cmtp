@@ -710,6 +710,10 @@ int32_t select_mail(char * mail_directory, char * return_buffer, uint32_t return
 				{
 					if((ent=readdir(dir))!=NULL)
 					{
+						if (((strcmp(ent->d_name, ".")==0)||(strcmp(ent->d_name, "..")==0)))
+						{
+							continue;
+						}
 						#ifdef DEBUG
 						printf("Incrementing ent. ent->d_name = %s\n", ent->d_name);
 						#endif /*DEBUG*/
