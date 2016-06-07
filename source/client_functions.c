@@ -304,7 +304,7 @@ int32_t build_message(unsigned char * body, long body_length, unsigned char * re
 {
 	//Step 1: Encipher body and attachments
 	#ifdef DEBUG
-	printf("Building message with body_length = %ld and attachments_length = %ld\n", body_length, attachments_length);
+	printf("Building message with body_length = %ld and attachments_length = %ld. crypto_box_SEALBYTES = %d\n", body_length, attachments_length, crypto_box_SEALBYTES);
 	#endif /*DEBUG*/
 	uint64_t cipher_text_length = body_length+crypto_box_SEALBYTES;
 	char * crypto_buffer = calloc(1, cipher_text_length + attachments_length);
