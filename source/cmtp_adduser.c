@@ -70,7 +70,7 @@ int main(int argc, char * argv[])
     perror("create_verify_dir");
     return -1;
   }
-  if (chmod(user_path, S_IWUSR|S_IRUSR|S_IWGRP|S_IRGRP|S_IWOTH|S_IROTH)<0)
+  if (chmod(user_path, S_IWUSR|S_IRUSR|S_IXUSR|S_IWGRP|S_IRGRP|S_IXGRP|S_IWOTH|S_IROTH|S_IXOTH)<0)
   {
     perror("chmod");
     return -1;
