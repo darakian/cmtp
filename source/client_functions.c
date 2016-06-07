@@ -774,7 +774,7 @@ int32_t display_message(char * message_path, char * private_key_buffer, char * p
 	char recipient_domain[255] = {0};
 	char sender[255] = {0};
 	char sender_domain[255] = {0};
-	if (read(mail_file_descriptor, message_version, 4)<0)
+	if (read(mail_file_descriptor, &message_version, 4)<0)
 	{
 		perror("read message_version");
 		print_to_log("Failed to read first 4 bytes from mail_file_descriptor", LOG_ERR);
@@ -787,21 +787,21 @@ int32_t display_message(char * message_path, char * private_key_buffer, char * p
 		print_to_log("Version difference between message beign read and key provided", LOG_ERR);
 		return -1;
 	}
-	if (read(mail_file_descriptor, attachment_count, 4)<0)
+	if (read(mail_file_descriptor, &attachment_count, 4)<0)
 	{
 		perror("read attachment_count");
 		print_to_log("Failed to read second 4 bytes from mail_file_descriptor", LOG_ERR);
 		return -1;
 	}
 	attachment_count = be32toh(attachment_count);
-	if (read(mail_file_descriptor, log_length, 4)<0)
+	if (read(mail_file_descriptor, &log_length, 4)<0)
 	{
 		perror("read log_length");
 		print_to_log("Failed to read 8 bytes from mail_file_descriptor", LOG_ERR);
 		return -1;
 	}
 	log_length = be64toh(log_length);
-	if (read(mail_file_descriptor, message_length, 4)<0)
+	if (read(mail_file_descriptor, &message_length, 4)<0)
 	{
 		perror("read message_length");
 		print_to_log("Failed to read 8 bytes from mail_file_descriptor", LOG_ERR);
