@@ -846,8 +846,9 @@ int32_t display_message(char * message_path, char * private_key_buffer, char * p
 	#endif /*DEBUG*/
 	if (crypto_box_seal_open(plain_message_body, encrypted_message_body, message_length, public_key_buffer, private_key_buffer) != 0)
 	{
-		print_buffer(public_key_buffer, sizeof(public_key_buffer), NULL, sizeof(public_key_buffer), 1);
-		print_buffer(private_key_buffer, sizeof(private_key_buffer), NULL, sizeof(private_key_buffer), 1);
+		print_buffer(public_key_buffer, 32, NULL, 32, 1);
+		print_buffer(private_key_buffer, 64, NULL, 64, 1);
+		print_buffer(encrypted_message_body, message_length, NULL, message_length, 1);
     perror("crypto_box_seal_open");
 		print_to_log("crypto_box_seal_open failed to decrypt message", LOG_ERR);
 		return -1;
