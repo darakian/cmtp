@@ -113,7 +113,7 @@ int main(int argc, char * argv[])
     perror("crypto_pwhash_scryptsalsa208sha256");
   }
   #ifdef DEBUG
-  print_buffer(key, sizeof(key), "key", 32, 1);
+  print_buffer(user_secretkey, sizeof(user_secretkey), "user_secretkey", 64, 1);
   printf("End password hash\n");
   print_buffer(nonce, sizeof(nonce), "nonce", 12, 1);
   #endif /*DEBUG*/
