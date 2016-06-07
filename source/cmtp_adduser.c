@@ -70,16 +70,16 @@ int main(int argc, char * argv[])
     perror("create_verify_dir");
     return -1;
   }
+  if (chmod(user_path, S_IWUSR|S_IRUSR|S_IWGRP|S_IRGRP|S_IWOTH|S_IROTH)<0)
+  {
+    perror("chmod");
+    return -1;
+  }
   if (chown(user_path, "nobody", "nobody")<0)
   {
     perror("chown");
     return -1;
   }
-  // if (chmod(user_path, S_IWOTH|S_IROTH|S_IWGRP|S_IRGRP|S_IWUSR|S_IRUSR)<0)
-  // {
-  //   perror("chmod");
-  //   return -1;
-  // }
   unsigned char user_publickey[crypto_sign_ed25519_PUBLICKEYBYTES];
   unsigned char user_secretkey[crypto_sign_ed25519_SECRETKEYBYTES];
   crypto_sign_ed25519_keypair(user_publickey, user_secretkey);
