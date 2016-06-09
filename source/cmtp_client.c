@@ -93,7 +93,7 @@ int main(int argc, char *argv[])
 
   unsigned char * xzibit = calloc(1, 200);
   unsigned char * private_key_buffer = calloc(1, 64);
-  unsigned char * public_key_buffer = calloc(1, 64);
+  unsigned char * public_key_buffer = calloc(1, 32);
 	login(client_socket, argv[1], xzibit);
   if(decipher_xzibit(user_password, strlen(user_password), xzibit, public_key_buffer, private_key_buffer)<0)
   {
@@ -185,6 +185,19 @@ int main(int argc, char *argv[])
         perror("build_message");
         print_to_log("Error building encrypred message", LOG_ERR);
       }
+      #ifdef DEBUG
+      //Verify decryption works
+      // unsigned char * box_secret_key = calloc(1, 64);
+      // unsigned char * box_public_key = calloc(1, 32);
+      // crypto_sign_ed25519_pk_to_curve25519(box_public_key,	public_key_buffer);
+      // crypto_sign_ed25519_sk_to_curve25519(box_secret_key,	private_key_buffer);
+      // char * temp_message_store = calloc(1,100);
+      // if (crypto_box_seal_open(temp_message_store, encrypted_file_buffer, encrypted_file_buffer_length, box_public_key, box_secret_key) != 0)
+    	// {
+      //   perror("crypto_box_seal_open");
+    	// 	print_to_log("crypto_box_seal_open failed to decrypt message", LOG_ERR);
+    	// }
+      #endif /*DEBUG*/
       //Build header
       //build_header(char * recipient, uint32_t recipient_length, uint32_t crypto_type, uint32_t attachment_count, char * return_buffer)
       printf("Attempting to build header for %s\n", recipient_full);

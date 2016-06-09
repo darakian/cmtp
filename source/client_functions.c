@@ -774,8 +774,10 @@ int32_t display_message(char * message_path, char * private_key_buffer, char * p
 		return -1;
 	}
 	//Generate crypto_box_seal keys from ed25519 keys
+	#ifdef DEBUG
 	print_buffer(public_key_buffer, 32, "public Key", 32, 1);
 	print_buffer(private_key_buffer, 64, "private key", 64, 1);
+	#endif /*DEBUG*/
 	unsigned	char	box_public_key[crypto_scalarmult_curve25519_BYTES];
   unsigned	char	box_secret_key[crypto_scalarmult_curve25519_BYTES];
   crypto_sign_ed25519_pk_to_curve25519(box_public_key,	public_key_buffer);
@@ -867,7 +869,7 @@ int32_t display_message(char * message_path, char * private_key_buffer, char * p
 	}
 	for (uint64_t i = 0; i<(message_length-crypto_box_SEALBYTES); i++)
 	{
-		printf("%c\n", plain_message_body[i]);
+		printf("%x", plain_message_body[i]);
 	}
 	return 0;
 }
