@@ -302,7 +302,10 @@ int32_t build_header(char * recipient, uint32_t recipient_length, uint32_t versi
 
 int32_t build_message(unsigned char * body, long body_length, unsigned char * recipient_key, char * attachments, long attachments_length,  unsigned char * cipher_buffer)
 {
-	//Step 1: Encipher body and attachments
+	//Step 1: Generate curve25519 key from ed25519 key for use with crypto_box_seal
+	unsigned	char	recipient_curve25519_key[crypto_scalarmult_curve25519_BYTES];
+  crypto_sign_ed25519_pk_to_curve25519(recipient_curve25519_key,	recipient_key);
+	//Step 2: Encipher body and attachments
 	#ifdef DEBUG
 	printf("Building message with body_length = %ld and attachments_length = %ld. crypto_box_SEALBYTES = %d\n", body_length, attachments_length, crypto_box_SEALBYTES);
 	#endif /*DEBUG*/
@@ -311,7 +314,7 @@ int32_t build_message(unsigned char * body, long body_length, unsigned char * re
 	unsigned char ciphered_body[cipher_text_length];
 	memset(ciphered_body, 0, cipher_text_length);
 	//memset ciphered_body to zero here
-	crypto_box_seal(ciphered_body, body, body_length, recipient_key);
+	crypto_box_seal(ciphered_body, body, body_length, recipient_curve25519_key);
 	//Step 2: copy encrypted contents to the buffer working
 	memcpy(crypto_buffer, ciphered_body, cipher_text_length);
 	memcpy(crypto_buffer+cipher_text_length, attachments, attachments_length);
@@ -753,6 +756,7 @@ int32_t select_mail(char * mail_directory, char * return_buffer, uint32_t return
 
 int32_t display_message(char * message_path, char * private_key_buffer, char * public_key_buffer, uint32_t key_version)
 {
+
 	int32_t mail_file_descriptor = 0;
 	if((mail_file_descriptor = open(message_path, O_RDONLY))<0)
 	{
@@ -765,6 +769,11 @@ int32_t display_message(char * message_path, char * private_key_buffer, char * p
 		print_to_log("Incorrect key key_version", LOG_ERR);
 		return -1;
 	}
+	//Generate crypto_box_seal keys from ed25519 keys
+	unsigned	char	box_public_key[crypto_scalarmult_curve25519_BYTES];
+  unsigned	char	box_secret_key[crypto_scalarmult_curve25519_BYTES];
+  crypto_sign_ed25519_pk_to_curve25519(box_public_key,	public_key_buffer);
+  crypto_sign_ed25519_sk_to_curve25519(box_secret_key,	private_key_buffer);
 	//Header buffers
 	uint32_t message_version = 0;
 	uint32_t attachment_count = 0;
@@ -844,11 +853,8 @@ int32_t display_message(char * message_path, char * private_key_buffer, char * p
 	#ifdef DEBUG
 	printf("Message length = %ld, bytes_read = %d\n", message_length, bytes_read);
 	#endif /*DEBUG*/
-	if (crypto_box_seal_open(plain_message_body, encrypted_message_body, message_length, public_key_buffer, private_key_buffer) != 0)
+	if (crypto_box_seal_open(plain_message_body, encrypted_message_body, message_length, box_public_key, box_secret_key) != 0)
 	{
-		print_buffer(public_key_buffer, 32, NULL, 32, 1);
-		print_buffer(private_key_buffer, 64, NULL, 64, 1);
-		print_buffer(encrypted_message_body, message_length, NULL, message_length, 1);
     perror("crypto_box_seal_open");
 		print_to_log("crypto_box_seal_open failed to decrypt message", LOG_ERR);
 		return -1;
