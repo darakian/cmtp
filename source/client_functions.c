@@ -577,6 +577,8 @@ int32_t decipher_xzibit(char * password, uint32_t password_length, unsigned char
 	memcpy(public_key_buffer, plaintext, 32);
 	memcpy(private_key_buffer, plaintext+32, 64);
 	#ifdef DEBUG
+	print_buffer(public_key_buffer, 32, "public Key", 32, 1);
+	print_buffer(private_key_buffer, 64, "private key", 64, 1);
 	printf("Post memcpy. Returning\n");
 	#endif /*DEBUG*/
 	return 0;
@@ -772,6 +774,8 @@ int32_t display_message(char * message_path, char * private_key_buffer, char * p
 		return -1;
 	}
 	//Generate crypto_box_seal keys from ed25519 keys
+	print_buffer(public_key_buffer, 32, "public Key", 32, 1);
+	print_buffer(private_key_buffer, 64, "private key", 64, 1);
 	unsigned	char	box_public_key[crypto_scalarmult_curve25519_BYTES];
   unsigned	char	box_secret_key[crypto_scalarmult_curve25519_BYTES];
   crypto_sign_ed25519_pk_to_curve25519(box_public_key,	public_key_buffer);
