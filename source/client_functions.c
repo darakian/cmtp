@@ -545,6 +545,8 @@ int32_t decipher_xzibit(char * password, uint32_t password_length, unsigned char
 	print_buffer(nonce, sizeof(nonce), "nonce", 12, 1);
 	print_buffer(salt, sizeof(salt), "salt", 32, 1);
 	print_buffer(xzibit_buffer+44, ciphertext_len, "ciphertext", 256, 1);
+	print_buffer(public_key_buffer, 32, "public Key", 32, 1);
+	print_buffer(private_key_buffer, 64, "private key", 64, 1);
 	#endif /*DEBUG*/
 	//Hash password
 	if (crypto_pwhash_scryptsalsa208sha256(hash, sizeof(hash), password, password_length, salt, crypto_pwhash_scryptsalsa208sha256_OPSLIMIT_INTERACTIVE,crypto_pwhash_scryptsalsa208sha256_MEMLIMIT_INTERACTIVE) != 0)
@@ -859,7 +861,7 @@ int32_t display_message(char * message_path, char * private_key_buffer, char * p
 		print_to_log("crypto_box_seal_open failed to decrypt message", LOG_ERR);
 		return -1;
 	}
-	for (uint64_t i = 0; i<message_length; i++)
+	for (uint64_t i = 0; i<(message_length-crypto_box_SEALBYTES); i++)
 	{
 		printf("%c\n", plain_message_body[i]);
 	}
