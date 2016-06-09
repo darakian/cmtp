@@ -860,6 +860,7 @@ int32_t display_message(char * message_path, char * private_key_buffer, char * p
 	}
 	#ifdef DEBUG
 	printf("Message length = %ld, bytes_read = %d\n", message_length, bytes_read);
+	print_buffer(encrypted_message_body, bytes_read, "ciphertext", bytes_read, 1);
 	#endif /*DEBUG*/
 	if (crypto_box_seal_open(plain_message_body, encrypted_message_body, message_length, box_public_key, box_secret_key) != 0)
 	{
