@@ -722,7 +722,7 @@ int32_t select_mail(char * mail_directory, char * return_buffer, uint32_t return
 							continue;
 						}
 						#ifdef DEBUG
-						printf("Incrementing ent. ent->d_name = %s\n", ent->d_name);
+						//printf("Incrementing ent. ent->d_name = %s\n", ent->d_name);
 						#endif /*DEBUG*/
 						continue;
 					}
@@ -849,8 +849,8 @@ int32_t display_message(char * message_path, char * private_key_buffer, char * p
 		print_to_log("read_until failed to read message sender_domain", LOG_ERR);
 		return -1;
 	}
-	char * encrypted_message_body = calloc(1, message_length);
-	char * plain_message_body = calloc(1, message_length-crypto_box_SEALBYTES);
+	unsigned char * encrypted_message_body = calloc(1, message_length);
+	unsigned char * plain_message_body = calloc(1, message_length-crypto_box_SEALBYTES);
 	int32_t bytes_read = 0;
 	if((bytes_read=read_n_bytes(mail_file_descriptor, encrypted_message_body, message_length))<0)
 	{
@@ -870,7 +870,8 @@ int32_t display_message(char * message_path, char * private_key_buffer, char * p
 	}
 	for (uint64_t i = 0; i<(message_length-crypto_box_SEALBYTES); i++)
 	{
-		printf("%x", plain_message_body[i]);
+		printf("%x", plain_message_body+i);
 	}
+	printf("\n");
 	return 0;
 }
