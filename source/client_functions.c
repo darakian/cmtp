@@ -872,7 +872,7 @@ int32_t display_message(char * message_path, char * private_key_buffer, char * p
 	print_buffer(plain_message_body, (message_length-crypto_box_SEALBYTES), "plaintext", (message_length-crypto_box_SEALBYTES), 1);
 	for (uint64_t i = 0; i<(message_length-crypto_box_SEALBYTES); i++)
 	{
-		printf("%x", plain_message_body[i]);
+		printf("%c", plain_message_body[i]);
 	}
 	printf("\n");
 	return 0;
