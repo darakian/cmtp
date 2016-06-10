@@ -165,7 +165,7 @@ int main(int argc, char *argv[])
       #endif /*DEBUG*/
       for (uint32_t i = 0; i<=temp_file_size; i++)
       {
-        if (read(temp_file_descriptor, temp_file_buffer, 1)<0)
+        if (read(temp_file_descriptor, temp_file_buffer+i, 1)<0)
         {
           perror("read");
           print_to_log("Error reading in users message", LOG_ERR);

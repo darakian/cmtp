@@ -314,7 +314,7 @@ int32_t build_message(unsigned char * body, long body_length, unsigned char * re
 	unsigned char ciphered_body[cipher_text_length];
 	memset(ciphered_body, 0, cipher_text_length);
 	//memset ciphered_body to zero here
-	print_buffer(body, body_length, NULL, body_length, 1);
+	print_buffer(body, body_length, "Prepacked plaintext", body_length, 1);
 	crypto_box_seal(ciphered_body, body, body_length, recipient_curve25519_key);
 	//Step 2: copy encrypted contents to the buffer working
 	memcpy(crypto_buffer, ciphered_body, cipher_text_length);
@@ -870,10 +870,10 @@ int32_t display_message(char * message_path, char * private_key_buffer, char * p
 		return -1;
 	}
 	print_buffer(plain_message_body, (message_length-crypto_box_SEALBYTES), "plaintext", (message_length-crypto_box_SEALBYTES), 1);
-	// for (uint64_t i = 0; i<(message_length-crypto_box_SEALBYTES); i++)
-	// {
-	// 	printf("%x", plain_message_body[i]);
-	// }
+	for (uint64_t i = 0; i<(message_length-crypto_box_SEALBYTES); i++)
+	{
+		printf("%x", plain_message_body[i]);
+	}
 	printf("\n");
 	return 0;
 }
