@@ -197,6 +197,7 @@ int main(int argc, char *argv[])
       //   perror("crypto_box_seal_open");
     	// 	print_to_log("crypto_box_seal_open failed to decrypt message", LOG_ERR);
     	// }
+      // print_buffer(temp_message_store, 20, "temp message", 100, 1);
       #endif /*DEBUG*/
       //Build header
       //build_header(char * recipient, uint32_t recipient_length, uint32_t crypto_type, uint32_t attachment_count, char * return_buffer)

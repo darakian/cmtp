@@ -314,6 +314,7 @@ int32_t build_message(unsigned char * body, long body_length, unsigned char * re
 	unsigned char ciphered_body[cipher_text_length];
 	memset(ciphered_body, 0, cipher_text_length);
 	//memset ciphered_body to zero here
+	print_buffer(body, body_length, NULL, body_length, 1);
 	crypto_box_seal(ciphered_body, body, body_length, recipient_curve25519_key);
 	//Step 2: copy encrypted contents to the buffer working
 	memcpy(crypto_buffer, ciphered_body, cipher_text_length);
