@@ -704,11 +704,7 @@ int32_t select_mail(char * mail_directory, char * return_buffer, uint32_t return
 		if ((selection<0)||(selection>index))
 		{
 			perror("Bad file selection");
-			return -1;{
-	  perror ("opendir");
-		print_to_log("Could not open directory", LOG_ERR);
-	  return -1;
-		}
+			return -1;
 		}
 		else
 		{
