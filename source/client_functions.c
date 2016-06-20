@@ -712,12 +712,13 @@ int32_t select_mail(char * mail_directory, char * return_buffer, uint32_t return
 		}
 		else
 		{
-			for(int i = 0; i<selection+2; i++)
+			for(int i = 0; i<=selection; i++)
 			{
 				if((ent=readdir(dir))!=NULL)
 				{
 					if (((strcmp(ent->d_name, ".")==0)||(strcmp(ent->d_name, "..")==0)))
 					{
+						i--;
 						continue;
 					}
 					#ifdef DEBUG
