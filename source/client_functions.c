@@ -691,7 +691,7 @@ int32_t select_mail(char * mail_directory, char * return_buffer, uint32_t return
 	    printf ("%d: %s\n", index, ent->d_name);
 			index++;
 	  }
-	  closedir (dir);
+	  rewinddir(dir);
 		char input_selection[10] = {0};
 		if (prompt_input_string("Selection: ", "", input_selection, sizeof(input_selection))<0)
 		{
@@ -704,50 +704,44 @@ int32_t select_mail(char * mail_directory, char * return_buffer, uint32_t return
 		if ((selection<0)||(selection>index))
 		{
 			perror("Bad file selection");
-			return -1;{
-	  perror ("opendir");
-		print_to_log("Could not open directory", LOG_ERR);
-	  return -1;
-		}
+			return -1;
 		}
 		else
 		{
-			if ((dir = opendir(mail_directory)) != NULL)
+			for(int i = 0; i<=selection; i++)
 			{
-				for(int i = 0; i<selection+2; i++)
+				if((ent=readdir(dir))!=NULL)
 				{
-					if((ent=readdir(dir))!=NULL)
+					if (((strcmp(ent->d_name, ".")==0)||(strcmp(ent->d_name, "..")==0)))
 					{
-						if (((strcmp(ent->d_name, ".")==0)||(strcmp(ent->d_name, "..")==0)))
-						{
-							continue;
-						}
-						#ifdef DEBUG
-						//printf("Incrementing ent. ent->d_name = %s\n", ent->d_name);
-						#endif /*DEBUG*/
+						i--;
 						continue;
 					}
-					else
-					{
-						perror("readdir");
-						closedir(dir);
-						return -1;
-					}
+					#ifdef DEBUG
+					//printf("Incrementing ent. ent->d_name = %s\n", ent->d_name);
+					#endif /*DEBUG*/
+					continue;
 				}
-				closedir(dir);
-				char * selected_mail[512] = {0};
-				snprintf(selected_mail, 512, "%s%c%s", mail_directory, '/', ent->d_name);
-				if (return_buffer_length<(strlen(selected_mail)+1))
+				else
 				{
+					perror("readdir");
+					closedir(dir);
 					return -1;
 				}
-				memset(return_buffer, 0, (strlen(selected_mail)+1));
-				memcpy(return_buffer, selected_mail, strlen(selected_mail));
-				#ifdef DEBUG
-				printf("Returning selected_mail =  %s\n", selected_mail);
-				#endif /*DEBUG*/
-				return 0;
 			}
+			closedir(dir);
+			char * selected_mail[512] = {0};
+			snprintf(selected_mail, 512, "%s%c%s", mail_directory, '/', ent->d_name);
+			if (return_buffer_length<(strlen(selected_mail)+1))
+			{
+				return -1;
+			}
+			memset(return_buffer, 0, (strlen(selected_mail)+1));
+			memcpy(return_buffer, selected_mail, strlen(selected_mail));
+			#ifdef DEBUG
+			printf("Returning selected_mail =  %s\n", selected_mail);
+			#endif /*DEBUG*/
+			return 0;
 		}
 	}
 	else

@@ -10,7 +10,7 @@ HEADERS = source/server_functions.h source/client_functions.h source/cmtp_common
 SERVER_LIBS = -lsodium -lresolv -lconfuse -lpthread
 CLIENT_LIBS = -lsodium -lresolv
 UTIL_LIBS = -lsodium -lresolv
-CFLAGS=-g -Wall -Wextra -pedantic -pipe -O0
+CFLAGS=-g -std=c99 -Wall -Wextra -pedantic -pipe -O0
 
 
 #The -D_GNU_SOURCE option is used for the linux binary only and is needed for the set_privilage function.
