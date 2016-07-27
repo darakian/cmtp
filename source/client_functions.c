@@ -593,7 +593,7 @@ uint32_t menu_prompt()
 	printf("**********MENU**********\n");
 	printf("1: Set Recipient\n");
 	printf("2: Compose message\n");
-	printf("3: Add an attachment (NOT YET WORKING)\n");
+	printf("3: Add an attachment\n");
 	printf("4: Send message\n");
 	printf("5: Read message\n");
 	printf("6: Quit\n");
