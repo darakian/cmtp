@@ -95,8 +95,14 @@ int resolve_server(char * hostname, struct sockaddr_storage * result)
   //Sort and print mx records
   ldns_rr_list_sort(ldns_mx_records);
   ldns_rr_list_print(stdout, ldns_mx_records);
+  for (int i = 0; i < ldns_mx_records->_rr_count; i++)
+  {
+    printf("^_^ i= %d\n", i);
+    printf(">_> %s",ldns_rr2str(ldns_rr_list_rr(ldns_mx_records, i)));
+    printf(">.> %s\n", last_str_split(ldns_rr2str(ldns_rr_list_rr(ldns_mx_records, i)), " "));
+  }
 
-
+  /////////////////Old code below/////////////////////
 
   res_length = res_query(hostname, C_IN, T_MX, dns_answer, sizeof(dns_answer));
   if (ns_initparse(dns_answer, res_length, &msg)<0)
