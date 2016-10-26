@@ -13,6 +13,7 @@
 #include <netinet/in.h>
 #include <arpa/nameser.h>
 #include <resolv.h>
+#include <ldns/ldns.h>
 #include <fcntl.h>
 #include <time.h>
 #include <sodium.h>
@@ -73,6 +74,29 @@ int resolve_server(char * hostname, struct sockaddr_storage * result)
   int res_length = 0;
   unsigned char dns_answer[4096] = {0};
   char display_buffer[4096] = {0};
+
+  //ldns variables
+  ldns_resolver *ldns_resolv;
+  ldns_rdf *ldns_domain;
+  ldns_pkt *ldns_packet;
+  ldns_rr_list *ldns_mx_records;
+  ldns_status s;
+
+  //Setup ldns to query for the mx record
+  s = ldns_resolver_new_frm_file(&ldns_resolv, NULL);
+  ldns_domain = ldns_dname_new_frm_str(hostname);
+
+  //Use ldns to query
+  ldns_packet = ldns_resolver_query(ldns_resolv, ldns_domain, LDNS_RR_TYPE_MX, LDNS_RR_CLASS_IN, LDNS_RD);
+
+  //parse ldns query results
+  ldns_mx_records = ldns_pkt_rr_list_by_type(ldns_packet, LDNS_RR_TYPE_MX, LDNS_SECTION_ANSWER);
+
+  //Sort and print mx records
+  ldns_rr_list_sort(ldns_mx_records);
+  ldns_rr_list_print(stdout, ldns_mx_records);
+
+
 
   res_length = res_query(hostname, C_IN, T_MX, dns_answer, sizeof(dns_answer));
   if (ns_initparse(dns_answer, res_length, &msg)<0)
