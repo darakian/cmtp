@@ -55,4 +55,4 @@ open:
 	atom $(CLIENT_SOURCE) $(SERVER_SOURCE) $(HEADERS) makefile
 
 clean:
-	rm bin/*
+	rm -f bin/* 
