@@ -8,6 +8,7 @@ The Cipher Mail Transport Protocol (CMTP) is a secure alternative to SMTP which 
 * Transparent key exchange
 * Open, federated mail network
 * Recoverable client keys (by the client)
+
 ## Current work and challenges
 ### Spam
 Encrypting all mail presents a problem for traditional spam prevention methods which rely on content analysis.
