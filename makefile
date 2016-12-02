@@ -10,7 +10,7 @@ HEADERS = source/server_functions.h source/client_functions.h source/cmtp_common
 SERVER_LIBS = -lsodium -lresolv -lconfuse -lpthread
 CLIENT_LIBS = -lsodium -lresolv
 UTIL_LIBS = -lsodium -lresolv
-CFLAGS=-g -std=c99 -Wall -Wextra -pedantic -pipe -O0
+CFLAGS=-g -std=c99 -Wall -Wextra -pedantic -D_GNU_SOURCE -pipe -O0
 
 
 #The -D_GNU_SOURCE option is used for the linux binary only and is needed for the set_privilage function.
@@ -18,33 +18,33 @@ CFLAGS=-g -std=c99 -Wall -Wextra -pedantic -pipe -O0
 cmtp_server: $(SERVER_SOURCE)
 ifndef nodebug
 	mkdir -p bin
-	$(CC) $(SERVER_SOURCE) $(CFLAGS) -DDEBUG=true -D_GNU_SOURCE $(SERVER_LIBS) -o bin/cmtp_server
+	$(CC) $(SERVER_SOURCE) $(CFLAGS) -DDEBUG=true $(SERVER_LIBS) -o bin/cmtp_server
 	@echo $@ made in debug mode
 else
 	mkdir -p bin
-	$(CC) $(SERVER_SOURCE) $(CFLAGS) -D_GNU_SOURCE $(SERVER_LIBS) -o bin/cmtp_server
+	$(CC) $(SERVER_SOURCE) $(CFLAGS) $(SERVER_LIBS) -o bin/cmtp_server
 	@echo $@ made
 endif
 
 cmtp_client: $(CLIENT_SOURCE)
 ifndef nodebug
 	mkdir -p bin
-	$(CC) $(CLIENT_SOURCE)  $(CFLAGS) -D_GNU_SOURCE -DDEBUG=true $(CLIENT_LIBS) -o bin/cmtp_client
+	$(CC) $(CLIENT_SOURCE)  $(CFLAGS) -DDEBUG=true $(CLIENT_LIBS) -o bin/cmtp_client
 	@echo $@ made in debug mode
 else
 	mkdir -p bin
-	$(CC) $(CLIENT_SOURCE) $(CFLAGS) -D_GNU_SOURCE $(CLIENT_LIBS) -o bin/cmtp_client
+	$(CC) $(CLIENT_SOURCE) $(CFLAGS) $(CLIENT_LIBS) -o bin/cmtp_client
 	@echo $@ made
 endif
 
 cmtp_adduser: $(UTIL_SOURCE)
 ifndef nodebug
 	mkdir -p bin
-	$(CC) $(UTIL_SOURCE) $(CFLAGS) -D_GNU_SOURCE -DDEBUG=true $(UTIL_LIBS) -o bin/cmtp_adduser
+	$(CC) $(UTIL_SOURCE) $(CFLAGS) -DDEBUG=true $(UTIL_LIBS) -o bin/cmtp_adduser
 	@echo $@ made in debug mode
 else
 	mkdir -p bin
-	$(CC) $(UTIL_SOURCE) $(CFLAGS) -D_GNU_SOURCE $(UTIL_LIBS) -o bin/cmtp_adduser
+	$(CC) $(UTIL_SOURCE) $(CFLAGS) $(UTIL_LIBS) -o bin/cmtp_adduser
 	@echo $@ made
 endif
 
