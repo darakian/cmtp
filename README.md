@@ -20,7 +20,7 @@ An analog to IMAP is needed to complete the cipher mail ecosystem and is being d
 ## Reference code
 Work is done in three parts:  
 Formal Documents  
-The CMTP reference server (cmtpd)
+The CMTP reference server (cmtpd)  
 The CMTP reference client (Shorebird)
 
 ## Build Instructions
