@@ -22,3 +22,20 @@ Work is done in three parts:
 Formal Documents  
 The CMTP reference server (cmtpd)
 The CMTP reference client (Shorebird)
+
+## Build Instructions
+### Linux
+Ensure you have the following dependencies installed
+* libconfuse
+* libsodium
+* ldns
+In Fedora linux the packages are libconfuse-devel, libsodium-devel, and ldns-devel. Once the dependencies are installed simply issue
+```
+make
+```
+
+### MacOS
+Not yet supported
+
+### Windows
+Probably won't be supported
