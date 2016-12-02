@@ -12,7 +12,6 @@ CLIENT_LIBS = -lsodium -lresolv
 UTIL_LIBS = -lsodium -lresolv
 CFLAGS=-g -std=c99 -Wall -Wextra -pedantic -pipe -O0
 
-
 #The -D_GNU_SOURCE option is used for the linux binary only and is needed for the set_privilage function.
 #A BSD build would provide the same dependencies via unistd.h
 cmtp_server: $(SERVER_SOURCE)
@@ -55,4 +54,4 @@ open:
 	atom $(CLIENT_SOURCE) $(SERVER_SOURCE) $(HEADERS) makefile
 
 clean:
-	rm -f bin/* 
+	rm -f bin/*
