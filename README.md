@@ -29,6 +29,7 @@ Ensure you have the following dependencies installed
 * libconfuse
 * libsodium
 * ldns
+
 In Fedora linux the packages are libconfuse-devel, libsodium-devel, and ldns-devel. Once the dependencies are installed simply issue
 ```
 make
