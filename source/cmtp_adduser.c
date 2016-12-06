@@ -102,7 +102,7 @@ int main(int argc, char * argv[])
     return -1;
   }
   //Create xzibit
-  unsigned char nonce[crypto_aead_aes256gcm_NPUBBYTES];
+  unsigned char nonce[crypto_aead_chacha20poly1305_NPUBBYTES];
   unsigned char salt[crypto_pwhash_scryptsalsa208sha256_SALTBYTES];
   unsigned char key[KEY_LEN];
   randombytes_buf(salt, sizeof(salt));
@@ -119,7 +119,7 @@ int main(int argc, char * argv[])
   #endif /*DEBUG*/
 
   //Symetric cipher with hashed user_password
-  unsigned char ciphertext[sizeof(user_publickey)+sizeof(user_secretkey)+crypto_aead_aes256gcm_ABYTES] = {0};
+  unsigned char ciphertext[sizeof(user_publickey)+sizeof(user_secretkey)+crypto_aead_chacha20poly1305_ABYTES] = {0};
   #ifdef DEBUG
   printf("Ciphertext length = %ld, private key length = %ld, public key length = %ld\n", sizeof(ciphertext), sizeof(user_secretkey), sizeof(user_publickey));
   #endif /*DEBUG*/
@@ -128,9 +128,9 @@ int main(int argc, char * argv[])
   unsigned char keys[sizeof(user_publickey)+sizeof(user_secretkey)] = {0};
   memcpy(keys, user_publickey, sizeof(user_publickey));
   memcpy(keys+sizeof(user_publickey), user_secretkey, sizeof(user_secretkey));
-  if (crypto_aead_aes256gcm_encrypt(ciphertext, &ciphertext_length, keys, sizeof(keys), NULL, 0, NULL, nonce, key)<0)
+  if (crypto_aead_chacha20poly1305_encrypt(ciphertext, &ciphertext_length, keys, sizeof(keys), NULL, 0, NULL, nonce, key)<0)
   {
-    perror("crypto_aead_aes256gcm_encrypt");
+    perror("crypto_aead_chacha20poly1305_encrypt");
   }
   //Need to append the version, salt and length information to xzibit here
   uint64_t xzibit_length = ciphertext_length+32+4+8;

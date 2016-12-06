@@ -531,7 +531,7 @@ int32_t decipher_xzibit(char * password, uint32_t password_length, unsigned char
 	#ifdef DEBUG
 	printf("Post sodium init\n");
 	#endif /*DEBUG*/
-	unsigned char nonce[crypto_aead_aes256gcm_NPUBBYTES];
+	unsigned char nonce[crypto_aead_chacha20poly1305_NPUBBYTES];
 	unsigned char salt[crypto_pwhash_scryptsalsa208sha256_SALTBYTES];
 	unsigned char hash[KEY_LEN] = {0};
 	uint64_t ciphertext_len = 0;
@@ -560,19 +560,19 @@ int32_t decipher_xzibit(char * password, uint32_t password_length, unsigned char
 	#ifdef DEBUG
 	printf("Post password hash\n");
 	print_buffer(hash, sizeof(hash), "hash", 256, 1);
-	printf("nonce size = %d\n", crypto_aead_aes256gcm_NPUBBYTES);
-	printf("ciphertext_len = %ld, crypto_aead_aes256gcm_ABYTES = %d\n", ciphertext_len, crypto_aead_aes256gcm_ABYTES);
+	printf("nonce size = %d\n", crypto_aead_chacha20poly1305_NPUBBYTES);
+	printf("ciphertext_len = %ld, crypto_aead_chacha20poly1305_ABYTES = %d\n", ciphertext_len, crypto_aead_chacha20poly1305_ABYTES);
 	#endif /*DEBUG*/
-	if ((ciphertext_len < crypto_aead_aes256gcm_ABYTES) || ((i=crypto_aead_aes256gcm_decrypt(plaintext, &plaintext_len, NULL, xzibit_buffer+44, ciphertext_len, NULL, 0, nonce, hash)) != 0))
+	if ((ciphertext_len < crypto_aead_chacha20poly1305_ABYTES) || ((i=crypto_aead_chacha20poly1305_decrypt(plaintext, &plaintext_len, NULL, xzibit_buffer+44, ciphertext_len, NULL, 0, nonce, hash)) != 0))
 	{
-		printf("AES return value = %d\n", i);
+		printf("chacha20poly1305 return value = %d\n", i);
 		print_buffer(plaintext, plaintext_len, "plaintext", 256, 1);
     perror("xzibit_buffer decrypt error");
 		print_to_log("Xzibit decrypt error", LOG_ERR);
 		return -1;
 	}
 	#ifdef DEBUG
-	printf("Post AES decrypt\n");
+	printf("Post chacha20poly1305 decrypt\n");
 	#endif /*DEBUG*/
 	//Copy key and return
 	memcpy(public_key_buffer, plaintext, 32);
