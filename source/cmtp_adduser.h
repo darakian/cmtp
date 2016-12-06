@@ -1,5 +1,5 @@
 //Include guard
-#ifndef _cmtpadduser_h
-#define _cmtpadduser_h
+#ifndef _cmtp_adduser_h
+#define _cmtp_adduser_h
 
-#endif
+#endif /*_cmtp_adduser_h*/

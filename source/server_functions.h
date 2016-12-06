@@ -1,6 +1,6 @@
 /*Include guard*/
-#ifndef _serverfunctions_h
-#define _serverfunctions_h
+#ifndef _cmtp_server_functions_h
+#define _cmtp_server_functions_h
 
 #include <stdio.h>
 #include <unistd.h>
@@ -67,4 +67,4 @@ int32_t help_responder(uint32_t socket);
 
 int32_t obai_responder(uint32_t socket);
 
-#endif /* _serverfunctions_h */
+#endif /* _cmtp_server_functions_h */

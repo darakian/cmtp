@@ -1,6 +1,6 @@
 //Include guard
-#ifndef _clientfunctions_h
-#define _clientfunctions_h
+#ifndef _cmtp_clientfunctions_h
+#define _cmtp_clientfunctions_h
 
 #include <stdio.h>
 #include <unistd.h>
@@ -49,4 +49,4 @@ int32_t select_mail(char * mail_directory, char * return_buffer, uint32_t return
 
 int32_t display_message(char * message_path, char * private_key_buffer, char * public_key_buffer, uint32_t key_version);
 
-#endif
+#endif /*_cmtp_clientfunctions_h*/
