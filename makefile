@@ -1,6 +1,7 @@
 all: cmtp_server cmtp_client cmtp_adduser
 
-CC = gcc
+#General flags
+CC = cc
 OBJECTS = cmtp_common.o client_functions.o server_functions.o
 CLIENT_SOURCE = source/cmtp_client.c source/cmtp_common.c source/client_functions.c include/base64.c
 SERVER_SOURCE = source/cmtp_server.c source/cmtp_common.c source/server_functions.c include/base64.c
@@ -10,11 +11,18 @@ HEADERS = source/server_functions.h source/client_functions.h source/cmtp_common
 SERVER_LIBS = -lsodium -lresolv -lconfuse -lpthread
 CLIENT_LIBS = -lsodium -lresolv
 UTIL_LIBS = -lsodium -lresolv
-CFLAGS=-g -std=c99 -Wall -Wextra -pedantic -D_GNU_SOURCE -pipe -O0
+CFLAGS=-g -std=c99 -Wall -Wextra -pedantic -pipe -O0
 
+#Linux specific flags
+ifeq ($(shell uname -s), Linux)
+CFLAGS+=-D_GNU_SOURCE
+endif
 
-#The -D_GNU_SOURCE option is used for the linux binary only and is needed for the set_privilage function.
-#A BSD build would provide the same dependencies via unistd.h
+#MacOS specific flags
+ifeq ($(shell uname -s), Darwin)
+CFLAGS+=-I/opt/local/include -L/opt/local/lib -I/usr/include/machine/
+endif
+
 cmtp_server: $(SERVER_SOURCE)
 ifndef nodebug
 	mkdir -p bin

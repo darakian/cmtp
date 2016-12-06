@@ -11,7 +11,6 @@
 #include <resolv.h>
 #include <netdb.h>
 #include <netinet/in.h>
-#include <endian.h>
 #include <pwd.h>
 #include <fcntl.h>
 #include <syslog.h>
