@@ -681,7 +681,7 @@ int32_t login_responder(uint32_t socket)
       return -1;
     }
     #ifdef DEBUG
-    printf("Xzibit size = %ld\n", xzibit_size);
+    printf("Xzibit size = %llu\n", xzibit_size);
     #endif /*DEBUG*/
     //Sign xzibit
     unsigned char * server_sign_of_xzibit = calloc(1, 64);
@@ -824,10 +824,10 @@ int32_t mail_responder(uint32_t socket)
   message_length = be64toh(message_length);
   #ifdef DEBUG
   printf("Writing mail to %s\n", unique_file_location);
-  printf("Log length = %ld\n", log_length);
+  printf("Log length = %llu\n", log_length);
   printf("Version = %d\n", version);
   printf("Attachment count = %d\n", attachment_count);
-  printf("Message length = %ld\n", message_length);
+  printf("Message length = %llu\n", message_length);
   #endif /*DEBUG*/
 
   write_to_file(dest_account_buffer, dest_account_length, unique_file_location);

@@ -95,7 +95,7 @@ int resolve_server(char * hostname, struct sockaddr_storage * result)
   //Sort and print mx records
   ldns_rr_list_sort(ldns_mx_records);
   ldns_rr_list_print(stdout, ldns_mx_records);
-  for (int i = 0; i < ldns_mx_records->_rr_count; i++)
+  for (uint32_t i = 0; i < ldns_mx_records->_rr_count; i++)
   {
     printf("^_^ i= %d\n", i);
     printf(">_> %s",ldns_rr2str(ldns_rr_list_rr(ldns_mx_records, i)));
@@ -284,7 +284,7 @@ Simple interface to syslog
 void print_to_log(char * message, int level)
 {
   openlog(log_identity, LOG_PID, LOG_MAIL);
-  syslog(level, message);
+  syslog(level, "%s",  message);
   closelog();
 }
 
