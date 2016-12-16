@@ -746,6 +746,7 @@ int32_t mail_responder(uint32_t socket)
   uint64_t message_length = 0;
   uint64_t log_length = 0;
   uint32_t read_length = 0;
+  char proof_of_work_buffer[64] = {0};
   //Generate unique file from current time and current FD
   //Get time with nanosecond resolution (or so they say)
   struct timespec time_for_file;
@@ -934,6 +935,16 @@ int32_t mail_responder(uint32_t socket)
       return -1;
     }
     write_to_file(temp_byte, 1, unique_file_location);
+  }
+
+  //Read proof of work nonce
+  if (read_n_bytes(socket, proof_of_work_buffer, 64)!=-1)
+  {
+    //Hash message with nonce to prove work was done.
+  }
+  else
+  {
+    return -1;
   }
   #ifdef DEBUG
   printf("Mail destin for %s\n", dest_domain_buffer);
