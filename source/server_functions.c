@@ -47,6 +47,7 @@ const char cmtp_reply_KEYNOTAVAILABLE[] = {"KEYNOTAVAILABLE"};
 const char cmtp_reply_DELIVERYFAILURE[] = {"DELIVERYFAILURE"};
 const char termination_char = '\0';
 const uint32_t crypto_version = 1;
+const uint64_t proof_of_work_requirement = 5;
 uint32_t network_crypto_version = 0;
 char home_domain[1024] = {0};
 uint32_t MAX_CONNECTIONS = 10;
@@ -744,6 +745,7 @@ int32_t mail_responder(uint32_t socket)
   uint32_t attachment_count = 0;
   uint64_t message_length = 0;
   uint64_t log_length = 0;
+  uint32_t read_length = 0;
   //Generate unique file from current time and current FD
   //Get time with nanosecond resolution (or so they say)
   struct timespec time_for_file;
@@ -777,8 +779,17 @@ int32_t mail_responder(uint32_t socket)
   //uint32_t base64_username_length = base64_encode((char *)dest_account_buffer, strlen(dest_account_buffer), base64_username, strlen(base64_username), (char *)filesystem_safe_base64_string, 64);
   //Read primary routing and processing information
   //First read in fixed length fields
-  if (read_n_bytes(socket, (unsigned char *)&version, 4)!=4)
+  if ((read_length = read_n_bytes(socket, (unsigned char *)&version, 4))!=4)
   {
+    if (read_length==0)
+    {
+      //Send proof of work level
+      char POF_signature[crypto_sign_BYTES] = {0};
+      write(socket, &proof_of_work_requirement, sizeof(proof_of_work_requirement));
+      crypto_sign_detached(POF_signature, NULL, &proof_of_work_requirement, sizeof(POF_signature), server_private_key);
+      write(socket, POF_signature, sizeof(POF_signature));
+      return 0;
+    }
     perror("read_n_bytes version");
     print_to_log("Read error while reading crypto type", LOG_ERR);
     return -1;
