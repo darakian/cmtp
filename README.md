@@ -10,7 +10,7 @@ The Cipher Mail Transport Protocol (CMTP) is a secure alternative to SMTP which 
 * Recoverable client keys (by the client)
 
 ## Protocol Design
-The coexistence goal has lead CMTP to be an ASCII command driven protocol with commands which are nonintersecting with SMTP. These commands can be seen in detail in the CMTP docs. Encrypted mail by default with transpant key exchange has lead CMTP to mandate keypairs and to have a protocol command for key retrieval. The open federated network goal has lead to possible insecurity by accepting unknown keys, but has also lead to a greater role of the mail server in federating trust. Mail have keys and servers sign all communications so that future communications are known to be valid.
+The coexistence goal has lead CMTP to be an ASCII command driven protocol with commands which are nonintersecting with SMTP. These commands can be seen in detail in the CMTP docs. Encrypted mail by default with transparent key exchange has lead CMTP to mandate keypairs and to have a protocol command for key retrieval. The open federated network goal has lead to possible insecurity by accepting unknown keys, but has also lead to a greater role of the mail server in federating trust. Mail have keys and servers sign all communications so that future communications are known to be valid.
 
 ## Current work and challenges
 ### Spam
@@ -36,7 +36,7 @@ make
 ```
 
 ### MacOS
-Not yet supported
+Probably won't be supported
 
 ### Windows
 Probably won't be supported
