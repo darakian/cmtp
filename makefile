@@ -20,7 +20,7 @@ endif
 
 #MacOS specific flags
 ifeq ($(shell uname -s), Darwin)
-CFLAGS+=-I/opt/local/include -L/opt/local/lib -I/usr/include/machine/
+CFLAGS+=-I/opt/local/include -L/opt/local/lib -I/usr/include/ -I/usr/include/machine/
 endif
 
 cmtp_server: $(SERVER_SOURCE)
