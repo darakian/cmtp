@@ -8,9 +8,9 @@ SERVER_SOURCE = source/cmtp_server.c source/cmtp_common.c source/server_function
 EDITOR_SOURCE = source/cmtp_client.c source/cmtp_common.c source/client_functions.c source/cmtp_server.c source/cmtp_common.c source/server_functions.c source/cmtp_adduser.c source/cmtp_common.c
 UTIL_SOURCE = source/cmtp_adduser.c source/cmtp_common.c include/base64.c
 HEADERS = source/server_functions.h source/client_functions.h source/cmtp_common.h include/base64.h
-SERVER_LIBS = -lsodium -lresolv -lconfuse -lpthread
-CLIENT_LIBS = -lsodium -lresolv
-UTIL_LIBS = -lsodium -lresolv
+SERVER_LIBS = -lsodium -lresolv -lldns -lconfuse -lpthread
+CLIENT_LIBS = -lsodium -lresolv -lldns
+UTIL_LIBS = -lsodium -lresolv -lldns
 CFLAGS=-g -std=c99 -Wall -Wextra -pedantic -pipe -O0
 
 #Linux specific flags
