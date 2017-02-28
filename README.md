@@ -34,9 +34,3 @@ In Fedora linux the packages are libconfuse-devel, libsodium-devel, and ldns-dev
 ```
 make
 ```
-
-### MacOS
-Probably won't be supported
-
-### Windows
-Probably won't be supported
