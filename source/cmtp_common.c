@@ -21,6 +21,7 @@
 #include <pthread.h>
 #include <pwd.h>
 #include <sys/mount.h>
+#include <stddef.h>
 
 
 #include "../include/base64.h"
